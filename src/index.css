@@ -1,3 +1,37 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'mdb-react-ui-kit/dist/css/mdb.min.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  @apply bg-gray-50 font-sans;
+}
+
+/* Kart animasyonları ve responsive grid için yardımcı sınıflar */
+.card-animate {
+  @apply transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-2xl;
+}
+
+@media (max-width: 640px) {
+  .responsive-grid {
+    @apply grid-cols-1 !important;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in-down {
+    animation: fadeInDown 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes fadeInDown {
+    0% {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

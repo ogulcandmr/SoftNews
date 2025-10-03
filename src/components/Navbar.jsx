@@ -1,73 +1,111 @@
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
-import Form from 'react-bootstrap/Form';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import Image from 'react-bootstrap/Image';
-import { useNavigate } from 'react-router-dom';  // React Router v6
+import { useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 function CustomNavbar() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('softnews_user');
+    setUser(stored ? JSON.parse(stored) : null);
+    const handleStorage = () => {
+      const updated = localStorage.getItem('softnews_user');
+      setUser(updated ? JSON.parse(updated) : null);
+    };
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('softnews_user_change', handleStorage);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('softnews_user_change', handleStorage);
+    };
+  }, []);
 
   const handleProfileClick = () => {
-    navigate('/LoginPage'); // Giriş sayfasına yönlendir
+    navigate('/profile');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('softnews_user');
+    setUser(null);
+    navigate('/');
   };
 
   return (
-    <>
-      <Navbar expand="lg" className="bg-body-tertiary mb-3">
-        <Container fluid>
-          <Navbar.Brand href="#">SoftNews</Navbar.Brand>
-          <Navbar.Toggle aria-controls="offcanvasNavbar" />
+    <Navbar
+      expand="lg"
+      className="mb-3 shadow-lg"
+      style={{
+        zIndex: 1050,
+        position: 'relative',
+        background: 'linear-gradient(90deg, #e0e7ff 0%, #f8fafc 40%, #c7d0dc 100%)',
+        backdropFilter: 'blur(8px)',
+        borderBottom: '1px solid #e0e7ef',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 0,
+          background:
+            "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat",
+          opacity: 0.13,
+          pointerEvents: 'none',
+        }}
+      />
+      <Container fluid style={{ position: 'relative', zIndex: 1 }}>
+        <Navbar.Brand as={Link} to="/" className="fw-bold text-primary d-flex align-items-center" style={{ fontSize: 18, padding: '0 8px', minWidth: 0 }}>
+          <span role="img" aria-label="logo" style={{ fontSize: 22, marginRight: 6 }}>📰</span> SoftNews
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="offcanvasNavbar" style={{ background: '#e0e7ef', border: 'none' }} />
           <Navbar.Offcanvas
             id="offcanvasNavbar"
             aria-labelledby="offcanvasNavbarLabel"
             placement="end"
+          style={{ background: 'linear-gradient(90deg, #e0e7ff 0%, #f8fafc 40%, #c7d0dc 100%)' }}
           >
             <Offcanvas.Header closeButton>
-              <Offcanvas.Title id="offcanvasNavbarLabel">Offcanvas</Offcanvas.Title>
+            <Offcanvas.Title id="offcanvasNavbarLabel">Menü</Offcanvas.Title>
             </Offcanvas.Header>
             <Offcanvas.Body>
-              <Nav className="justify-content-end flex-grow-1 pe-3">
-                <Nav.Link href="#action1">AnaSayfa</Nav.Link>
-                <Nav.Link href="#action2">Son Haberler</Nav.Link>
-                <NavDropdown title="Kategoriler" id="offcanvasNavbarDropdown">
-                  <NavDropdown.Item href="#action3">Action</NavDropdown.Item>
-                  <NavDropdown.Item href="#action4">Another action</NavDropdown.Item>
-                  <NavDropdown.Divider />
-                  <NavDropdown.Item href="#action5">Something else here</NavDropdown.Item>
-                </NavDropdown>
+            <Nav className="justify-content-end flex-grow-1 pe-3 gap-2">
+              <Nav.Link as={Link} to="/">AnaSayfa</Nav.Link>
+              <Nav.Link as={Link} to="/news">Son Haberler</Nav.Link>
+              <Nav.Link as={Link} to="/videos">Videolar</Nav.Link>
+              <Nav.Link as={Link} to="/forum">Forum</Nav.Link>
+              <Nav.Link as={Link} to="/about">Hakkında</Nav.Link>
+              {user && <Nav.Link as={Link} to="/profile">Profilim</Nav.Link>}
               </Nav>
-              <Form className="d-flex me-3">
-                <Form.Control
-                  type="search"
-                  placeholder="Ara"
-                  className="me-2"
-                  aria-label="Ara"
-                />
-                <Button variant="outline-success">Ara</Button>
-              </Form>
-              {/* Profil ikonu sağa hizalanmış */}
-              <Nav className="d-flex align-items-center">
+            <div className="d-flex align-items-center gap-3 mt-4 mt-lg-0 justify-content-end">
+              {user ? (
+                <>
                 <Image
                   src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
                   roundedCircle
                   width={35}
                   height={35}
                   alt="Profil"
-                  style={{ cursor: 'pointer' }}
+                    style={{ cursor: 'pointer', border: '2px solid #a5b4fc', background: '#fff' }}
                   onClick={handleProfileClick}
-                  title="Giriş yap"
-                />
-              </Nav>
+                    title="Profilim"
+                  />
+                  <Button variant="outline-danger" size="sm" onClick={handleLogout} className="ms-2">Çıkış</Button>
+                </>
+              ) : (
+                <Button variant="outline-primary" size="sm" onClick={() => navigate('/LoginPage')}>Giriş Yap</Button>
+              )}
+            </div>
             </Offcanvas.Body>
           </Navbar.Offcanvas>
         </Container>
       </Navbar>
-    </>
   );
 }
 
