@@ -28,24 +28,36 @@ exports.handler = async function (event) {
 
     if (provider === 'trhaberler') {
       // Free TR source via RSS (hurriyet.com.tr/son-dakika/), parse on server
-      const { XMLParser } = require('fast-xml-parser');
       const rssUrl = 'https://www.hurriyet.com.tr/rss/sondakika.rss';
       const res = await fetch(rssUrl);
       const text = await res.text();
-      const parser = new XMLParser({ ignoreAttributes: false });
-      const xml = parser.parse(text);
-      const items = xml?.rss?.channel?.item || [];
-      const articles = items.slice(0, 12).map((it, idx) => ({
-        title: it?.title || 'Başlık yok',
-        description: it?.description || '',
-        url: it?.link,
-        urlToImage: undefined, // RSS'te her zaman yok
-        publishedAt: it?.pubDate,
-        source: { name: 'Hürriyet' },
-        category: 'Güncel',
-        id: idx + 10000,
-      }));
-      return { statusCode: 200, body: JSON.stringify({ ok: true, articles }) };
+      
+      // Simple XML parsing without external library
+      const items = [];
+      const itemRegex = /<item>([\s\S]*?)<\/item>/g;
+      let match;
+      while ((match = itemRegex.exec(text)) && items.length < 12) {
+        const itemContent = match[1];
+        const titleMatch = itemContent.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/);
+        const descMatch = itemContent.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>/);
+        const linkMatch = itemContent.match(/<link>(.*?)<\/link>/);
+        const dateMatch = itemContent.match(/<pubDate>(.*?)<\/pubDate>/);
+        
+        if (titleMatch) {
+          items.push({
+            title: titleMatch[1].trim(),
+            description: descMatch ? descMatch[1].trim() : '',
+            url: linkMatch ? linkMatch[1].trim() : '',
+            urlToImage: undefined,
+            publishedAt: dateMatch ? dateMatch[1].trim() : new Date().toISOString(),
+            source: { name: 'Hürriyet' },
+            category: 'Güncel',
+            id: items.length + 10000,
+          });
+        }
+      }
+      
+      return { statusCode: 200, body: JSON.stringify({ ok: true, articles: items }) };
     }
 
     // default: newsapi
