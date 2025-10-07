@@ -1,5 +1,5 @@
 const NEWS_CACHE_KEY = 'softnews_articles_v1';
-const NEWS_CACHE_TTL_MS = 30 * 60 * 1000; // 30 dakika cache - bandwidth tasarrufu
+const NEWS_CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2 saat cache - API quota tasarrufu
 
 function loadNewsCache() {
   try {

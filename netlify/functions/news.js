@@ -11,26 +11,14 @@ exports.handler = async function (event) {
       if (!GNEWS_API_KEY) {
         return { statusCode: 500, body: 'Missing GNEWS_API_KEY' };
       }
-      // Get world-class tech news from multiple categories
+      // Reduced queries to save API quota - only 3 calls instead of 11
       const queries = [
-        // AI & Machine Learning
-        'https://gnews.io/api/v4/search?q=artificial intelligence&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        'https://gnews.io/api/v4/search?q=machine learning&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        // Software & Development
-        'https://gnews.io/api/v4/search?q=software development&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        'https://gnews.io/api/v4/search?q=programming&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        // Hardware & Gadgets
-        'https://gnews.io/api/v4/search?q=hardware&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        'https://gnews.io/api/v4/search?q=gadgets&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        // Gaming
-        'https://gnews.io/api/v4/search?q=gaming&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        // Mobile & Apps
-        'https://gnews.io/api/v4/search?q=mobile technology&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        // Startup & Business
-        'https://gnews.io/api/v4/search?q=tech startup&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // Single comprehensive tech search
+        'https://gnews.io/api/v4/search?q=technology OR artificial intelligence OR software&lang=en&max=8&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // Gaming and hardware
+        'https://gnews.io/api/v4/search?q=gaming OR hardware OR mobile&lang=en&max=8&apikey=' + encodeURIComponent(GNEWS_API_KEY),
         // Turkish tech news
-        'https://gnews.io/api/v4/search?q=teknoloji&lang=tr&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        'https://gnews.io/api/v4/search?q=yapay zeka&lang=tr&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY)
+        'https://gnews.io/api/v4/search?q=teknoloji OR yapay zeka&lang=tr&max=8&apikey=' + encodeURIComponent(GNEWS_API_KEY)
       ];
       
       let allArticles = [];
@@ -150,7 +138,46 @@ exports.handler = async function (event) {
       body: JSON.stringify({ ok: true, articles: data?.articles || [] }),
     };
   } catch (e) {
-    return { statusCode: 500, body: JSON.stringify({ ok: false, error: e?.message || 'news error' }) };
+    // Fallback to dummy data if API fails
+    const fallbackArticles = [
+      {
+        title: "Teknoloji Dünyasında Son Gelişmeler",
+        description: "Yapay zeka ve yazılım geliştirme alanında önemli gelişmeler yaşanıyor.",
+        url: "https://example.com",
+        urlToImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=800&q=80",
+        publishedAt: new Date().toISOString(),
+        source: { name: "SoftNews" },
+        category: "Teknoloji"
+      },
+      {
+        title: "Yazılım Geliştirmede Yeni Trendler",
+        description: "Modern yazılım geliştirme teknikleri ve araçları hakkında güncel bilgiler.",
+        url: "https://example.com",
+        urlToImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=800&q=80",
+        publishedAt: new Date().toISOString(),
+        source: { name: "SoftNews" },
+        category: "Yazılım"
+      },
+      {
+        title: "Yapay Zeka ve Gelecek",
+        description: "Yapay zeka teknolojilerinin gelecekteki etkileri ve potansiyeli.",
+        url: "https://example.com",
+        urlToImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=800&q=80",
+        publishedAt: new Date().toISOString(),
+        source: { name: "SoftNews" },
+        category: "Yapay Zeka"
+      }
+    ];
+    
+    return { 
+      statusCode: 200, 
+      body: JSON.stringify({ 
+        ok: true, 
+        articles: fallbackArticles,
+        fallback: true,
+        error: e?.message || 'API quota exceeded, showing fallback data'
+      }) 
+    };
   }
 };
 
