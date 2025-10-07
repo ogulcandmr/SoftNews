@@ -14,15 +14,10 @@ const HomePage = () => {
   useEffect(() => {
     let mounted = true;
     setLoading(true);
-    console.log('HomePage: Fetching news...');
     fetchLatestNews().then((res) => {
       if (!mounted) return;
-      console.log('HomePage: News response:', res);
       if (res.ok && res.articles && res.articles.length > 0) {
-        console.log('HomePage: Setting articles:', res.articles.length);
         setItems(res.articles);
-      } else {
-        console.log('HomePage: No articles, keeping dummy data');
       }
       setLoading(false);
     });
@@ -83,11 +78,20 @@ const HomePage = () => {
               </div>
             ) : items.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {items.slice(0, 4).map((item, i) => (
-                  <Link key={i} to={`/news/${item.id}`} state={{ article: item }}>
-                    <NewsCard {...item} />
-                  </Link>
-                ))}
+                {items
+                  .sort((a, b) => {
+                    // Prioritize quality sources for homepage
+                    const qualitySources = ['techcrunch', 'wired', 'theverge', 'engadget', 'arstechnica', 'reuters', 'bloomberg', 'cnn', 'bbc', 'forbes'];
+                    const aQuality = qualitySources.some(source => a.source?.name?.toLowerCase().includes(source)) ? 1 : 0;
+                    const bQuality = qualitySources.some(source => b.source?.name?.toLowerCase().includes(source)) ? 1 : 0;
+                    return bQuality - aQuality;
+                  })
+                  .slice(0, 4)
+                  .map((item, i) => (
+                    <Link key={i} to={`/news/${item.id}`} state={{ article: item }}>
+                      <NewsCard {...item} />
+                    </Link>
+                  ))}
               </div>
             ) : (
               <div className="text-center py-12">

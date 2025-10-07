@@ -67,15 +67,18 @@ const categories = [
 
 const NewsPage = () => {
   const [selected, setSelected] = useState('Tümü');
-  const [items, setItems] = useState(allNews);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
+    setLoading(true);
     fetchLatestNews().then((res) => {
       if (!mounted) return;
       if (res.ok && res.articles && res.articles.length > 0) {
         setItems(res.articles);
       }
+      setLoading(false);
     });
     return () => { mounted = false; };
   }, []);
@@ -111,18 +114,49 @@ const NewsPage = () => {
             </button>
           ))}
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filtered.map((item, i) => (
-            <Link
-              key={i}
-              to={`/news/${item.id}`}
-              state={{ article: item }}
-              className="block"
-            >
-              <NewsCard {...item} />
-            </Link>
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="bg-white rounded-lg shadow-md p-4 animate-pulse">
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+              </div>
+            ))}
+          </div>
+        ) : items.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filtered
+              .sort((a, b) => {
+                // Prioritize quality sources
+                const qualitySources = ['techcrunch', 'wired', 'theverge', 'engadget', 'arstechnica', 'reuters', 'bloomberg', 'cnn', 'bbc', 'forbes'];
+                const aQuality = qualitySources.some(source => a.source?.name?.toLowerCase().includes(source)) ? 1 : 0;
+                const bQuality = qualitySources.some(source => b.source?.name?.toLowerCase().includes(source)) ? 1 : 0;
+                return bQuality - aQuality;
+              })
+              .slice(0, selected === 'Tümü' ? 18 : 6) // 6 per category, 18 total
+              .map((item, i) => (
+                <Link
+                  key={i}
+                  to={`/news/${item.id}`}
+                  state={{ article: item }}
+                  className="block"
+                >
+                  <NewsCard {...item} />
+                </Link>
+              ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-gray-500 mb-4">
+              <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+              </svg>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Haberler Yükleniyor</h3>
+              <p className="text-gray-500">En güncel teknoloji haberlerini getiriyoruz...</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
