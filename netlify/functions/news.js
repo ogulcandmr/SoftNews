@@ -48,6 +48,7 @@ exports.handler = async function (event) {
       const articles = uniqueArticles.map((a) => ({
         title: a?.title,
         description: a?.description,
+        content: a?.content || a?.description || 'Bu haber hakkında daha detaylı bilgi için kaynak linkini ziyaret edebilirsiniz.',
         url: a?.url,
         urlToImage: a?.image,
         publishedAt: a?.publishedAt,
@@ -86,6 +87,7 @@ exports.handler = async function (event) {
         {
           title: 'Yapay Zeka ile Kodlama Devrimi',
           description: 'Yapay zeka destekli araçlar yazılım geliştirmede devrim yaratıyor.',
+          content: 'Yapay zeka teknolojilerinin yazılım geliştirme süreçlerine entegrasyonu, geliştiricilerin iş yükünü önemli ölçüde azaltıyor. GitHub Copilot, ChatGPT ve benzeri araçlar, kod yazma sürecini hızlandırırken aynı zamanda daha kaliteli ve hatasız kod üretimini sağlıyor. Bu gelişme, yazılım sektöründe yeni bir dönemin başlangıcı olarak değerlendiriliyor.',
           url: 'https://example.com/1',
           urlToImage: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=800&q=80',
           publishedAt: new Date().toISOString(),

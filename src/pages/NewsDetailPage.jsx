@@ -106,6 +106,43 @@ const NewsDetailPage = () => {
                 {news.content || news.description}
               </p>
               
+              {/* Extended article content */}
+              <div className="mt-8 space-y-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Gelişmenin Detayları</h2>
+                <p className="text-gray-700 leading-relaxed mb-4">
+                  Bu önemli gelişme, teknoloji sektöründe yeni bir dönemin başlangıcı olarak değerlendiriliyor. 
+                  Uzmanlar, bu yeniliğin gelecekteki projeler ve geliştirmeler üzerinde büyük etki yaratacağını 
+                  belirtiyor. Sektördeki diğer şirketlerin de benzer adımlar atması bekleniyor.
+                </p>
+                
+                <p className="text-gray-700 leading-relaxed mb-4">
+                  Teknoloji dünyasında sürekli değişen dinamikler, bu tür yeniliklerin hızla yaygınlaşmasını 
+                  sağlıyor. Kullanıcıların beklentileri artarken, geliştiriciler de daha yaratıcı çözümler 
+                  üretmeye odaklanıyor. Bu süreçte, kalite ve performans standartları da sürekli yükseliyor.
+                </p>
+                
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Teknik Özellikler</h3>
+                <p className="text-gray-700 leading-relaxed mb-4">
+                  Sistemin teknik altyapısı, modern teknoloji standartlarına uygun olarak geliştirilmiş. 
+                  Güvenlik, performans ve kullanılabilirlik açısından en yüksek standartları karşılayan 
+                  bu çözüm, kullanıcı deneyimini ön planda tutuyor.
+                </p>
+                
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Sektörel Etkiler</h3>
+                <p className="text-gray-700 leading-relaxed mb-4">
+                  Bu gelişmenin, önümüzdeki dönemde teknoloji dünyasında yeni trendlerin oluşmasına 
+                  katkı sağlayacağı öngörülüyor. Geliştiriciler ve teknoloji meraklıları için yeni 
+                  fırsatlar sunacak bu yenilik, sektörün genel yönelimini de etkileyebilir.
+                </p>
+                
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Gelecek Perspektifi</h3>
+                <p className="text-gray-700 leading-relaxed mb-6">
+                  Uzun vadede, bu tür yeniliklerin teknoloji ekosistemini daha da zenginleştireceği 
+                  düşünülüyor. Kullanıcıların ihtiyaçlarına daha iyi yanıt verebilen sistemler, 
+                  dijital dönüşüm sürecini hızlandıracak ve yeni fırsatlar yaratacak.
+                </p>
+              </div>
+              
               {/* Extended content for better detail */}
               <div className="mt-8 space-y-6">
                 <div className="bg-gray-50 rounded-lg p-6">

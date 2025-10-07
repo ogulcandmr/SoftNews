@@ -50,13 +50,6 @@ function categorizeArticle(title, description) {
 }
 
 export async function fetchLatestNews() {
-  // Temporarily disable cache to ensure news loads
-  // const cached = loadNewsCache();
-  // if (cached) {
-  //   console.log('Using cached news data');
-  //   return { ok: true, articles: cached };
-  // }
-  
   console.log('Fetching fresh news...');
 
   try {
@@ -95,12 +88,9 @@ export async function fetchLatestNews() {
       url: a.url,
     }));
     
-    console.log('Processed articles:', articles.length);
-    
-    // Save to cache
-    saveNewsCache(articles);
-    
-    return { ok: true, articles };
+      console.log('Processed articles:', articles.length);
+      
+      return { ok: true, articles };
   } catch (e) {
     console.error('News fetch error:', e);
     return { ok: false, error: e?.message || 'news error' };

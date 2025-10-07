@@ -22,7 +22,64 @@ const HomePage = () => {
         console.log('HomePage: Setting articles:', res.articles.length);
         setItems(res.articles);
       } else {
-        console.log('HomePage: No articles received');
+        console.log('HomePage: No articles received, using fallback data');
+        // Fallback to dummy data if API fails
+        setItems([
+          {
+            id: 1,
+            title: "Yapay Zeka Teknolojisinde Yeni Çığır: GPT-5 Duyuruldu",
+            description: "OpenAI, yeni nesil yapay zeka modeli GPT-5'i duyurdu. Bu model, önceki versiyonlara göre çok daha gelişmiş dil anlama ve üretme yeteneklerine sahip.",
+            image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80",
+            category: "Yapay Zeka",
+            date: "2024-01-15",
+            url: "#"
+          },
+          {
+            id: 2,
+            title: "Apple Vision Pro Türkiye'de Satışa Çıktı",
+            description: "Apple'ın yeni sanal gerçeklik gözlüğü Vision Pro, Türkiye'de resmi olarak satışa sunuldu. Teknoloji meraklıları için yeni bir deneyim kapısı açıldı.",
+            image: "https://images.unsplash.com/photo-1592478411213-6153e4c4c8f8?auto=format&fit=crop&w=800&q=80",
+            category: "Donanım",
+            date: "2024-01-14",
+            url: "#"
+          },
+          {
+            id: 3,
+            title: "Microsoft Copilot Pro Yaygınlaşıyor",
+            description: "Microsoft'un AI asistanı Copilot Pro, daha fazla kullanıcıya ulaşmaya başladı. Office uygulamalarında devrim yaratan bu teknoloji, iş dünyasını dönüştürüyor.",
+            image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+            category: "Yazılım",
+            date: "2024-01-13",
+            url: "#"
+          },
+          {
+            id: 4,
+            title: "Tesla Cybertruck Türkiye'ye Geliyor",
+            description: "Tesla'nın çığır açan elektrikli kamyonu Cybertruck, Türkiye pazarına giriş yapıyor. Sürdürülebilir ulaşımda yeni bir dönem başlıyor.",
+            image: "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=800&q=80",
+            category: "Mobilite",
+            date: "2024-01-12",
+            url: "#"
+          },
+          {
+            id: 5,
+            title: "Google Bard'da Yeni Özellikler",
+            description: "Google'ın AI chatbot'u Bard, yeni güncellemelerle kullanıcı deneyimini geliştiriyor. Daha akıllı ve yaratıcı yanıtlar sunan sistem, rekabeti artırıyor.",
+            image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?auto=format&fit=crop&w=800&q=80",
+            category: "Yapay Zeka",
+            date: "2024-01-11",
+            url: "#"
+          },
+          {
+            id: 6,
+            title: "Samsung Galaxy S24 Ultra İncelemesi",
+            description: "Samsung'un yeni amiral gemisi telefonu Galaxy S24 Ultra, profesyonel fotoğrafçılık ve AI özellikleriyle dikkat çekiyor. Detaylı incelememizde tüm özelliklerini inceledik.",
+            image: "https://images.unsplash.com/photo-1511707171631-9ed0c5a0b4b4?auto=format&fit=crop&w=800&q=80",
+            category: "Mobil",
+            date: "2024-01-10",
+            url: "#"
+          }
+        ]);
       }
       setLoading(false);
     });
