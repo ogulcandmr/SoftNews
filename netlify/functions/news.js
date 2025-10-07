@@ -3,7 +3,7 @@ exports.handler = async function (event) {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const provider = (process.env.NEWS_PROVIDER || 'trhaberler').toLowerCase();
+  const provider = (process.env.NEWS_PROVIDER || 'gnews').toLowerCase();
 
   try {
     if (provider === 'gnews') {

@@ -1,5 +1,5 @@
 const NEWS_CACHE_KEY = 'softnews_articles_v1';
-const NEWS_CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2 saat cache - API quota tasarrufu
+const NEWS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat cache - günde sadece 1 kez çek
 
 function loadNewsCache() {
   try {
@@ -50,9 +50,10 @@ function categorizeArticle(title, description) {
 }
 
 export async function fetchLatestNews() {
-  // Check cache first to save bandwidth
+  // Always check cache first - only fetch if no cache or expired
   const cached = loadNewsCache();
   if (cached) {
+    console.log('Using cached news data');
     return { ok: true, articles: cached };
   }
 

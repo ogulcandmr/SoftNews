@@ -85,23 +85,23 @@ const NewsPage = () => {
 
   const filtered = selected === 'Tümü' ? items : items.filter(n => n.category === selected);
 
-  const clearCache = () => {
-    localStorage.removeItem('softnews_articles_v1');
-    window.location.reload();
-  };
+  // Cache is now permanent for 24 hours - no manual refresh needed
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 relative animate-fade-in-down">
       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center opacity-10 pointer-events-none" />
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
+        <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-blue-800 drop-shadow">Haberler</h1>
-          <button 
-            onClick={clearCache}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition text-sm"
-          >
-            Haberleri Yenile
-          </button>
+          <p className="text-gray-600 mt-2">Güncel teknoloji haberleri - 24 saatte bir güncellenir</p>
+          {!loading && items.length > 0 && (
+            <div className="mt-2 text-sm text-green-600 flex items-center justify-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Haberler yüklendi - Cache'den geliyor
+            </div>
+          )}
         </div>
         <div className="flex flex-wrap gap-3 justify-center mb-8">
           {categories.map(cat => (
