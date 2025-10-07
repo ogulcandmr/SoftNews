@@ -50,14 +50,17 @@ function categorizeArticle(title, description) {
 }
 
 export async function fetchLatestNews() {
-  // Always check cache first - only fetch if no cache or expired
-  const cached = loadNewsCache();
-  if (cached) {
-    console.log('Using cached news data');
-    return { ok: true, articles: cached };
-  }
+  // Temporarily disable cache to ensure news loads
+  // const cached = loadNewsCache();
+  // if (cached) {
+  //   console.log('Using cached news data');
+  //   return { ok: true, articles: cached };
+  // }
+  
+  console.log('Fetching fresh news...');
 
   try {
+    console.log('Making API request to /api/news...');
     const res = await fetch('/api/news', { 
       method: 'GET',
       headers: {
@@ -66,9 +69,21 @@ export async function fetchLatestNews() {
       },
       cache: 'no-cache'
     });
-    if (!res.ok) throw new Error('news request failed');
+    
+    console.log('API response status:', res.status);
+    
+    if (!res.ok) {
+      console.error('API request failed:', res.status, res.statusText);
+      throw new Error(`news request failed: ${res.status} ${res.statusText}`);
+    }
+    
     const data = await res.json();
-    if (!data?.ok) throw new Error(data?.error || 'news error');
+    console.log('API response data:', data);
+    
+    if (!data?.ok) {
+      console.error('API returned error:', data?.error);
+      throw new Error(data?.error || 'news error');
+    }
     
     const articles = (data.articles || []).map((a, idx) => ({
       id: idx + 1000,
@@ -80,11 +95,14 @@ export async function fetchLatestNews() {
       url: a.url,
     }));
     
+    console.log('Processed articles:', articles.length);
+    
     // Save to cache
     saveNewsCache(articles);
     
     return { ok: true, articles };
   } catch (e) {
+    console.error('News fetch error:', e);
     return { ok: false, error: e?.message || 'news error' };
   }
 }
