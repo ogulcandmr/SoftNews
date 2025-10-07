@@ -82,6 +82,18 @@ const WeeklySummary = () => {
           {loading ? 'Yükleniyor...' : 'Yenile'}
         </button>
       </div>
+      <div className="flex items-center gap-3 mb-2">
+        <button
+          onClick={() => {
+            saveCache('');
+            setContent('');
+          }}
+          className="text-xs px-2 py-1 rounded border border-gray-200 text-gray-600 hover:bg-gray-50"
+          title="Önbelleği temizle"
+        >
+          Önbelleği Temizle
+        </button>
+      </div>
       {error && (
         <div className="text-sm text-red-600 mb-2">{error}</div>
       )}

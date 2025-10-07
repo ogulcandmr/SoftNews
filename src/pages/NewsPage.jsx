@@ -99,7 +99,12 @@ const NewsPage = () => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filtered.map((item, i) => (
-            <Link key={i} to={`/news/${item.id}`} className="block">
+            <Link
+              key={i}
+              to={`/news/${item.id}`}
+              state={{ article: item }}
+              className="block"
+            >
               <NewsCard {...item} />
             </Link>
           ))}

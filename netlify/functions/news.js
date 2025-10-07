@@ -12,14 +12,8 @@ exports.handler = async function (event) {
         return { statusCode: 500, body: 'Missing GNEWS_API_KEY' };
       }
       const urlTR = `https://gnews.io/api/v4/top-headlines?lang=tr&topic=technology&max=12&apikey=${encodeURIComponent(GNEWS_API_KEY)}`;
-      let res = await fetch(urlTR);
-      let data = await res.json();
-      if (!Array.isArray(data?.articles) || data.articles.length === 0) {
-        // fallback to EN if TR empty
-        const urlEN = `https://gnews.io/api/v4/top-headlines?lang=en&topic=technology&max=12&apikey=${encodeURIComponent(GNEWS_API_KEY)}`;
-        res = await fetch(urlEN);
-        data = await res.json();
-      }
+      const res = await fetch(urlTR);
+      const data = await res.json();
       // Normalize to articles[] format similar to NewsAPI
       const articles = (data?.articles || []).map((a) => ({
         title: a?.title,
@@ -39,13 +33,8 @@ exports.handler = async function (event) {
     }
     const q = 'technology OR software OR AI';
     const urlTop = `https://newsapi.org/v2/top-headlines?language=tr&category=technology&pageSize=12&q=${encodeURIComponent(q)}`;
-    let res = await fetch(urlTop, { headers: { 'X-Api-Key': NEWS_API_KEY } });
-    let data = await res.json();
-    if (!Array.isArray(data?.articles) || data.articles.length === 0) {
-      const urlEverything = `https://newsapi.org/v2/everything?language=tr&q=${encodeURIComponent(q)}&sortBy=publishedAt&pageSize=12`;
-      res = await fetch(urlEverything, { headers: { 'X-Api-Key': NEWS_API_KEY } });
-      data = await res.json();
-    }
+    const res = await fetch(urlTop, { headers: { 'X-Api-Key': NEWS_API_KEY } });
+    const data = await res.json();
     return {
       statusCode: 200,
       body: JSON.stringify({ ok: true, articles: data?.articles || [] }),
