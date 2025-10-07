@@ -65,7 +65,17 @@ const HomePage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 responsive-grid">
           <div className="md:col-span-2 space-y-6">
-            <h2 className="text-2xl font-bold text-blue-800 mb-4">Son Haberler</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-blue-800">En İyi Haberler</h2>
+              {!loading && items.length > 0 && (
+                <div className="text-sm text-green-600 flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Cache'den
+                </div>
+              )}
+            </div>
             {loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {[1, 2, 3, 4].map((i) => (
@@ -77,7 +87,7 @@ const HomePage = () => {
                 ))}
               </div>
             ) : items.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {items
                   .sort((a, b) => {
                     // Prioritize quality sources for homepage
@@ -86,7 +96,7 @@ const HomePage = () => {
                     const bQuality = qualitySources.some(source => b.source?.name?.toLowerCase().includes(source)) ? 1 : 0;
                     return bQuality - aQuality;
                   })
-                  .slice(0, 4)
+                  .slice(0, 6) // Sadece 6 en iyi haber
                   .map((item, i) => (
                     <Link key={i} to={`/news/${item.id}`} state={{ article: item }}>
                       <NewsCard {...item} />

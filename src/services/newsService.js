@@ -1,5 +1,5 @@
 const NEWS_CACHE_KEY = 'softnews_articles_v1';
-const NEWS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat cache - günde sadece 1 kez çek
+const NEWS_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 gün cache - haftada sadece 1 kez çek
 
 function loadNewsCache() {
   try {

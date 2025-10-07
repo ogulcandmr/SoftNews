@@ -93,7 +93,7 @@ const NewsPage = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-blue-800 drop-shadow">Haberler</h1>
-          <p className="text-gray-600 mt-2">Güncel teknoloji haberleri - 24 saatte bir güncellenir</p>
+          <p className="text-gray-600 mt-2">Güncel teknoloji haberleri - Haftada bir güncellenir</p>
           {!loading && items.length > 0 && (
             <div className="mt-2 text-sm text-green-600 flex items-center justify-center gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
