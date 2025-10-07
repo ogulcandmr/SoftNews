@@ -11,12 +11,26 @@ exports.handler = async function (event) {
       if (!GNEWS_API_KEY) {
         return { statusCode: 500, body: 'Missing GNEWS_API_KEY' };
       }
-      // Try multiple queries to get better tech news (mix of TR and EN for quality)
+      // Get world-class tech news from multiple categories
       const queries = [
-        'https://gnews.io/api/v4/search?q=artificial intelligence&lang=en&max=3&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        'https://gnews.io/api/v4/search?q=technology&lang=en&max=3&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        'https://gnews.io/api/v4/search?q=teknoloji&lang=tr&max=3&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        'https://gnews.io/api/v4/search?q=yapay zeka&lang=tr&max=3&apikey=' + encodeURIComponent(GNEWS_API_KEY)
+        // AI & Machine Learning
+        'https://gnews.io/api/v4/search?q=artificial intelligence&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=machine learning&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // Software & Development
+        'https://gnews.io/api/v4/search?q=software development&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=programming&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // Hardware & Gadgets
+        'https://gnews.io/api/v4/search?q=hardware&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=gadgets&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // Gaming
+        'https://gnews.io/api/v4/search?q=gaming&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // Mobile & Apps
+        'https://gnews.io/api/v4/search?q=mobile technology&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // Startup & Business
+        'https://gnews.io/api/v4/search?q=tech startup&lang=en&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // Turkish tech news
+        'https://gnews.io/api/v4/search?q=teknoloji&lang=tr&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=yapay zeka&lang=tr&max=2&apikey=' + encodeURIComponent(GNEWS_API_KEY)
       ];
       
       let allArticles = [];
@@ -32,16 +46,16 @@ exports.handler = async function (event) {
         }
       }
       
-      // Remove duplicates and limit to 12, prioritize quality sources
+      // Remove duplicates and prioritize quality sources, get 24 articles
       const uniqueArticles = allArticles.filter((article, index, self) => 
         index === self.findIndex(a => a.url === article.url)
       ).sort((a, b) => {
         // Prioritize major tech sources
-        const qualitySources = ['techcrunch', 'wired', 'theverge', 'engadget', 'arstechnica', 'reuters', 'bloomberg', 'cnn', 'bbc'];
+        const qualitySources = ['techcrunch', 'wired', 'theverge', 'engadget', 'arstechnica', 'reuters', 'bloomberg', 'cnn', 'bbc', 'forbes', 'wsj', 'nytimes', 'guardian'];
         const aQuality = qualitySources.some(source => a.source?.name?.toLowerCase().includes(source)) ? 1 : 0;
         const bQuality = qualitySources.some(source => b.source?.name?.toLowerCase().includes(source)) ? 1 : 0;
         return bQuality - aQuality;
-      }).slice(0, 12);
+      }).slice(0, 24);
       
       const articles = uniqueArticles.map((a) => ({
         title: a?.title,

@@ -70,9 +70,11 @@ const NewsDetailPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 relative animate-fade-in-down">
       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center opacity-10 pointer-events-none" />
       
-      <div className="max-w-6xl mx-auto px-4">
-        {/* Main Article */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Article */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
           <button 
             onClick={() => navigate(-1)} 
             className="m-6 text-blue-600 hover:text-blue-800 transition flex items-center gap-2"
@@ -176,38 +178,170 @@ const NewsDetailPage = () => {
           </div>
         </div>
 
-        {/* Related Articles */}
-        <div className="bg-white rounded-2xl shadow-xl p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-            </svg>
-            İlgili Haberler
-          </h2>
-          
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-gray-100 rounded-lg p-4 animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+            {/* Related Articles */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                </svg>
+                İlgili Haberler
+              </h2>
+              
+              {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="bg-gray-100 rounded-lg p-4 animate-pulse">
+                      <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : related.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {related.map(r => (
-                <div key={r.id} className="group cursor-pointer" onClick={() => navigate(`/news/${r.id}`, { state: { article: r } })}>
-                  <NewsCard {...r} />
+              ) : related.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {related.map(r => (
+                    <div key={r.id} className="group cursor-pointer" onClick={() => navigate(`/news/${r.id}`, { state: { article: r } })}>
+                      <NewsCard {...r} />
+                    </div>
+                  ))}
                 </div>
-              ))}
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>İlgili haber bulunamadı.</p>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              <p>İlgili haber bulunamadı.</p>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Video Section */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                İlgili Videolar
+              </h3>
+              <div className="space-y-4">
+                <div className="bg-gray-100 rounded-lg p-4 hover:bg-gray-200 transition cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-16 h-12 bg-red-500 rounded flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-sm text-gray-900 line-clamp-2">
+                        {news.title?.slice(0, 50)}... - Teknoloji Analizi
+                      </h4>
+                      <p className="text-xs text-gray-600">YouTube • 5 dk</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gray-100 rounded-lg p-4 hover:bg-gray-200 transition cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-16 h-12 bg-red-500 rounded flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-sm text-gray-900 line-clamp-2">
+                        {news.category} Trendleri 2024
+                      </h4>
+                      <p className="text-xs text-gray-600">YouTube • 8 dk</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gray-100 rounded-lg p-4 hover:bg-gray-200 transition cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-16 h-12 bg-red-500 rounded flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-sm text-gray-900 line-clamp-2">
+                        AI ve Gelecek Teknolojiler
+                      </h4>
+                      <p className="text-xs text-gray-600">YouTube • 12 dk</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
+
+            {/* AI Features */}
+            <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl shadow-xl p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                AI Asistanı
+              </h3>
+              <div className="space-y-3">
+                <button 
+                  onClick={() => {
+                    // Open chatbot with pre-filled question
+                    const chatbot = document.querySelector('[data-chatbot-trigger]');
+                    if (chatbot) chatbot.click();
+                  }}
+                  className="w-full p-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-left"
+                >
+                  <div className="font-semibold">Bu haber hakkında soru sor</div>
+                  <div className="text-sm opacity-90">AI'ya bu konuda detaylı bilgi al</div>
+                </button>
+                <button 
+                  onClick={() => {
+                    // Navigate to summary page
+                    navigate('/summary');
+                  }}
+                  className="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-left"
+                >
+                  <div className="font-semibold">Haftalık AI Özeti</div>
+                  <div className="text-sm opacity-90">Bu haftanın önemli gelişmeleri</div>
+                </button>
+                <button 
+                  onClick={() => {
+                    // Open forum
+                    navigate('/forum');
+                  }}
+                  className="w-full p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-left"
+                >
+                  <div className="font-semibold">Toplulukta Tartış</div>
+                  <div className="text-sm opacity-90">Bu konuyu forumda paylaş</div>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Haber İstatistikleri</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Kategori</span>
+                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+                    {news.category}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Tarih</span>
+                  <span className="text-sm font-semibold">{news.date}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Kaynak</span>
+                  <span className="text-sm font-semibold truncate max-w-24">
+                    {news.source?.name || 'SoftNews'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Okuma Süresi</span>
+                  <span className="text-sm font-semibold">~3 dk</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

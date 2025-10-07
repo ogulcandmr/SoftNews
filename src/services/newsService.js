@@ -1,5 +1,5 @@
 const NEWS_CACHE_KEY = 'softnews_articles_v1';
-const NEWS_CACHE_TTL_MS = 30 * 60 * 1000; // 30 dakika cache
+const NEWS_CACHE_TTL_MS = 5 * 60 * 1000; // 5 dakika cache - daha sık güncelleme
 
 function loadNewsCache() {
   try {
@@ -50,11 +50,11 @@ function categorizeArticle(title, description) {
 }
 
 export async function fetchLatestNews() {
-  // Check cache first
-  const cached = loadNewsCache();
-  if (cached) {
-    return { ok: true, articles: cached };
-  }
+  // Always fetch fresh news - no cache for real-time experience
+  // const cached = loadNewsCache();
+  // if (cached) {
+  //   return { ok: true, articles: cached };
+  // }
 
   try {
     const res = await fetch('/api/news', { 
