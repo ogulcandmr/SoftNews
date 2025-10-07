@@ -13,6 +13,8 @@ import ForumTopicPage from './pages/ForumTopicPage';
 import Footer from './components/Footer';
 import AboutPage from './pages/AboutPage';
 import ProfilePage from './pages/ProfilePage';
+import ChatbotWidget from './components/ChatbotWidget';
+import WeeklySummaryPage from './pages/WeeklySummaryPage';
 
 // Dummy sayfa bileşenleri
 const Home = () => (
@@ -59,8 +61,10 @@ function App() {
         <Route path="/news/:id" element={<NewsDetailPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/summary" element={<WeeklySummaryPage />} />
       </Routes>
       <Footer />
+      <ChatbotWidget />
     </>
   );
 }

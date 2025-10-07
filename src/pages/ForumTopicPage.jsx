@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { generateForumAutoReply } from '../services/aiClient';
 
 const dummyTopics = [
   {
@@ -33,6 +34,7 @@ const ForumTopicPage = () => {
   const topic = dummyTopics.find(t => t.id === Number(id));
   const [replies, setReplies] = useState(topic ? topic.replies : []);
   const [reply, setReply] = useState('');
+  const [autoTried, setAutoTried] = useState(false);
 
   if (!topic) return <div className="text-center py-20 text-xl">Konu bulunamadı.</div>;
 
@@ -49,6 +51,45 @@ const ForumTopicPage = () => {
     ]);
     setReply('');
   };
+
+  // MVP oto-yanıt: konu açıldıktan 30sn sonra hâlâ yanıt yoksa AI öneri mesajı ekle
+  useEffect(() => {
+    if (!topic) return;
+    const storageKey = `softnews_forum_autoreply_${topic.id}`;
+    const createdAtKey = `softnews_forum_created_${topic.id}`;
+
+    // konu oluşturulma zamanını taklit et (gerçek backend yok)
+    if (!localStorage.getItem(createdAtKey)) {
+      localStorage.setItem(createdAtKey, new Date(topic.date).getTime().toString());
+    }
+
+    if (autoTried) return;
+    const timer = setTimeout(async () => {
+      if (replies.length > 0) return; // artık gerek yok
+      if (localStorage.getItem(storageKey)) return; // zaten denendi
+      setAutoTried(true);
+
+      const res = await generateForumAutoReply({
+        topicTitle: topic.title,
+        topicContent: topic.content,
+      });
+      if (res?.ok && res.content) {
+        setReplies(current => [
+          ...current,
+          {
+            id: current.length + 1,
+            author: 'softnews-ai',
+            date: new Date().toISOString().slice(0, 10),
+            text: res.content,
+          },
+        ]);
+        localStorage.setItem(storageKey, '1');
+      }
+    }, 30000); // 30sn (demo). Backend ile 24s vb. yapılır
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topic, replies.length, autoTried]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 py-10 relative animate-fade-in-down">

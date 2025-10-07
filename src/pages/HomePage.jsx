@@ -3,68 +3,48 @@ import NewsCard from '../components/NewsCard';
 import YoutubeSection from '../components/YoutubeSection';
 import { Link } from 'react-router-dom';
 import NewsPage from './NewsPage';
-
-const news = [
-  {
-    id: 1,
-    title: 'Yapay Zeka ile Kodlama Devrimi',
-    description: 'Yapay zeka destekli araçlar yazılım geliştirmede devrim yaratıyor. Geliştiriciler artık daha hızlı ve verimli kod yazabiliyor.',
-    image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=800&q=80',
-    category: 'Yapay Zeka',
-    date: '2024-07-10',
-  },
-  {
-    id: 2,
-    title: 'Yeni Nesil Mobil İşlemciler',
-    description: 'Mobil cihazlarda performans ve enerji verimliliği yeni nesil işlemcilerle zirveye çıkıyor.',
-    image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80',
-    category: 'Donanım',
-    date: '2024-07-09',
-  },
-  {
-    id: 3,
-    title: 'Oyun Dünyasında Büyük Yenilik',
-    description: 'Oyun motorları ve grafik teknolojilerindeki gelişmeler, oyun deneyimini bambaşka bir seviyeye taşıyor.',
-    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
-    category: 'Oyun',
-    date: '2024-07-08',
-  },
-  {
-    id: 4,
-    title: 'Yazılımda Uzaktan Çalışma Trendleri',
-    description: 'Uzaktan çalışma kültürü yazılım sektöründe kalıcı hale geliyor. Şirketler hibrit ve remote modelleri benimsiyor.',
-    image: 'https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=800&q=80',
-    category: 'Yazılım',
-    date: '2024-07-07',
-  },
-  {
-    id: 5,
-    title: 'Startuplarda Yatırım Rüzgarı',
-    description: "Teknoloji girişimleri 2024'te rekor yatırım aldı. Yeni unicorn'lar yolda.",
-    image: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80',
-    category: 'Startup',
-    date: '2024-07-06',
-  },
-  {
-    id: 6,
-    title: 'Mobil Uygulama Güvenliği',
-    description: 'Mobil uygulamalarda güvenlik açıkları ve alınması gereken önlemler.',
-    image: 'https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=800&q=80',
-    category: 'Mobil',
-    date: '2024-07-05',
-  },
-];
+import { newsItems } from '../data/newsData';
+import WeeklySummary from '../components/WeeklySummary';
 
 const HomePage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 relative animate-fade-in-down">
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center opacity-10 pointer-events-none" />
-      <div className="max-w-7xl mx-auto px-4 py-10 relative z-10">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 drop-shadow-lg">SoftNews: Yazılım ve Teknoloji Dünyası</h1>
+      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center opacity-10 pointer-events-none" />
+      <div className="max-w-7xl mx-auto px-4 py-6 md:py-10 relative z-10">
+        {/* HERO */}
+        <div className="relative overflow-hidden rounded-3xl shadow-2xl bg-gradient-to-r from-purple-700 via-indigo-600 to-blue-600 mb-10">
+          <div className="absolute inset-0 opacity-20" style={{ background: "radial-gradient(circle at 20% 20%, rgba(255,255,255,.35), transparent 40%), radial-gradient(circle at 80% 0%, rgba(255,255,255,.25), transparent 35%)" }} />
+          <div className="relative p-8 md:p-12 flex flex-col md:flex-row items-center gap-8">
+            <div className="flex-1">
+              <h1 className="text-4xl md:text-6xl font-extrabold text-white drop-shadow">
+                SoftNews
+              </h1>
+              <p className="mt-3 md:mt-4 text-white/90 text-base md:text-lg max-w-2xl">
+                Yazılım, donanım ve yapay zekâ dünyasından en güncel haberler, videolar ve topluluk tartışmaları. AI destekli haftalık özet ve akıllı sohbet ile daha hızlı takip edin.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link to="/news" className="px-5 py-2.5 rounded-full bg-white text-purple-700 font-semibold shadow hover:shadow-lg">Son Haberler</Link>
+                <Link to="/forum" className="px-5 py-2.5 rounded-full bg-white/10 text-white font-semibold border border-white/30 hover:bg-white/15">Topluluğa Katıl</Link>
+              </div>
+            </div>
+            <div className="w-full md:w-[420px]">
+              <div className="relative">
+                <WeeklySummary />
+                <Link
+                  to="/summary"
+                  className="absolute -bottom-3 right-3 text-xs px-3 py-1.5 rounded-full bg-white/90 border border-purple-200 text-purple-700 shadow"
+                >
+                  Ayrıntılı gör
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 responsive-grid">
           <div className="md:col-span-2 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {news.map((item, i) => (
+              {newsItems.map((item, i) => (
                 <Link key={i} to={`/news/${item.id}`}>
                   <NewsCard {...item} />
                 </Link>
