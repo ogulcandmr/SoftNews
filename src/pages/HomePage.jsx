@@ -14,10 +14,15 @@ const HomePage = () => {
   useEffect(() => {
     let mounted = true;
     setLoading(true);
+    console.log('HomePage: Starting to fetch news...');
     fetchLatestNews().then((res) => {
       if (!mounted) return;
+      console.log('HomePage: News response:', res);
       if (res.ok && res.articles && res.articles.length > 0) {
+        console.log('HomePage: Setting articles:', res.articles.length);
         setItems(res.articles);
+      } else {
+        console.log('HomePage: No articles received');
       }
       setLoading(false);
     });
@@ -77,8 +82,8 @@ const HomePage = () => {
               )}
             </div>
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {[1, 2, 3, 4].map((i) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
                   <div key={i} className="bg-white rounded-lg shadow-md p-4 animate-pulse">
                     <div className="h-4 bg-gray-200 rounded mb-2"></div>
                     <div className="h-3 bg-gray-200 rounded mb-2"></div>

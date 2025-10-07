@@ -106,6 +106,47 @@ const NewsDetailPage = () => {
                 {news.content || news.description}
               </p>
               
+              {/* Extended content for better detail */}
+              <div className="mt-8 space-y-6">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Detaylı Analiz</h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    Bu gelişme, teknoloji sektöründe önemli bir dönüm noktası olarak değerlendiriliyor. 
+                    Uzmanlar, bu tür yeniliklerin gelecekteki projeler ve geliştirmeler üzerinde 
+                    büyük etki yaratacağını belirtiyor. Sektördeki diğer şirketlerin de benzer 
+                    adımlar atması bekleniyor.
+                  </p>
+                </div>
+                
+                <div className="bg-blue-50 rounded-lg p-6">
+                  <h3 className="text-xl font-semibold text-blue-900 mb-4">Teknik Detaylar</h3>
+                  <ul className="space-y-2 text-blue-800">
+                    <li className="flex items-start gap-2">
+                      <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                      <span>Modern teknoloji standartlarına uygun geliştirme</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                      <span>Kullanıcı deneyimini ön planda tutan tasarım yaklaşımı</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                      <span>Güvenlik ve performans odaklı mimari</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div className="bg-green-50 rounded-lg p-6">
+                  <h3 className="text-xl font-semibold text-green-900 mb-4">Gelecek Etkileri</h3>
+                  <p className="text-green-800 leading-relaxed">
+                    Bu gelişmenin, önümüzdeki dönemde teknoloji dünyasında yeni trendlerin 
+                    oluşmasına katkı sağlayacağı öngörülüyor. Geliştiriciler ve teknoloji 
+                    meraklıları için yeni fırsatlar sunacak bu yenilik, sektörün genel 
+                    yönelimini de etkileyebilir.
+                  </p>
+                </div>
+              </div>
+              
               {/* Additional Content Sections */}
               <div className="mt-8 space-y-6">
                 {/* Key Points */}
@@ -199,11 +240,15 @@ const NewsDetailPage = () => {
                 </div>
               ) : related.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {related.map(r => (
-                    <div key={r.id} className="group cursor-pointer" onClick={() => navigate(`/news/${r.id}`, { state: { article: r } })}>
-                      <NewsCard {...r} />
-                    </div>
-                  ))}
+              {related.map(r => (
+                <div key={r.id} className="group cursor-pointer" onClick={() => {
+                  navigate(`/news/${r.id}`, { state: { article: r } });
+                  // Scroll to top when navigating to new article
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}>
+                  <NewsCard {...r} />
+                </div>
+              ))}
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
