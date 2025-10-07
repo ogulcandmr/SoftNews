@@ -11,18 +11,42 @@ exports.handler = async function (event) {
       if (!GNEWS_API_KEY) {
         return { statusCode: 500, body: 'Missing GNEWS_API_KEY' };
       }
-      const urlTR = `https://gnews.io/api/v4/top-headlines?lang=tr&topic=technology&max=12&apikey=${encodeURIComponent(GNEWS_API_KEY)}`;
-      const res = await fetch(urlTR);
-      const data = await res.json();
-      // Normalize to articles[] format similar to NewsAPI
-      const articles = (data?.articles || []).map((a) => ({
+      // Try multiple queries to get better Turkish tech news
+      const queries = [
+        'https://gnews.io/api/v4/search?q=teknoloji&lang=tr&max=4&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=yazılım&lang=tr&max=4&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=yapay zeka&lang=tr&max=4&apikey=' + encodeURIComponent(GNEWS_API_KEY)
+      ];
+      
+      let allArticles = [];
+      for (const url of queries) {
+        try {
+          const res = await fetch(url);
+          const data = await res.json();
+          if (data?.articles) {
+            allArticles = allArticles.concat(data.articles);
+          }
+        } catch (e) {
+          // Continue with next query
+        }
+      }
+      
+      // Remove duplicates and limit to 12
+      const uniqueArticles = allArticles.filter((article, index, self) => 
+        index === self.findIndex(a => a.url === article.url)
+      ).slice(0, 12);
+      
+      const articles = uniqueArticles.map((a) => ({
         title: a?.title,
         description: a?.description,
         url: a?.url,
         urlToImage: a?.image,
         publishedAt: a?.publishedAt,
         source: { name: a?.source?.name },
+        category: 'Teknoloji',
+        id: Math.random().toString(36).substr(2, 9),
       }));
+      
       return { statusCode: 200, body: JSON.stringify({ ok: true, articles }) };
     }
 

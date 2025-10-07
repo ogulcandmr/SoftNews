@@ -24,7 +24,7 @@ exports.handler = async function (event) {
 
   try {
     const body = JSON.parse(event.body || '{}');
-    const { model = 'gpt-4o-mini', messages = [], temperature = 0.3, max_tokens = 800 } = body;
+    const { model = 'llama-3.1-8b-instant', messages = [], temperature = 0.3, max_tokens = 800 } = body;
 
     const res = await fetch(AI_API_URL, {
       method: 'POST',

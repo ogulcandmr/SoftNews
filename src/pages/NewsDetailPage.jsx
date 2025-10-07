@@ -32,7 +32,22 @@ const NewsDetailPage = () => {
   const news = article || allNews.find(n => n.id === id);
   const related = allNews.filter(n => n.category === news?.category && n.id !== id).slice(0,2);
 
-  if (!news) return <div className="text-center py-20 text-xl">Haber bulunamadı.</div>;
+  if (!news) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 relative animate-fade-in-down">
+        <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-6 text-center">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">Haber Bulunamadı</h1>
+          <p className="text-gray-600 mb-6">Bu haber mevcut değil veya kaldırılmış olabilir.</p>
+          <button 
+            onClick={() => navigate('/news')} 
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          >
+            Haberlere Dön
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 relative animate-fade-in-down">

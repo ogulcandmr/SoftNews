@@ -5,33 +5,22 @@ const DEFAULT_PROVIDER_NAME = 'openai-compatible';
 
 function getConfig() {
   const endpoint = import.meta.env.VITE_AI_ENDPOINT || '/api/ai';
-  const apiKey = import.meta.env.VITE_AI_API_KEY || '';
-  const model = import.meta.env.VITE_AI_MODEL || 'gpt-4o-mini';
+  const model = import.meta.env.VITE_AI_MODEL || 'llama-3.1-8b-instant';
   const provider = import.meta.env.VITE_AI_PROVIDER || DEFAULT_PROVIDER_NAME;
-  return { endpoint, apiKey, model, provider };
+  return { endpoint, model, provider };
 }
 
 async function callAI({ messages, temperature = 0.3, maxTokens = 500 }) {
-  const { endpoint, apiKey, model } = getConfig();
+  const { endpoint, model } = getConfig();
 
-  // If there is no backend proxy and no API key, return a friendly fallback response
+  // Always use backend proxy - no frontend API key needed
   const isProxyEndpoint = typeof endpoint === 'string' && endpoint.startsWith('/');
-  const apiKeyMissing = !apiKey && !isProxyEndpoint;
-  if (apiKeyMissing) {
-    return {
-      ok: true,
-      content:
-        'AI yapılandırması henüz tamamlanmamış görünüyor. Geçici cevap: Bu özellik kısa süre içinde aktif olacaktır. Lütfen daha sonra tekrar deneyin.',
-      usage: { promptTokens: 0, completionTokens: 0 },
-    };
-  }
 
   try {
     const res = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(isProxyEndpoint ? {} : { Authorization: `Bearer ${apiKey}` }),
       },
       body: JSON.stringify({ model, messages, temperature, max_tokens: maxTokens }),
     });

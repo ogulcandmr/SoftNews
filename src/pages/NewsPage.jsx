@@ -56,6 +56,7 @@ const allNews = [
 
 const categories = [
   'Tümü',
+  'Teknoloji',
   'Yapay Zeka',
   'Donanım',
   'Oyun',
