@@ -33,6 +33,18 @@ Yazılım ve teknoloji haberleri, videoları ve forumu içeren modern bir haber 
 3) `netlify.toml` ve `netlify/functions/ai.js` eklendi. Deploy sonrası `/api/ai` → `/.netlify/functions/ai` üzerinden çalışır.
 4) Yerelde test: `npm run dev` ve ayrıca `netlify dev` (Netlify CLI) ile fonksiyonları çalıştırabilirsiniz.
 
+### Haber API’si (NewsAPI.org)
+1) `NEWS_API_KEY` anahtarını Netlify environment variables’a ekleyin.
+2) Deploy sonrası `/api/news` fonksiyonu aktif olur; `HomePage` açılışta haberleri buradan çeker, sorun olursa dummy veriye düşer.
+
+### Sağlayıcı Seçimi (Ücretsiz Alternatif)
+- `NEWS_PROVIDER=newsapi` (varsayılan) veya `gnews` kullanabilirsiniz.
+- `gnews` için `GNEWS_API_KEY` ekleyin. Ücretsiz planlar için kota limitlerini kontrol edin.
+
+### Yerel Geliştirme
+- Önerilen: `netlify dev` ile fonksiyonları çalıştırın (anahtarlar tarayıcıya gitmez).
+- Hızlı test: `.env` ile `VITE_AI_ENDPOINT=https://api.openai.com/v1/chat/completions` (sadece yerel). Örnek değerler için `ENV_EXAMPLE` dosyasına bakın.
+
 ### Ortam Değişkenleri
 `.env` (veya `.env.local`) dosyasına aşağıdakileri ekleyin:
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { chatWithNewsContext } from '../services/aiClient';
-import { getNewsContextText } from '../data/newsData';
+import { getNewsContextText, buildNewsContextFromItems } from '../data/newsData';
+import { fetchLatestNews } from '../services/newsService';
 
 const STORAGE_KEY = 'softnews_chat_history_v1';
 
@@ -29,7 +30,18 @@ const ChatbotWidget = () => {
   const [history, setHistory] = useState(loadHistory());
   const endRef = useRef(null);
 
-  const newsContext = useMemo(() => getNewsContextText(12), []);
+  const [newsContext, setNewsContext] = useState(getNewsContextText(12));
+
+  useEffect(() => {
+    let mounted = true;
+    fetchLatestNews().then((res) => {
+      if (!mounted) return;
+      if (res.ok && res.articles && res.articles.length > 0) {
+        setNewsContext(buildNewsContextFromItems(res.articles, 12));
+      }
+    });
+    return () => { mounted = false; };
+  }, []);
 
   useEffect(() => {
     saveHistory(history);
@@ -66,14 +78,18 @@ const ChatbotWidget = () => {
     <>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-5 right-5 z-50 w-12 h-12 rounded-full bg-purple-700 text-white shadow-lg flex items-center justify-center hover:bg-purple-800"
+        className="fixed right-5 w-12 h-12 rounded-full bg-purple-700 text-white shadow-lg flex items-center justify-center hover:bg-purple-800 z-[9999]"
+        style={{ bottom: 'calc(20px + env(safe-area-inset-bottom))' }}
         title="SoftNews Asistan"
       >
         <span className="text-xl">💬</span>
       </button>
 
       {open && (
-        <div className="fixed bottom-20 right-5 z-50 w-80 max-w-[90vw] bg-white rounded-2xl shadow-2xl border border-purple-100 flex flex-col overflow-hidden">
+        <div
+          className="fixed right-5 w-80 max-w-[90vw] bg-white rounded-2xl shadow-2xl border border-purple-100 flex flex-col overflow-hidden z-[9999]"
+          style={{ bottom: 'calc(100px + env(safe-area-inset-bottom))' }}
+        >
           <div className="px-4 py-3 bg-gradient-to-r from-purple-700 to-blue-600 text-white flex items-center justify-between">
             <div className="font-semibold">SoftNews Asistan</div>
             <button onClick={() => setOpen(false)} className="text-white/80 hover:text-white">✕</button>

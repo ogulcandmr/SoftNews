@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import NewsCard from '../components/NewsCard';
 import { Link } from 'react-router-dom';
+import { fetchLatestNews } from '../services/newsService';
 
 const allNews = [
   {
@@ -65,7 +66,20 @@ const categories = [
 
 const NewsPage = () => {
   const [selected, setSelected] = useState('Tümü');
-  const filtered = selected === 'Tümü' ? allNews : allNews.filter(n => n.category === selected);
+  const [items, setItems] = useState(allNews);
+
+  useEffect(() => {
+    let mounted = true;
+    fetchLatestNews().then((res) => {
+      if (!mounted) return;
+      if (res.ok && res.articles && res.articles.length > 0) {
+        setItems(res.articles);
+      }
+    });
+    return () => { mounted = false; };
+  }, []);
+
+  const filtered = selected === 'Tümü' ? items : items.filter(n => n.category === selected);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 relative animate-fade-in-down">

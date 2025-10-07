@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { generateWeeklySummary } from '../services/aiClient';
-import { getNewsContextText } from '../data/newsData';
+import { getNewsContextText, buildNewsContextFromItems } from '../data/newsData';
+import { fetchLatestNews } from '../services/newsService';
 
 const CACHE_KEY = 'softnews_weekly_summary_v1';
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -34,7 +35,18 @@ const WeeklySummary = () => {
   const [error, setError] = useState('');
   const [content, setContent] = useState(loadCache());
 
-  const contextText = useMemo(() => getNewsContextText(12), []);
+  const [contextText, setContextText] = useState(getNewsContextText(12));
+
+  useEffect(() => {
+    let mounted = true;
+    fetchLatestNews().then((res) => {
+      if (!mounted) return;
+      if (res.ok && res.articles && res.articles.length > 0) {
+        setContextText(buildNewsContextFromItems(res.articles, 12));
+      }
+    });
+    return () => { mounted = false; };
+  }, []);
 
   const fetchSummary = async () => {
     setLoading(true);

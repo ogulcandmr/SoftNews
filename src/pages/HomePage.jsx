@@ -1,12 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import NewsCard from '../components/NewsCard';
 import YoutubeSection from '../components/YoutubeSection';
 import { Link } from 'react-router-dom';
 import NewsPage from './NewsPage';
 import { newsItems } from '../data/newsData';
+import { fetchLatestNews } from '../services/newsService';
 import WeeklySummary from '../components/WeeklySummary';
 
 const HomePage = () => {
+  const [items, setItems] = useState(newsItems);
+
+  useEffect(() => {
+    let mounted = true;
+    fetchLatestNews().then((res) => {
+      if (!mounted) return;
+      if (res.ok && res.articles && res.articles.length > 0) {
+        setItems(res.articles);
+      }
+    });
+    return () => { mounted = false; };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 relative animate-fade-in-down">
       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center opacity-10 pointer-events-none" />
@@ -44,7 +58,7 @@ const HomePage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 responsive-grid">
           <div className="md:col-span-2 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {newsItems.map((item, i) => (
+              {items.map((item, i) => (
                 <Link key={i} to={`/news/${item.id}`}>
                   <NewsCard {...item} />
                 </Link>

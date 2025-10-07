@@ -10,4 +10,15 @@
   to = "/.netlify/functions/ai"
   status = 200
 
+[[redirects]]
+  from = "/api/news"
+  to = "/.netlify/functions/news"
+  status = 200
+
+# SPA fallback: client-side router yollarını index.html'e yönlendir
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 

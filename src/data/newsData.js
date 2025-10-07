@@ -72,4 +72,13 @@ export function getNewsContextText(limit = 12) {
     .join('\n');
 }
 
+export function buildNewsContextFromItems(items, limit = 12) {
+  const list = (items || []).slice(0, limit);
+  return list
+    .map(
+      (n) => `- [${n.date || ''}] (${n.category || 'Teknoloji'}) ${n.title || ''}: ${n.description || ''}`
+    )
+    .join('\n');
+}
+
 
