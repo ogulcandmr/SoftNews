@@ -11,11 +11,12 @@ exports.handler = async function (event) {
       if (!GNEWS_API_KEY) {
         return { statusCode: 500, body: 'Missing GNEWS_API_KEY' };
       }
-      // Try multiple queries to get better Turkish tech news
+      // Try multiple queries to get better tech news (mix of TR and EN for quality)
       const queries = [
-        'https://gnews.io/api/v4/search?q=teknoloji&lang=tr&max=4&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        'https://gnews.io/api/v4/search?q=yazılım&lang=tr&max=4&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        'https://gnews.io/api/v4/search?q=yapay zeka&lang=tr&max=4&apikey=' + encodeURIComponent(GNEWS_API_KEY)
+        'https://gnews.io/api/v4/search?q=artificial intelligence&lang=en&max=3&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=technology&lang=en&max=3&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=teknoloji&lang=tr&max=3&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=yapay zeka&lang=tr&max=3&apikey=' + encodeURIComponent(GNEWS_API_KEY)
       ];
       
       let allArticles = [];
@@ -31,10 +32,16 @@ exports.handler = async function (event) {
         }
       }
       
-      // Remove duplicates and limit to 12
+      // Remove duplicates and limit to 12, prioritize quality sources
       const uniqueArticles = allArticles.filter((article, index, self) => 
         index === self.findIndex(a => a.url === article.url)
-      ).slice(0, 12);
+      ).sort((a, b) => {
+        // Prioritize major tech sources
+        const qualitySources = ['techcrunch', 'wired', 'theverge', 'engadget', 'arstechnica', 'reuters', 'bloomberg', 'cnn', 'bbc'];
+        const aQuality = qualitySources.some(source => a.source?.name?.toLowerCase().includes(source)) ? 1 : 0;
+        const bQuality = qualitySources.some(source => b.source?.name?.toLowerCase().includes(source)) ? 1 : 0;
+        return bQuality - aQuality;
+      }).slice(0, 12);
       
       const articles = uniqueArticles.map((a) => ({
         title: a?.title,

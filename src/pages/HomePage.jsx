@@ -9,14 +9,17 @@ import WeeklySummary from '../components/WeeklySummary';
 
 const HomePage = () => {
   const [items, setItems] = useState(newsItems);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
+    setLoading(true);
     fetchLatestNews().then((res) => {
       if (!mounted) return;
       if (res.ok && res.articles && res.articles.length > 0) {
         setItems(res.articles);
       }
+      setLoading(false);
     });
     return () => { mounted = false; };
   }, []);
@@ -57,12 +60,36 @@ const HomePage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 responsive-grid">
           <div className="md:col-span-2 space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {items.map((item, i) => (
-                <Link key={i} to={`/news/${item.id}`}>
-                  <NewsCard {...item} />
-                </Link>
-              ))}
+            <h2 className="text-2xl font-bold text-blue-800 mb-4">Son Haberler</h2>
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="bg-white rounded-lg shadow-md p-4 animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {items.slice(0, 4).map((item, i) => (
+                  <Link key={i} to={`/news/${item.id}`} state={{ article: item }}>
+                    <NewsCard {...item} />
+                  </Link>
+                ))}
+              </div>
+            )}
+            <div className="text-center mt-6">
+              <Link 
+                to="/news" 
+                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                Tüm Haberleri Gör
+                <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
             </div>
           </div>
           <div className="space-y-8">
