@@ -9,7 +9,7 @@ export async function fetchLatestNews() {
       title: a.title || 'Başlık yok',
       description: a.description || a.content || '',
       image: a.urlToImage || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=800&q=80',
-      category: 'Teknoloji',
+      category: a.category || 'Güncel',
       date: (a.publishedAt || '').slice(0, 10),
       url: a.url,
     }));

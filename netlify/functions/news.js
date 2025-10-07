@@ -3,7 +3,7 @@ exports.handler = async function (event) {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const provider = (process.env.NEWS_PROVIDER || 'newsapi').toLowerCase();
+  const provider = (process.env.NEWS_PROVIDER || 'trhaberler').toLowerCase();
 
   try {
     if (provider === 'gnews') {
@@ -26,6 +26,28 @@ exports.handler = async function (event) {
       return { statusCode: 200, body: JSON.stringify({ ok: true, articles }) };
     }
 
+    if (provider === 'trhaberler') {
+      // Free TR source via RSS (hurriyet.com.tr/son-dakika/), parse on server
+      const { XMLParser } = require('fast-xml-parser');
+      const rssUrl = 'https://www.hurriyet.com.tr/rss/sondakika.rss';
+      const res = await fetch(rssUrl);
+      const text = await res.text();
+      const parser = new XMLParser({ ignoreAttributes: false });
+      const xml = parser.parse(text);
+      const items = xml?.rss?.channel?.item || [];
+      const articles = items.slice(0, 12).map((it, idx) => ({
+        title: it?.title || 'Başlık yok',
+        description: it?.description || '',
+        url: it?.link,
+        urlToImage: undefined, // RSS'te her zaman yok
+        publishedAt: it?.pubDate,
+        source: { name: 'Hürriyet' },
+        category: 'Güncel',
+        id: idx + 10000,
+      }));
+      return { statusCode: 200, body: JSON.stringify({ ok: true, articles }) };
+    }
+
     // default: newsapi
     const NEWS_API_KEY = process.env.NEWS_API_KEY;
     if (!NEWS_API_KEY) {
@@ -33,8 +55,14 @@ exports.handler = async function (event) {
     }
     const q = 'technology OR software OR AI';
     const urlTop = `https://newsapi.org/v2/top-headlines?language=tr&category=technology&pageSize=12&q=${encodeURIComponent(q)}`;
-    const res = await fetch(urlTop, { headers: { 'X-Api-Key': NEWS_API_KEY } });
-    const data = await res.json();
+    let res = await fetch(urlTop, { headers: { 'X-Api-Key': NEWS_API_KEY } });
+    let data = await res.json();
+    if (!Array.isArray(data?.articles) || data.articles.length === 0) {
+      // Fallback: broader search if top-headlines is empty in TR
+      const urlEverything = `https://newsapi.org/v2/everything?language=tr&q=${encodeURIComponent('teknoloji OR yazılım OR yapay zeka')}&sortBy=publishedAt&pageSize=12`;
+      res = await fetch(urlEverything, { headers: { 'X-Api-Key': NEWS_API_KEY } });
+      data = await res.json();
+    }
     return {
       statusCode: 200,
       body: JSON.stringify({ ok: true, articles: data?.articles || [] }),
