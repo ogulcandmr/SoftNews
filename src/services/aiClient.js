@@ -21,7 +21,9 @@ async function callAI({ messages, temperature = 0.3, maxTokens = 500 }) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
+      cache: 'no-cache',
       body: JSON.stringify({ model, messages, temperature, max_tokens: maxTokens }),
     });
 

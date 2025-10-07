@@ -57,7 +57,14 @@ export async function fetchLatestNews() {
   }
 
   try {
-    const res = await fetch('/api/news', { method: 'GET' });
+    const res = await fetch('/api/news', { 
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-cache'
+    });
     if (!res.ok) throw new Error('news request failed');
     const data = await res.json();
     if (!data?.ok) throw new Error(data?.error || 'news error');
