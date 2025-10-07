@@ -14,10 +14,15 @@ const HomePage = () => {
   useEffect(() => {
     let mounted = true;
     setLoading(true);
+    console.log('HomePage: Fetching news...');
     fetchLatestNews().then((res) => {
       if (!mounted) return;
+      console.log('HomePage: News response:', res);
       if (res.ok && res.articles && res.articles.length > 0) {
+        console.log('HomePage: Setting articles:', res.articles.length);
         setItems(res.articles);
+      } else {
+        console.log('HomePage: No articles, keeping dummy data');
       }
       setLoading(false);
     });

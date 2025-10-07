@@ -61,26 +61,35 @@ const WeeklySummary = () => {
     saveCache(res.content);
   };
 
+  // Remove auto-fetch - only load from cache on mount
   useEffect(() => {
-    if (!content) {
-      // Initial fetch on mount if no valid cache
-      fetchSummary();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Only load from cache, don't auto-fetch
   }, []);
 
   return (
     <div className="rounded-2xl shadow-xl bg-white/90 p-6 w-full max-w-xl mx-auto">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-2xl font-bold text-purple-700">Bu Haftalık Özet</h2>
-        <button
-          onClick={fetchSummary}
-          disabled={loading}
-          className="text-sm px-3 py-1 rounded-full border border-purple-300 text-purple-700 hover:bg-purple-50 disabled:opacity-60"
-          title="Özeti yenile"
-        >
-          {loading ? 'Yükleniyor...' : 'Yenile'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={fetchSummary}
+            disabled={loading}
+            className="text-sm px-4 py-2 rounded-full bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-60 transition"
+            title="AI ile özet oluştur"
+          >
+            {loading ? 'Yükleniyor...' : 'Özet Oluştur'}
+          </button>
+          <button
+            onClick={() => {
+              localStorage.removeItem(CACHE_KEY);
+              setContent(null);
+            }}
+            className="text-sm px-3 py-1 rounded-full border border-purple-300 text-purple-700 hover:bg-purple-50"
+            title="Önbelleği temizle"
+          >
+            Temizle
+          </button>
+        </div>
       </div>
       <div className="flex items-center gap-3 mb-2">
         <button
