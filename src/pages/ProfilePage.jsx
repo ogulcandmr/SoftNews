@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { generateWeeklySummary } from '../services/aiClient';
 
 const dummyFavorites = [
   {
@@ -24,6 +25,14 @@ const dummyTopics = [
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
+  const [aiStats, setAiStats] = useState({
+    weeklySummariesGenerated: 0,
+    aiChatMessages: 0,
+    forumReplies: 0,
+    totalAIInteractions: 0
+  });
+  const [personalizedSummary, setPersonalizedSummary] = useState('');
+  const [loadingSummary, setLoadingSummary] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,16 +41,54 @@ const ProfilePage = () => {
       navigate('/LoginPage');
     } else {
       setUser(JSON.parse(stored));
+      // Load AI stats from localStorage
+      const stats = localStorage.getItem('softnews_ai_stats');
+      if (stats) {
+        setAiStats(JSON.parse(stats));
+      }
     }
   }, [navigate]);
+
+  const generatePersonalizedSummary = async () => {
+    setLoadingSummary(true);
+    try {
+      const summary = await generateWeeklySummary();
+      setPersonalizedSummary(summary);
+    } catch (error) {
+      console.error('Personalized summary error:', error);
+      setPersonalizedSummary('Özet oluşturulamadı. Lütfen tekrar deneyin.');
+    }
+    setLoadingSummary(false);
+  };
 
   if (!user) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 relative animate-fade-in-down">
       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center opacity-10 pointer-events-none" />
-      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
-        <h1 className="text-3xl font-bold text-blue-800 mb-4">Profilim</h1>
+      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+        <h1 className="text-3xl font-bold text-blue-800 mb-6">Profilim</h1>
+        
+        {/* AI İstatistikleri */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg text-center">
+            <div className="text-2xl font-bold">{aiStats.weeklySummariesGenerated}</div>
+            <div className="text-sm opacity-90">Haftalık Özet</div>
+          </div>
+          <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg text-center">
+            <div className="text-2xl font-bold">{aiStats.aiChatMessages}</div>
+            <div className="text-sm opacity-90">AI Sohbet</div>
+          </div>
+          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg text-center">
+            <div className="text-2xl font-bold">{aiStats.forumReplies}</div>
+            <div className="text-sm opacity-90">Forum Yanıtı</div>
+          </div>
+          <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-lg text-center">
+            <div className="text-2xl font-bold">{aiStats.totalAIInteractions}</div>
+            <div className="text-sm opacity-90">Toplam AI</div>
+          </div>
+        </div>
+
         <div className="mb-6">
           <span className="font-semibold">E-posta:</span> {user.email}
         </div>
@@ -53,13 +100,37 @@ const ProfilePage = () => {
             ))}
           </ul>
         </div>
-        <div>
+        <div className="mb-6">
           <h2 className="text-xl font-semibold text-purple-700 mb-2">Açtığım Forum Konuları</h2>
           <ul className="list-disc pl-5 text-gray-700 space-y-1">
             {dummyTopics.map(topic => (
               <li key={topic.id}>{topic.title} <span className="text-xs text-gray-400">({topic.date})</span></li>
             ))}
           </ul>
+        </div>
+
+        {/* Kişiselleştirilmiş AI Özeti */}
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-purple-700 mb-4">Kişiselleştirilmiş AI Özeti</h2>
+          <button
+            onClick={generatePersonalizedSummary}
+            disabled={loadingSummary}
+            className="mb-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 flex items-center gap-2"
+          >
+            {loadingSummary ? (
+              <>
+                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                Oluşturuluyor...
+              </>
+            ) : (
+              '🤖 AI Özeti Oluştur'
+            )}
+          </button>
+          {personalizedSummary && (
+            <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-purple-500">
+              <p className="text-gray-700 leading-relaxed">{personalizedSummary}</p>
+            </div>
+          )}
         </div>
         <div className="mb-6 flex gap-4 items-center">
           <a href="https://instagram.com/ogulcan_dmr" target="_blank" rel="noopener noreferrer" title="Instagram">
