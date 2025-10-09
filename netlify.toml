@@ -3,20 +3,26 @@
   publish = "dist"
 
 [build.environment]
-  # Environment variables will be automatically loaded from .env file
   NODE_VERSION = "20"
 
-# Netlify Functions
 [functions]
   directory = "netlify/functions"
 
-# Redirects for SPA
+# --- Redirects ---
+
+# API isteklerini yönlendirme (öncelikli kural)
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# SPA yönlendirmesi (genel kural)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Headers for security
+# --- Güvenlik başlıkları ---
 [[headers]]
   for = "/*"
   [headers.values]
