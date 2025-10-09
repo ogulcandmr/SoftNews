@@ -19,8 +19,11 @@ class AuthService {
     };
 
     try {
+      console.log('API Call:', url, config); // Debug log
       const response = await fetch(url, config);
       const data = await response.json();
+      
+      console.log('API Response:', response.status, data); // Debug log
 
       if (!response.ok) {
         throw new Error(data.error || data.message || 'API call failed');
