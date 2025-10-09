@@ -186,15 +186,15 @@ class AuthService {
   }
 
   validatePassword(password) {
-    // En az 8 karakter, büyük harf, küçük harf, rakam ve özel karakter
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    // En az 6 karakter, büyük harf, küçük harf, rakam ve özel karakter
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
     return passwordRegex.test(password);
   }
 
   getPasswordStrength(password) {
     let strength = 0;
     const checks = {
-      length: password.length >= 8,
+      length: password.length >= 6,
       lowercase: /[a-z]/.test(password),
       uppercase: /[A-Z]/.test(password),
       number: /\d/.test(password),

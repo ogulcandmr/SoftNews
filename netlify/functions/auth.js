@@ -22,7 +22,9 @@ function isValidEmail(email) {
 
 // Validate password strength
 function isValidPassword(password) {
-  return password && password.length >= 6;
+  // En az 6 karakter, büyük harf, küçük harf, rakam ve özel karakter
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+  return passwordRegex.test(password);
 }
 
 // Generate JWT token

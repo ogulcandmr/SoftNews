@@ -61,7 +61,7 @@ function ResetPasswordPage() {
   const getPasswordStrength = (password) => {
     let strength = 0;
     const checks = {
-      length: password.length >= 8,
+      length: password.length >= 6,
       lowercase: /[a-z]/.test(password),
       uppercase: /[A-Z]/.test(password),
       number: /\d/.test(password),

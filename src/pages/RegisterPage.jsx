@@ -58,7 +58,7 @@ function RegisterPage() {
 
     if (!validatePassword(formData.password)) {
       setToast({ 
-        message: 'Şifre en az 8 karakter olmalı ve büyük harf, küçük harf, rakam ve özel karakter içermelidir.', 
+        message: 'Şifre en az 6 karakter olmalı ve büyük harf, küçük harf, rakam ve özel karakter içermelidir.', 
         type: 'error' 
       });
       setIsSubmitting(false);
