@@ -2,22 +2,30 @@
   command = "npm run build"
   publish = "dist"
 
-[dev]
-  functions = "netlify/functions"
+[build.environment]
+  NODE_VERSION = "18"
 
+[functions]
+  directory = "netlify/functions"
+  included_files = ["netlify/functions/**"]
+
+# 🔥 Fonksiyon yönlendirmesi
 [[redirects]]
-  from = "/api/ai"
-  to = "/.netlify/functions/ai"
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
   status = 200
 
-[[redirects]]
-  from = "/api/news"
-  to = "/.netlify/functions/news"
-  status = 200
-
-# SPA fallback: client-side router yollarını index.html'e yönlendir
+# SPA yönlendirmesi (en sona koy)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  
+
+# Güvenlik başlıkları (isteğe bağlı)
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
