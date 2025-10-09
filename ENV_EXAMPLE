@@ -1,16 +1,18 @@
-# Frontend (Vite) env - copy as .env at repo root
-# Option A: Use serverless proxy (recommended)
-VITE_AI_ENDPOINT=/api/ai
-VITE_AI_MODEL=gpt-4o-mini
-VITE_AI_PROVIDER=openai-compatible
+# JWT Secret Key (Production'da güçlü bir key kullanın)
+JWT_SECRET=L4jRYvriAczQJnCVWRy9KdNNOFBrauh0L9WDMWLOeUA=
 
-# Option B (local quick test - not for production):
-# VITE_AI_ENDPOINT=https://api.openai.com/v1/chat/completions
-# VITE_AI_API_KEY=YOUR_OPENAI_KEY
+# Supabase Database
+SUPABASE_URL=https://eilimagdfmkgbvowjtdo.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpbGltYWdkZm1rZ2J2b3dqdGRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjYwMTgsImV4cCI6MjA3NTYwMjAxOH0.Hgp6ysGtSjJ95SCxFOrleS1JI7hO1oqbEPaH0rEn-z4
 
-# Backend (Netlify) env:
-# NEWS_PROVIDER=newsapi   # or gnews
-# NEWS_API_KEY=YOUR_NEWSAPI_KEY
-# GNEWS_API_KEY=YOUR_GNEWS_KEY
-# OPENAI_API_KEY=YOUR_OPENAI_KEY
-# AI_API_URL=https://api.openai.com/v1/chat/completions
+# Google OAuth
+GOOGLE_CLIENT_ID=782750767221-spc15g1p21dho3qo7ceicb8i0hqoadfj.apps.googleusercontent.com
+REACT_APP_GOOGLE_CLIENT_ID=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
+
+# GitHub OAuth
+GITHUB_CLIENT_ID=Ov23liQTGht4XBXnaThw
+GITHUB_CLIENT_SECRET=713d209ad3572dc83baad171f9fdd9ee9dfb97f0
+REACT_APP_GITHUB_CLIENT_ID=Ov23liQTGht4XBXnaThw
+
+# Email Service (Production için)
+EMAIL_SERVICE_API_KEY=re_ck9ENPie_Gx6XG8BKcj7u4EiH1vcpzL2B

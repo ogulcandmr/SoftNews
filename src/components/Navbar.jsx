@@ -6,34 +6,18 @@ import Navbar from 'react-bootstrap/Navbar';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import Image from 'react-bootstrap/Image';
 import { useNavigate, Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 function CustomNavbar() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem('softnews_user');
-    setUser(stored ? JSON.parse(stored) : null);
-    const handleStorage = () => {
-      const updated = localStorage.getItem('softnews_user');
-      setUser(updated ? JSON.parse(updated) : null);
-    };
-    window.addEventListener('storage', handleStorage);
-    window.addEventListener('softnews_user_change', handleStorage);
-    return () => {
-      window.removeEventListener('storage', handleStorage);
-      window.removeEventListener('softnews_user_change', handleStorage);
-    };
-  }, []);
+  const { user, isAuthenticated, logout } = useAuth();
 
   const handleProfileClick = () => {
     navigate('/profile');
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('softnews_user');
-    setUser(null);
+    logout();
     navigate('/');
   };
 
@@ -81,21 +65,26 @@ function CustomNavbar() {
               <Nav.Link as={Link} to="/videos">Videolar</Nav.Link>
               <Nav.Link as={Link} to="/forum">Forum</Nav.Link>
               <Nav.Link as={Link} to="/about">Hakkında</Nav.Link>
-              {user && <Nav.Link as={Link} to="/profile">Profilim</Nav.Link>}
+              {isAuthenticated && <Nav.Link as={Link} to="/profile">Profilim</Nav.Link>}
               </Nav>
             <div className="d-flex align-items-center gap-3 mt-4 mt-lg-0 justify-content-end">
-              {user ? (
+              {isAuthenticated ? (
                 <>
-                <Image
-                  src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
-                  roundedCircle
-                  width={35}
-                  height={35}
-                  alt="Profil"
+                <div className="d-flex align-items-center gap-2">
+                  <span className="text-muted small d-none d-md-block">
+                    Merhaba, {user?.name || user?.email}
+                  </span>
+                  <Image
+                    src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                    roundedCircle
+                    width={35}
+                    height={35}
+                    alt="Profil"
                     style={{ cursor: 'pointer', border: '2px solid #a5b4fc', background: '#fff' }}
-                  onClick={handleProfileClick}
+                    onClick={handleProfileClick}
                     title="Profilim"
                   />
+                </div>
                   <Button variant="outline-danger" size="sm" onClick={handleLogout} className="ms-2">Çıkış</Button>
                 </>
               ) : (

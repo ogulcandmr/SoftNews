@@ -15,6 +15,10 @@ import AboutPage from './pages/AboutPage';
 import ProfilePage from './pages/ProfilePage';
 import ChatbotWidget from './components/ChatbotWidget';
 import WeeklySummaryPage from './pages/WeeklySummaryPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import GitHubCallbackPage from './pages/GitHubCallbackPage';
+import { AuthProvider } from './contexts/AuthContext';
 
 // Dummy sayfa bileşenleri
 const Home = () => (
@@ -48,7 +52,7 @@ const Forum = () => (
 
 function App() {
   return (
-    <>
+    <AuthProvider>
       <CustomNavbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -62,10 +66,13 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/summary" element={<WeeklySummaryPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/auth/github/callback" element={<GitHubCallbackPage />} />
       </Routes>
       <Footer />
       <ChatbotWidget />
-    </>
+    </AuthProvider>
   );
 }
 

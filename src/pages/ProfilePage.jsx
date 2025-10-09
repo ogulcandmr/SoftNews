@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateWeeklySummary } from '../services/aiClient';
+import { useAuth } from '../contexts/AuthContext';
+import ProtectedRoute from '../components/ProtectedRoute';
+import { MDBContainer, MDBRow, MDBCol, MDBBtn, MDBInput, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter } from 'mdb-react-ui-kit';
+import ToastMessage from '../components/ToastMessage';
 
 const dummyFavorites = [
   {
@@ -24,7 +28,7 @@ const dummyTopics = [
 ];
 
 const ProfilePage = () => {
-  const [user, setUser] = useState(null);
+  const { user, updateProfile, changePassword, error, clearError } = useAuth();
   const [aiStats, setAiStats] = useState({
     weeklySummariesGenerated: 0,
     aiChatMessages: 0,
@@ -33,21 +37,24 @@ const ProfilePage = () => {
   });
   const [personalizedSummary, setPersonalizedSummary] = useState('');
   const [loadingSummary, setLoadingSummary] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [editForm, setEditForm] = useState({ name: '', email: '' });
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [toast, setToast] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const stored = localStorage.getItem('softnews_user');
-    if (!stored) {
-      navigate('/LoginPage');
-    } else {
-      setUser(JSON.parse(stored));
+    if (user) {
+      setEditForm({ name: user.name || '', email: user.email || '' });
       // Load AI stats from localStorage
       const stats = localStorage.getItem('softnews_ai_stats');
       if (stats) {
         setAiStats(JSON.parse(stats));
       }
     }
-  }, [navigate]);
+  }, [user]);
 
   const generatePersonalizedSummary = async () => {
     setLoadingSummary(true);
@@ -59,6 +66,49 @@ const ProfilePage = () => {
       setPersonalizedSummary('Özet oluşturulamadı. Lütfen tekrar deneyin.');
     }
     setLoadingSummary(false);
+  };
+
+  const handleEditProfile = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    clearError();
+
+    try {
+      const response = await updateProfile(editForm);
+      if (response.success) {
+        setToast({ message: 'Profil başarıyla güncellendi!', type: 'success' });
+        setShowEditModal(false);
+      }
+    } catch (error) {
+      setToast({ message: error.message || 'Profil güncellenemedi!', type: 'error' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    clearError();
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setToast({ message: 'Yeni şifreler eşleşmiyor!', type: 'error' });
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const response = await changePassword(passwordForm.currentPassword, passwordForm.newPassword);
+      if (response.success) {
+        setToast({ message: 'Şifre başarıyla değiştirildi!', type: 'success' });
+        setShowPasswordModal(false);
+        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      }
+    } catch (error) {
+      setToast({ message: error.message || 'Şifre değiştirilemedi!', type: 'error' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!user) return null;
@@ -90,7 +140,22 @@ const ProfilePage = () => {
         </div>
 
         <div className="mb-6">
-          <span className="font-semibold">E-posta:</span> {user.email}
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <span className="font-semibold">Ad Soyad:</span> {user.name}
+            </div>
+            <MDBBtn color="primary" size="sm" onClick={() => setShowEditModal(true)}>
+              Düzenle
+            </MDBBtn>
+          </div>
+          <div className="mt-2">
+            <span className="font-semibold">E-posta:</span> {user.email}
+          </div>
+          <div className="mt-2">
+            <MDBBtn color="warning" size="sm" onClick={() => setShowPasswordModal(true)}>
+              Şifre Değiştir
+            </MDBBtn>
+          </div>
         </div>
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-purple-700 mb-2">Favori Haberlerim</h2>
@@ -141,8 +206,102 @@ const ProfilePage = () => {
           </a>
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      <MDBModal show={showEditModal} setShow={setShowEditModal} tabIndex="-1">
+        <MDBModalHeader>
+          <MDBModalTitle>Profili Düzenle</MDBModalTitle>
+        </MDBModalHeader>
+        <form onSubmit={handleEditProfile}>
+          <MDBModalBody>
+            <MDBInput
+              wrapperClass="mb-4"
+              label="Ad Soyad"
+              type="text"
+              value={editForm.name}
+              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+              required
+              disabled={isSubmitting}
+            />
+            <MDBInput
+              wrapperClass="mb-4"
+              label="E-posta"
+              type="email"
+              value={editForm.email}
+              onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+              required
+              disabled={isSubmitting}
+            />
+            {error && <div className="text-danger mb-3">{error}</div>}
+          </MDBModalBody>
+          <MDBModalFooter>
+            <MDBBtn color="secondary" onClick={() => setShowEditModal(false)} disabled={isSubmitting}>
+              İptal
+            </MDBBtn>
+            <MDBBtn type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Güncelleniyor...' : 'Güncelle'}
+            </MDBBtn>
+          </MDBModalFooter>
+        </form>
+      </MDBModal>
+
+      {/* Change Password Modal */}
+      <MDBModal show={showPasswordModal} setShow={setShowPasswordModal} tabIndex="-1">
+        <MDBModalHeader>
+          <MDBModalTitle>Şifre Değiştir</MDBModalTitle>
+        </MDBModalHeader>
+        <form onSubmit={handleChangePassword}>
+          <MDBModalBody>
+            <MDBInput
+              wrapperClass="mb-4"
+              label="Mevcut Şifre"
+              type="password"
+              value={passwordForm.currentPassword}
+              onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+              required
+              disabled={isSubmitting}
+            />
+            <MDBInput
+              wrapperClass="mb-4"
+              label="Yeni Şifre"
+              type="password"
+              value={passwordForm.newPassword}
+              onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+              required
+              disabled={isSubmitting}
+            />
+            <MDBInput
+              wrapperClass="mb-4"
+              label="Yeni Şifre Tekrar"
+              type="password"
+              value={passwordForm.confirmPassword}
+              onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+              required
+              disabled={isSubmitting}
+            />
+            {error && <div className="text-danger mb-3">{error}</div>}
+          </MDBModalBody>
+          <MDBModalFooter>
+            <MDBBtn color="secondary" onClick={() => setShowPasswordModal(false)} disabled={isSubmitting}>
+              İptal
+            </MDBBtn>
+            <MDBBtn type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Değiştiriliyor...' : 'Değiştir'}
+            </MDBBtn>
+          </MDBModalFooter>
+        </form>
+      </MDBModal>
+
+      {toast && <ToastMessage message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 };
 
-export default ProfilePage; 
+// Wrap with ProtectedRoute
+const ProfilePageWrapper = () => (
+  <ProtectedRoute requireAuth={true}>
+    <ProfilePage />
+  </ProtectedRoute>
+);
+
+export default ProfilePageWrapper; 
