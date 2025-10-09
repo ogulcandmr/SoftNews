@@ -1,32 +1,23 @@
 [build]
-  command = "npm ci && npm run build"
+  command = "npm run build"
   publish = "dist"
 
-[build.environment]
-  NODE_VERSION = "20"
+[dev]
+  functions = "netlify/functions"
 
-[functions]
-  directory = "netlify/functions"
-
-# --- Redirects ---
-
-# API isteklerini yönlendirme (öncelikli kural)
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
+  from = "/api/ai"
+  to = "/.netlify/functions/ai"
   status = 200
 
-# SPA yönlendirmesi (genel kural)
+[[redirects]]
+  from = "/api/news"
+  to = "/.netlify/functions/news"
+  status = 200
+
+# SPA fallback: client-side router yollarını index.html'e yönlendir
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-# --- Güvenlik başlıkları ---
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
+  
