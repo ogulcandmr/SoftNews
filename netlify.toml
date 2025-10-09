@@ -2,22 +2,25 @@
   command = "npm run build"
   publish = "dist"
 
-[dev]
-  functions = "netlify/functions"
+[build.environment]
+  # Environment variables will be automatically loaded from .env file
+  NODE_VERSION = "18"
 
-[[redirects]]
-  from = "/api/ai"
-  to = "/.netlify/functions/ai"
-  status = 200
+# Netlify Functions
+[functions]
+  directory = "netlify/functions"
 
-[[redirects]]
-  from = "/api/news"
-  to = "/.netlify/functions/news"
-  status = 200
-
-# SPA fallback: client-side router yollarını index.html'e yönlendir
+# Redirects for SPA
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

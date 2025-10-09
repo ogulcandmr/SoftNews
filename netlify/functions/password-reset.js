@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const db = require('./database');
+const db = require('../../src/lib/database');
 
 // JWT secret key
 const JWT_SECRET = process.env.JWT_SECRET || 'softnews_secret_key_2024';

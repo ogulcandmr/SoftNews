@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const db = require('./database');
+const db = require('../../src/lib/database');
 
 // JWT secret - in production, use environment variable
 const JWT_SECRET = process.env.JWT_SECRET || 'softnews-secret-key-2024';
@@ -64,8 +64,10 @@ exports.handler = async function (event) {
   }
 
   try {
+    console.log('Auth function called:', event.queryStringParameters, event.body);
     const { action } = event.queryStringParameters || {};
     const body = JSON.parse(event.body || '{}');
+    console.log('Action:', action, 'Body:', body);
 
     switch (action) {
       case 'register':
