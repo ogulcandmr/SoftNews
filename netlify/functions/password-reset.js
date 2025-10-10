@@ -28,8 +28,8 @@ const hashPassword = async (password) => {
 };
 
 const validatePassword = (password) => {
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-  return passwordRegex.test(password);
+  // Şifre sınırlaması kaldırıldı: her türlü şifre kabul edilir
+  return true;
 };
 
 exports.handler = async (event, context) => {
@@ -210,20 +210,7 @@ exports.handler = async (event, context) => {
         };
       }
 
-      // Validate password strength
-      if (!validatePassword(newPassword)) {
-        return {
-          statusCode: 400,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            success: false,
-            message: 'Şifre en az 6 karakter olmalı ve büyük harf, küçük harf, rakam ve özel karakter içermelidir.'
-          })
-        };
-      }
+      // Şifre karmaşıklığı kısıtı kaldırıldı
 
       try {
         const decoded = verifyResetToken(token);
