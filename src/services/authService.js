@@ -1,4 +1,4 @@
-const API_BASE_URL = '/.netlify/functions/auth';
+const API_BASE_URL = '/api/auth';
 
 class AuthService {
   constructor() {

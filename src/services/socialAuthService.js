@@ -1,7 +1,10 @@
 class SocialAuthService {
   constructor() {
-    this.googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-    this.githubClientId = process.env.REACT_APP_GITHUB_CLIENT_ID;
+    // Use Vite client-side env vars; fallback to older REACT_APP_* names if provided in build-time
+    this.googleClientId =
+      (import.meta?.env?.VITE_GOOGLE_CLIENT_ID || import.meta?.env?.REACT_APP_GOOGLE_CLIENT_ID || import.meta?.env?.GOOGLE_CLIENT_ID) || '';
+    this.githubClientId =
+      (import.meta?.env?.VITE_GITHUB_CLIENT_ID || import.meta?.env?.REACT_APP_GITHUB_CLIENT_ID || import.meta?.env?.GITHUB_CLIENT_ID) || '';
   }
 
   // Google Sign-In
@@ -16,7 +19,7 @@ class SocialAuthService {
       const idToken = googleUser.getAuthResponse().id_token;
 
       // Send token to backend
-      const response = await fetch('/.netlify/functions/social-auth/google', {
+      const response = await fetch('/api/social-auth/google', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +64,7 @@ class SocialAuthService {
   // Handle GitHub callback
   async handleGitHubCallback(code) {
     try {
-      const response = await fetch('/.netlify/functions/social-auth/github', {
+      const response = await fetch('/api/social-auth/github', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

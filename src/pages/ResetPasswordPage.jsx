@@ -30,7 +30,7 @@ function ResetPasswordPage() {
     // Verify token
     const verifyToken = async () => {
       try {
-        const response = await fetch(`/.netlify/functions/password-reset/verify-reset-token/${token}`);
+        const response = await fetch(`/api/password-reset/verify-reset-token/${token}`);
         const data = await response.json();
 
         if (data.success) {
@@ -114,7 +114,7 @@ function ResetPasswordPage() {
     }
 
     try {
-      const response = await fetch('/.netlify/functions/password-reset/reset-password', {
+      const response = await fetch('/api/password-reset/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

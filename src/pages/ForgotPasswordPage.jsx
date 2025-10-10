@@ -15,7 +15,7 @@ function ForgotPasswordPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/.netlify/functions/password-reset/request-reset', {
+      const response = await fetch('/api/password-reset/request-reset', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
