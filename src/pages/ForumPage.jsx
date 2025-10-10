@@ -88,7 +88,9 @@ async function apiCreateTopic({ title, category, content = '' }) {
 
 const ForumPage = () => {
   const [selected, setSelected] = useState('Tümü');
-  const [topics, setTopics] = useState(dummyTopics);
+  const [topics, setTopics] = useState([]); // start empty to avoid fake flicker
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: '', category: 'Genel' });
   const [aiProcessing, setAiProcessing] = useState(false);
@@ -98,7 +100,12 @@ const ForumPage = () => {
   // Sunucudan konuları yükle
   useEffect(() => {
     let mounted = true;
-    apiListTopics().then(items => { if (mounted) setTopics(items); });
+    setLoading(true);
+    setError('');
+    apiListTopics()
+      .then(items => { if (mounted) setTopics(items); })
+      .catch(e => { if (mounted) setError('Konular yüklenemedi'); })
+      .finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
   }, []);
 
@@ -155,6 +162,12 @@ const ForumPage = () => {
             </div>
           )}
         </div>
+        {loading && (
+          <div className="bg-white rounded-xl shadow p-6 text-gray-500">Konular yükleniyor…</div>
+        )}
+        {error && !loading && (
+          <div className="bg-white rounded-xl shadow p-6 text-red-600">{error}</div>
+        )}
         <div className="flex flex-wrap gap-3 justify-center mb-8">
           <button
             className={`px-4 py-2 rounded-full border font-semibold transition-all duration-200 shadow-sm ${selected === 'Tümü' ? 'bg-purple-700 text-white' : 'bg-white text-purple-700 hover:bg-purple-100'}`}
@@ -203,22 +216,22 @@ const ForumPage = () => {
           </form>
         )}
         <div className="bg-white rounded-xl shadow divide-y">
-          {filtered.length === 0 && <div className="p-6 text-center text-gray-500">Hiç konu yok.</div>}
+          {!loading && filtered.length === 0 && <div className="p-6 text-center text-gray-500">Hiç konu yok.</div>}
           {filtered.map(topic => (
             <Link key={topic.id} to={`/forum/${topic.id}`} className="block">
               <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-0 justify-between px-6 py-4 hover:bg-purple-50 transition">
                 <div>
                   <div className="font-semibold text-lg text-purple-900 flex items-center gap-2">
                     {topic.title}
-                    {topic.hasAI && (
+                    {(topic.hasAI || topic.has_ai_reply) && (
                       <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
                         🤖 AI Yanıtladı
                       </span>
                     )}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {topic.category} • {topic.author} • {topic.date}
-                    {topic.lastReply && ` • Son yanıt: ${topic.lastReply}`}
+                    {topic.category} • {topic.author} • {(topic.date || topic.created_at || '').slice(0,10)}
+                    {(topic.lastReply || topic.last_reply_at) && ` • Son yanıt: ${(topic.lastReply || topic.last_reply_at).slice(0,10)}`}
                   </div>
                 </div>
                 <div className="text-xs text-purple-700 font-bold">Yanıt: {topic.replies ?? topic.replies_count ?? 0}</div>
