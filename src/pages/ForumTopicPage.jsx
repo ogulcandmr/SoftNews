@@ -1,104 +1,109 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { generateForumAutoReply } from '../services/aiClient';
 
-const dummyTopics = [
-  {
-    id: 1,
-    title: 'Yazılımda Kariyer Planı Nasıl Yapılır?',
-    category: 'Yazılım',
-    author: 'ogulcan',
-    date: '2024-07-10',
-    content: 'Yazılımda kariyer planı yaparken hangi teknolojilere odaklanmalı, nasıl yol izlemeli?',
-    replies: [
-      { id: 1, author: 'ayse', date: '2024-07-10', text: 'Frontend ile başlamak mantıklı.' },
-      { id: 2, author: 'mehmet', date: '2024-07-10', text: 'Backend de önemli, ikisini de öğren.' },
-    ],
-  },
-  {
-    id: 2,
-    title: 'En iyi oyun motoru hangisi?',
-    category: 'Oyun',
-    author: 'ayse',
-    date: '2024-07-09',
-    content: 'Unity mi Unreal mı? Sizce hangisi daha iyi?',
-    replies: [
-      { id: 1, author: 'ogulcan', date: '2024-07-09', text: 'Unity yeni başlayanlar için daha kolay.' },
-    ],
-  },
-];
+async function apiGetTopicWithReplies(id) {
+  const res = await fetch(`/api/forum/topics/${id}`);
+  const data = await res.json();
+  if (!res.ok || !data?.success) throw new Error(data?.message || 'Get topic failed');
+  return data.data;
+}
+
+async function apiPostReply(id, content) {
+  const res = await fetch(`/api/forum/topics/${id}/replies`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content })
+  });
+  const data = await res.json();
+  if (!res.ok || !data?.success) throw new Error(data?.message || 'Reply failed');
+  return data.data;
+}
+
+async function apiAutoReply(id) {
+  const res = await fetch(`/api/forum/topics/${id}/auto-reply`, { method: 'POST' });
+  const data = await res.json();
+  if (!res.ok || !data?.success) throw new Error(data?.message || 'Auto-reply failed');
+  return data.data;
+}
 
 const ForumTopicPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const topic = dummyTopics.find(t => t.id === Number(id));
-  const [replies, setReplies] = useState(topic ? topic.replies : []);
+  const [topic, setTopic] = useState(null);
+  const [replies, setReplies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [reply, setReply] = useState('');
-  const [autoTried, setAutoTried] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
 
-  if (!topic) return <div className="text-center py-20 text-xl">Konu bulunamadı.</div>;
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    setError('');
+    apiGetTopicWithReplies(id)
+      .then(({ topic, replies }) => {
+        if (!mounted) return;
+        setTopic(topic);
+        setReplies(replies || []);
+      })
+      .catch((e) => {
+        console.error('Load topic failed:', e);
+        setError('Konu yüklenemedi.');
+      })
+      .finally(() => setLoading(false));
+    return () => { mounted = false; };
+  }, [id]);
 
-  const handleReply = e => {
+  const handleReply = async (e) => {
     e.preventDefault();
-    setReplies([
-      ...replies,
-      {
-        id: replies.length + 1,
-        author: 'guest',
-        date: new Date().toISOString().slice(0, 10),
-        text: reply,
-      },
-    ]);
-    setReply('');
+    try {
+      const created = await apiPostReply(id, reply);
+      setReplies(prev => [...prev, {
+        id: created.id,
+        author: created.author || 'guest',
+        date: (created.created_at || '').slice(0,10),
+        text: created.content,
+      }]);
+      setReply('');
+    } catch (e) {
+      console.error(e);
+      alert('Yanıt gönderilemedi');
+    }
   };
 
-  // MVP oto-yanıt: konu açıldıktan 30sn sonra hâlâ yanıt yoksa AI öneri mesajı ekle
-  useEffect(() => {
-    if (!topic) return;
-    const storageKey = `softnews_forum_autoreply_${topic.id}`;
-    const createdAtKey = `softnews_forum_created_${topic.id}`;
-
-    // konu oluşturulma zamanını taklit et (gerçek backend yok)
-    if (!localStorage.getItem(createdAtKey)) {
-      localStorage.setItem(createdAtKey, new Date(topic.date).getTime().toString());
+  const handleAutoReply = async () => {
+    try {
+      setAiBusy(true);
+      const created = await apiAutoReply(id);
+      setReplies(prev => [...prev, {
+        id: created.id,
+        author: created.author || 'softnews-ai',
+        date: (created.created_at || '').slice(0,10),
+        text: created.content,
+      }]);
+    } catch (e) {
+      console.error(e);
+      alert('AI yanıtı oluşturulamadı');
+    } finally {
+      setAiBusy(false);
     }
+  };
 
-    if (autoTried) return;
-    const timer = setTimeout(async () => {
-      if (replies.length > 0) return; // artık gerek yok
-      if (localStorage.getItem(storageKey)) return; // zaten denendi
-      setAutoTried(true);
-
-      const res = await generateForumAutoReply({
-        topicTitle: topic.title,
-        topicContent: topic.content,
-      });
-      if (res?.ok && res.content) {
-        setReplies(current => [
-          ...current,
-          {
-            id: current.length + 1,
-            author: 'softnews-ai',
-            date: new Date().toISOString().slice(0, 10),
-            text: res.content,
-          },
-        ]);
-        localStorage.setItem(storageKey, '1');
-      }
-    }, 30000); // 30sn (demo). Backend ile 24s vb. yapılır
-
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topic, replies.length, autoTried]);
+  if (loading) return <div className="text-center py-20 text-xl">Yükleniyor…</div>;
+  if (error || !topic) return <div className="text-center py-20 text-xl">Konu bulunamadı.</div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 py-10 relative animate-fade-in-down">
       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center opacity-10 pointer-events-none" />
       <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-6">
         <button onClick={() => navigate(-1)} className="mb-4 text-purple-600 hover:underline">&larr; Geri</button>
-        <div className="mb-2 text-xs text-purple-700 font-semibold uppercase">{topic.category} • {topic.author} • {topic.date}</div>
+        <div className="mb-2 text-xs text-purple-700 font-semibold uppercase">{topic.category} • {topic.author} • {(topic.created_at || '').slice(0,10)}</div>
         <h1 className="text-2xl font-bold mb-4">{topic.title}</h1>
-        <p className="text-gray-700 mb-6">{topic.content}</p>
+        <p className="text-gray-700 mb-4">{topic.content}</p>
+        <div className="flex gap-2 mb-6">
+          <span className="text-xs text-gray-500">Yanıt sayısı: {topic.replies_count ?? replies.length}</span>
+          <button onClick={handleAutoReply} disabled={aiBusy} className="text-xs px-3 py-1 rounded-full bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-60">{aiBusy ? 'AI yazıyor…' : 'AI Yanıtla'}</button>
+        </div>
         <h2 className="text-lg font-bold mb-2 text-blue-700">Yanıtlar</h2>
         <div className="space-y-4 mb-6">
           {replies.length === 0 && <div className="text-gray-400">Henüz yanıt yok.</div>}
@@ -125,4 +130,4 @@ const ForumTopicPage = () => {
   );
 };
 
-export default ForumTopicPage; 
+export default ForumTopicPage;

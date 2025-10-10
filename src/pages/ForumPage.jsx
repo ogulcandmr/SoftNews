@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { generateForumAutoReply } from '../services/aiClient';
 
 const forumCategories = [
   'Genel',
@@ -64,6 +63,29 @@ const dummyTopics = [
   },
 ];
 
+async function apiListTopics() {
+  try {
+    const res = await fetch('/api/forum/topics');
+    const data = await res.json();
+    if (!res.ok || !data?.success) throw new Error(data?.message || 'List failed');
+    return data.data;
+  } catch (e) {
+    console.warn('Forum list fallback to dummy:', e.message);
+    return dummyTopics;
+  }
+}
+
+async function apiCreateTopic({ title, category, content = '' }) {
+  const res = await fetch('/api/forum/topics', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, category, content })
+  });
+  const data = await res.json();
+  if (!res.ok || !data?.success) throw new Error(data?.message || 'Create failed');
+  return data.data;
+}
+
 const ForumPage = () => {
   const [selected, setSelected] = useState('Tümü');
   const [topics, setTopics] = useState(dummyTopics);
@@ -73,64 +95,51 @@ const ForumPage = () => {
 
   const filtered = selected === 'Tümü' ? topics : topics.filter(t => t.category === selected);
 
-  // AI otomatik cevap kontrolü
+  // Sunucudan konuları yükle
   useEffect(() => {
-    const checkForAIReplies = async () => {
-      const topicsNeedingAI = topics.filter(topic => 
-        topic.replies === 0 && 
-        !topic.hasAI && 
-        new Date() - new Date(topic.date) > 24 * 60 * 60 * 1000 // 24 saat geçmiş
-      );
+    let mounted = true;
+    apiListTopics().then(items => { if (mounted) setTopics(items); });
+    return () => { mounted = false; };
+  }, []);
 
-      if (topicsNeedingAI.length > 0) {
-        setAiProcessing(true);
-        
-        for (const topic of topicsNeedingAI) {
-          try {
-            const aiReply = await generateForumAutoReply(topic.title, topic.category);
-            if (aiReply) {
-              setTopics(prevTopics => 
-                prevTopics.map(t => 
-                  t.id === topic.id 
-                    ? { 
-                        ...t, 
-                        replies: t.replies + 1, 
-                        lastReply: new Date().toISOString().slice(0, 10),
-                        hasAI: true 
-                      }
-                    : t
-                )
-              );
-            }
-          } catch (error) {
-            console.error('AI reply error:', error);
-          }
-        }
-        
-        setAiProcessing(false);
-      }
-    };
-
-    checkForAIReplies();
-  }, [topics]);
-
-  const handleSubmit = e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setTopics([
-      {
-        id: topics.length + 1,
-        title: form.title,
-        category: form.category,
-        author: 'guest',
-        date: new Date().toISOString().slice(0, 10),
-        replies: 0,
-        lastReply: null,
-        hasAI: false,
-      },
-      ...topics,
-    ]);
-    setForm({ title: '', category: 'Genel' });
-    setShowForm(false);
+    try {
+      const created = await apiCreateTopic({ title: form.title, category: form.category, content: '' });
+      setTopics(prev => [
+        {
+          id: created.id,
+          title: created.title,
+          category: created.category,
+          author: created.author || 'guest',
+          date: (created.created_at || '').slice(0,10),
+          replies: created.replies_count ?? 0,
+          lastReply: created.last_reply_at ? created.last_reply_at.slice(0,10) : null,
+          hasAI: created.has_ai_reply ?? false,
+        },
+        ...prev,
+      ]);
+      setForm({ title: '', category: 'Genel' });
+      setShowForm(false);
+    } catch (err) {
+      console.error('Create topic failed:', err);
+      // fallback lokal ekle
+      setTopics(prev => [
+        {
+          id: Math.max(0, ...prev.map(t => Number(t.id) || 0)) + 1,
+          title: form.title,
+          category: form.category,
+          author: 'guest',
+          date: new Date().toISOString().slice(0, 10),
+          replies: 0,
+          lastReply: null,
+          hasAI: false,
+        },
+        ...prev,
+      ]);
+      setForm({ title: '', category: 'Genel' });
+      setShowForm(false);
+    }
   };
 
   return (
@@ -212,7 +221,7 @@ const ForumPage = () => {
                     {topic.lastReply && ` • Son yanıt: ${topic.lastReply}`}
                   </div>
                 </div>
-                <div className="text-xs text-purple-700 font-bold">Yanıt: {topic.replies}</div>
+                <div className="text-xs text-purple-700 font-bold">Yanıt: {topic.replies ?? topic.replies_count ?? 0}</div>
               </div>
             </Link>
           ))}

@@ -1,64 +1,157 @@
 // netlify/functions/ai.js
 
+// In-memory rate limit store (per cold start)
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX = 20; // max 20 requests per minute per IP
+const buckets = new Map();
+
+function corsHeaders() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Content-Type': 'application/json',
+  };
+}
+
+function getClientIp(event) {
+  return (
+    event.headers['x-forwarded-for'] ||
+    event.headers['client-ip'] ||
+    event.headers['x-real-ip'] ||
+    event.ip ||
+    'unknown'
+  ).toString().split(',')[0].trim();
+}
+
+function isSafePrompt(messages = []) {
+  const text = JSON.stringify(messages).toLowerCase();
+  // Very simple guardrails (expand as needed)
+  const banned = [
+    'violence', 'terror', 'explosive', 'weapon', 'harm', 'hate',
+    'child sexual', 'csam', 'suicide', 'self-harm'
+  ];
+  return !banned.some((k) => text.includes(k));
+}
+
+function selectProvider() {
+  // Provider selection via environment
+  // Expected values: 'groq' | 'openai' | 'openrouter'
+  const provider = (process.env.VITE_AI_PROVIDER || process.env.AI_PROVIDER || 'groq').toLowerCase();
+  if (provider === 'openai') {
+    return {
+      name: 'openai',
+      url: 'https://api.openai.com/v1/chat/completions',
+      key: process.env.OPENAI_API_KEY,
+      authHeader: (k) => `Bearer ${k}`,
+    };
+  }
+  if (provider === 'openrouter') {
+    return {
+      name: 'openrouter',
+      url: 'https://openrouter.ai/api/v1/chat/completions',
+      key: process.env.OPENROUTER_API_KEY,
+      authHeader: (k) => `Bearer ${k}`,
+      extraHeaders: {
+        'HTTP-Referer': process.env.SITE_URL || 'https://softnew.netlify.app',
+        'X-Title': 'SoftNews',
+      },
+    };
+  }
+  // default: groq (OpenAI-compatible)
+  return {
+    name: 'groq',
+    url: 'https://api.groq.com/openai/v1/chat/completions',
+    key: process.env.GROQ_API_KEY,
+    authHeader: (k) => `Bearer ${k}`,
+  };
+}
+
 exports.handler = async function (event) {
-  // ✅ Basit test endpoint'i (GET isteği)
+  const headers = corsHeaders();
+
+  // CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
+
+  // Health check
   if (event.httpMethod === 'GET') {
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        message: 'AI function is working',
-        method: 'GET',
-        timestamp: new Date().toISOString()
-      })
+      headers,
+      body: JSON.stringify({ message: 'AI function is working', method: 'GET', timestamp: new Date().toISOString() }),
     };
   }
 
-  // ✅ Sadece POST isteklerini kabul et
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
 
-  // ✅ Ortam değişkenlerini al
-  const GROQ_API_KEY = process.env.GROQ_API_KEY;
-  const AI_API_URL = 'https://api.groq.com/openai/v1/chat/completions'; // Groq endpoint
-
-  if (!GROQ_API_KEY) {
+  // Rate limit
+  const ip = getClientIp(event);
+  const now = Date.now();
+  const entry = buckets.get(ip) || { count: 0, ts: now };
+  if (now - entry.ts > RATE_LIMIT_WINDOW_MS) {
+    entry.count = 0;
+    entry.ts = now;
+  }
+  entry.count += 1;
+  buckets.set(ip, entry);
+  if (entry.count > RATE_LIMIT_MAX) {
     return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Missing GROQ_API_KEY' })
+      statusCode: 429,
+      headers,
+      body: JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
     };
+  }
+
+  // Parse body
+  let body;
+  try {
+    body = JSON.parse(event.body || '{}');
+  } catch (e) {
+    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+  }
+
+  const {
+    model = process.env.VITE_AI_MODEL || 'llama-3.1-8b-instant',
+    messages = [],
+    temperature = 0.3,
+    max_tokens = 800,
+  } = body;
+
+  // Guardrails
+  if (!isSafePrompt(messages)) {
+    return {
+      statusCode: 400,
+      headers,
+      body: JSON.stringify({ error: 'Request content not allowed by policy.' }),
+    };
+  }
+
+  // Provider
+  const provider = selectProvider();
+  if (!provider.key) {
+    return { statusCode: 500, headers, body: JSON.stringify({ error: `Missing API key for provider: ${provider.name}` }) };
   }
 
   try {
-    // ✅ İstek gövdesini çözümle
-    const body = JSON.parse(event.body || '{}');
-    const {
-      model = 'llama-3.1-8b-instant', // Groq destekli model
-      messages = [],
-      temperature = 0.3,
-      max_tokens = 800
-    } = body;
+    const reqHeaders = {
+      'Content-Type': 'application/json',
+      Authorization: provider.authHeader(provider.key),
+      ...(provider.extraHeaders || {}),
+    };
 
-    // ✅ Groq API’ye istek gönder
-    const res = await fetch(AI_API_URL, {
+    const res = await fetch(provider.url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${GROQ_API_KEY}`
-      },
-      body: JSON.stringify({ model, messages, temperature, max_tokens })
+      headers: reqHeaders,
+      body: JSON.stringify({ model, messages, temperature, max_tokens }),
     });
 
     const text = await res.text();
-
-    return {
-      statusCode: res.status,
-      body: text
-    };
+    return { statusCode: res.status, headers, body: text };
   } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message || 'AI proxy error' })
-    };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: error.message || 'AI proxy error' }) };
   }
 };

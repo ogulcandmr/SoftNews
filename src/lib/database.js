@@ -173,6 +173,107 @@ class DatabaseService {
       .delete()
       .lt('expires_at', new Date().toISOString());
   }
+
+  // ===== Forum: Topics =====
+  async listTopics({ limit = 50 } = {}) {
+    if (!this.isAvailable()) throw new Error('Database not available');
+    const { data, error } = await this.supabase
+      .from('topics')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw new Error(`Database error: ${error.message}`);
+    return data || [];
+  }
+
+  async getTopicById(id) {
+    if (!this.isAvailable()) throw new Error('Database not available');
+    const { data, error } = await this.supabase
+      .from('topics')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) throw new Error(`Database error: ${error.message}`);
+    return data;
+  }
+
+  async createTopic({ title, category, content, author }) {
+    if (!this.isAvailable()) throw new Error('Database not available');
+    const row = {
+      title,
+      category,
+      content: content || '',
+      author: author || 'guest',
+      created_at: new Date().toISOString(),
+      last_reply_at: null,
+      replies_count: 0,
+      has_ai_reply: false,
+    };
+    const { data, error } = await this.supabase
+      .from('topics')
+      .insert([row])
+      .select()
+      .single();
+    if (error) throw new Error(`Database error: ${error.message}`);
+    return data;
+  }
+
+  async markTopicUpdatedOnReply(topicId, { hasAI = false } = {}) {
+    if (!this.isAvailable()) throw new Error('Database not available');
+    const { data, error } = await this.supabase.rpc('increment_replies_and_touch', {
+      p_topic_id: topicId,
+      p_has_ai: hasAI,
+    });
+    if (error) {
+      // Fallback if RPC not present
+      const topic = await this.getTopicById(topicId);
+      const { data: updated, error: updErr } = await this.supabase
+        .from('topics')
+        .update({
+          replies_count: (topic?.replies_count || 0) + 1,
+          last_reply_at: new Date().toISOString(),
+          has_ai_reply: topic?.has_ai_reply || hasAI,
+        })
+        .eq('id', topicId)
+        .select()
+        .single();
+      if (updErr) throw new Error(`Database error: ${updErr.message}`);
+      return updated;
+    }
+    return data;
+  }
+
+  // ===== Forum: Replies =====
+  async listReplies(topicId, { limit = 100 } = {}) {
+    if (!this.isAvailable()) throw new Error('Database not available');
+    const { data, error } = await this.supabase
+      .from('replies')
+      .select('*')
+      .eq('topic_id', topicId)
+      .order('created_at', { ascending: true })
+      .limit(limit);
+    if (error) throw new Error(`Database error: ${error.message}`);
+    return data || [];
+  }
+
+  async createReply({ topic_id, content, author, ai_generated = false }) {
+    if (!this.isAvailable()) throw new Error('Database not available');
+    const row = {
+      topic_id,
+      content,
+      author: author || 'guest',
+      ai_generated,
+      created_at: new Date().toISOString(),
+    };
+    const { data, error } = await this.supabase
+      .from('replies')
+      .insert([row])
+      .select()
+      .single();
+    if (error) throw new Error(`Database error: ${error.message}`);
+    await this.markTopicUpdatedOnReply(topic_id, { hasAI: ai_generated });
+    return data;
+  }
 }
 
 // Singleton instance
