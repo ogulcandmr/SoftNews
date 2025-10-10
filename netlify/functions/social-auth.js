@@ -74,12 +74,22 @@ exports.handler = async (event, context) => {
     };
   }
 
-  const { httpMethod, path } = event;
+  const { httpMethod } = event;
+  const path = event.path || '';
+  const rawUrl = event.rawUrl || '';
   const body = event.body ? JSON.parse(event.body) : {};
+
+  // Normalize route detection for Netlify redirects
+  const routeStr = `${path} ${rawUrl}`;
+  const isGoogleRoute = /\/social-auth\/google\b/.test(routeStr) || body.provider === 'google';
+  const isGitHubRoute = /\/social-auth\/github\b/.test(routeStr) || body.provider === 'github';
+  try {
+    console.log('Social-auth route debug:', { path, rawUrl, isGoogleRoute, isGitHubRoute });
+  } catch (_) {}
 
   try {
     // Google OAuth endpoint
-    if (httpMethod === 'POST' && path.endsWith('/google')) {
+    if (httpMethod === 'POST' && isGoogleRoute) {
       const { token } = body;
 
       if (!token) {
@@ -164,7 +174,7 @@ exports.handler = async (event, context) => {
     }
 
     // GitHub OAuth endpoint (simplified - in production you'd use GitHub's OAuth flow)
-    if (httpMethod === 'POST' && path.endsWith('/github')) {
+    if (httpMethod === 'POST' && isGitHubRoute) {
       const { code } = body;
 
       if (!code) {

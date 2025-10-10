@@ -5,11 +5,20 @@ class SocialAuthService {
       (import.meta?.env?.VITE_GOOGLE_CLIENT_ID || import.meta?.env?.REACT_APP_GOOGLE_CLIENT_ID || import.meta?.env?.GOOGLE_CLIENT_ID) || '';
     this.githubClientId =
       (import.meta?.env?.VITE_GITHUB_CLIENT_ID || import.meta?.env?.REACT_APP_GITHUB_CLIENT_ID || import.meta?.env?.GITHUB_CLIENT_ID) || '';
+
+    // Debug logs to help diagnose wrong IDs in production (will be stripped in minification but useful locally)
+    try {
+      console.log('[SocialAuth] GoogleClientId present:', !!this.googleClientId);
+      console.log('[SocialAuth] GitHubClientId present:', !!this.githubClientId);
+    } catch (_) {}
   }
 
   // Google Sign-In
   async signInWithGoogle() {
     try {
+      if (!this.googleClientId) {
+        throw new Error('Google Client ID is missing. Please set VITE_GOOGLE_CLIENT_ID.');
+      }
       // Load Google API
       await this.loadGoogleAPI();
       
@@ -64,12 +73,13 @@ class SocialAuthService {
   // Handle GitHub callback
   async handleGitHubCallback(code) {
     try {
+      const redirectUri = `${window.location.origin}/auth/github/callback`;
       const response = await fetch('/api/social-auth/github', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, redirectUri }),
       });
 
       const data = await response.json();
