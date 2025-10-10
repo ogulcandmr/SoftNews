@@ -112,7 +112,7 @@ function LoginPage() {
             <MDBInput 
               wrapperClass='mb-4' 
               label='Email address' 
-              id='formControlLg' 
+              id='loginEmail' 
               type='email' 
               size="lg" 
               value={email} 
@@ -123,7 +123,7 @@ function LoginPage() {
             <MDBInput 
               wrapperClass='mb-4' 
               label='Password' 
-              id='formControlLg' 
+              id='loginPassword' 
               type='password' 
               size="lg" 
               value={password} 

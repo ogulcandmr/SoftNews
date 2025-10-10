@@ -20,11 +20,10 @@ function isValidEmail(email) {
   return emailRegex.test(email);
 }
 
-// Validate password strength
+// Validate password strength (restriction removed)
 function isValidPassword(password) {
-  // En az 6 karakter, büyük harf, küçük harf, rakam ve özel karakter
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-  return passwordRegex.test(password);
+  // Şifre sınırlaması kaldırıldı: her türlü şifre kabul edilir
+  return true;
 }
 
 // Generate JWT token
@@ -120,13 +119,7 @@ async function handleRegister(body, headers) {
     };
   }
 
-  if (!isValidPassword(password)) {
-    return {
-      statusCode: 400,
-      headers,
-      body: JSON.stringify({ error: 'Password must be at least 6 characters' })
-    };
-  }
+  // Şifre karmaşıklığı kısıtı kaldırıldı
 
   try {
     // Check if user already exists

@@ -186,27 +186,24 @@ class AuthService {
   }
 
   validatePassword(password) {
-    // En az 6 karakter, büyük harf, küçük harf, rakam ve özel karakter
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-    return passwordRegex.test(password);
+    // Şifre sınırlaması kaldırıldı: her türlü şifreyi kabul et
+    return true;
   }
 
   getPasswordStrength(password) {
-    let strength = 0;
-    const checks = {
-      length: password.length >= 6,
-      lowercase: /[a-z]/.test(password),
-      uppercase: /[A-Z]/.test(password),
-      number: /\d/.test(password),
-      special: /[@$!%*?&]/.test(password)
-    };
-
-    strength = Object.values(checks).filter(Boolean).length;
-
+    // Basit uzunluk tabanlı gösterge (opsiyonel, UI amaçlı)
+    const length = password?.length || 0;
+    const level = length >= 10 ? 'strong' : length >= 6 ? 'medium' : 'weak';
     return {
-      strength,
-      checks,
-      level: strength < 3 ? 'weak' : strength < 5 ? 'medium' : 'strong'
+      strength: level === 'strong' ? 5 : level === 'medium' ? 3 : 1,
+      checks: {
+        length: length >= 1,
+        lowercase: true,
+        uppercase: true,
+        number: true,
+        special: true
+      },
+      level
     };
   }
 }
