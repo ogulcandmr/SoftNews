@@ -110,6 +110,17 @@ const FALLBACK_VIDEOS = [
   },
 ];
 
+function categorizeVideo(title = '', description = '') {
+  const t = `${title} ${description}`.toLowerCase();
+  if (/yapay zeka|ai|gpt|llm|machine learning|ml|deep learning/.test(t)) return 'Yapay Zeka';
+  if (/donanım|hardware|gpu|cpu|işlemci|ekran kartı|ram|ssd|anakart|raspberry|arduino|iot/.test(t)) return 'Donanım';
+  if (/oyun|gaming|playstation|xbox|steam|unity|unreal/.test(t)) return 'Oyun';
+  if (/yazılım|software|typescript|javascript|react|vue|angular|node|python|golang|java|kotlin|c\+\+|c#/.test(t)) return 'Yazılım';
+  if (/startup|girişim|vc|yatırım|funding|exit|scaleup/.test(t)) return 'Startup';
+  if (/mobil|android|ios|iphone|telefon|uygulama/.test(t)) return 'Mobil';
+  return 'Teknoloji';
+}
+
 async function fetchYouTube(query, maxResults = 9) {
   const key = process.env.YOUTUBE_API_KEY;
   if (!key) {
@@ -168,7 +179,7 @@ async function fetchYouTube(query, maxResults = 9) {
     thumbnails: v.snippet.thumbnails,
     durationISO8601: v.contentDetails.duration,
     views: Number(v.statistics?.viewCount || 0),
-    category: 'Teknoloji',
+    category: categorizeVideo(v.snippet.title, v.snippet.description),
     aiRecommended: false,
   }));
   return { ok: true, source: 'youtube', items };

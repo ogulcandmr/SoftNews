@@ -163,14 +163,16 @@ export function getAIConfigPublic() {
 
 // Focused helper for video recommendations
 export async function generateVideoRecommendations({ videoContextText }) {
+  const { tone, length, focus } = getUserPreferences();
   const system =
     'Sen SoftNews için Türkçe konuşan bir video öneri asistanısın. ' +
-    'Görevin: verilen video başlıkları ve açıklamalarına göre 3-5 maddede izlenmeye değer öneriler üretmek. ' +
-    'Kısa, net ve tıklanabilir başlık odaklı öneriler yaz. Gereksiz tekrar yapma.';
+    'Görevin: verilen video başlıkları, kısa açıklamaları ve URL bilgilerine göre izlenmeye değer öneriler üretmek. ' +
+    `Kullanıcı tercihleri → Ton: ${tone}; Uzunluk: ${length}; Odak: ${focus}. ` +
+    'Cevap formatı: 3-5 madde; her maddede kısa başlık — 1 cümlelik gerekçe — doğrudan video URL’i. Fazla laf kalabalığı yapma.';
 
   const user =
-    `Video bağlamı (başlık + kısa açıklama):\n${videoContextText}\n\n` +
-    'Lütfen 3-5 madde halinde, her maddede kısa bir gerekçe ile öneri üret. Başlığı öne çıkar.';
+    `Video bağlamı (Başlık, Kısa Açıklama, URL):\n${videoContextText}\n\n` +
+    'Lütfen çıktıdaki her maddeye sonuna doğrudan URL’yi ekle.';
 
   return callAI({
     messages: [
@@ -178,7 +180,7 @@ export async function generateVideoRecommendations({ videoContextText }) {
       { role: 'user', content: user },
     ],
     temperature: 0.35,
-    maxTokens: 450,
+    maxTokens: 500,
   });
 }
 

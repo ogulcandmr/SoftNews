@@ -53,7 +53,8 @@ const VideosPage = () => {
           id: v.id,
           title: v.title,
           description: v.description,
-          url: v.embedUrl || `https://www.youtube.com/embed/${v.id}`,
+          embedUrl: v.embedUrl || `https://www.youtube.com/embed/${v.id}`,
+          watchUrl: v.url || `https://www.youtube.com/watch?v=${v.id}`,
           category: v.category || 'Teknoloji',
           duration: v.duration || iso8601ToMinSec(v.durationISO8601),
           views: formatViews(v.views),
@@ -92,7 +93,7 @@ const VideosPage = () => {
     try {
       const videoContextText = videos
         .slice(0, 12)
-        .map(v => `Başlık: ${v.title}\nAçıklama: ${v.description?.slice(0, 200) || ''}`)
+        .map(v => `Başlık: ${v.title}\nAçıklama: ${v.description?.slice(0, 200) || ''}\nURL: ${v.watchUrl}`)
         .join('\n\n');
       const res = await generateVideoRecommendations({ videoContextText });
       if (res.ok) {
@@ -111,7 +112,7 @@ const VideosPage = () => {
     const vid = video.id;
     setInsightLoading((s) => ({ ...s, [vid]: true }));
     try {
-      const videoContextText = `Başlık: ${video.title}\nAçıklama: ${(video.description || '').slice(0, 400)}`;
+      const videoContextText = `Başlık: ${video.title}\nAçıklama: ${(video.description || '').slice(0, 400)}\nURL: ${video.watchUrl}`;
       const res = await generateVideoRecommendations({ videoContextText });
       if (res.ok) {
         setInsights((m) => ({ ...m, [vid]: res.content || '' }));
@@ -220,7 +221,7 @@ const VideosPage = () => {
               <div key={video.id} className="rounded-2xl shadow-xl bg-white overflow-hidden hover:shadow-2xl transition-shadow duration-300">
                 <div className="relative cursor-pointer" onClick={() => setModalVideo(video)}>
                   <iframe
-                    src={video.url}
+                    src={video.embedUrl}
                     title={video.title}
                     allowFullScreen
                     className="w-full h-48 md:h-56"
@@ -254,12 +255,20 @@ const VideosPage = () => {
                   </div>
                   {insights[video.id] && (
                     <div className="mt-2 p-3 rounded-lg bg-purple-50 border border-purple-100">
-                      {insights[video.id].split('\n').filter(Boolean).slice(0,3).map((line, idx) => (
-                        <div key={idx} className="flex gap-2 items-start text-sm mb-1">
-                          <span className="text-purple-600 mt-1">•</span>
-                          <span>{line.replace(/^[-•\s]+/, '')}</span>
-                        </div>
-                      ))}
+                      {insights[video.id].split('\n').filter(Boolean).slice(0,3).map((line, idx) => {
+                        const clean = line.replace(/^[−-•\s]+/, '');
+                        const m = clean.match(/(https?:\/\/[^\s]+)$/);
+                        const url = m ? m[1] : null;
+                        const text = url ? clean.replace(url, '').trim() : clean;
+                        return (
+                          <div key={idx} className="flex gap-2 items-start text-sm mb-1">
+                            <span className="text-purple-600 mt-1">•</span>
+                            <span>
+                              {text} {url && <a className="text-blue-700 underline" href={url} target="_blank" rel="noreferrer">Bağlantı</a>}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

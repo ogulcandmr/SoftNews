@@ -50,19 +50,29 @@ exports.handler = async (event) => {
     }
     const html = await res.text();
 
-    // Try to find article tag
-    let articleMatch = html.match(/<article[\s\S]*?<\/article>/i);
-    let articleHtml = articleMatch ? articleMatch[0] : '';
+    // Try to find main content containers
+    const candidates = [];
+    const patterns = [
+      /<article[\s\S]*?<\/article>/gi,
+      /<div[^>]+id=["'](?:content|main|article|post)["'][\s\S]*?<\/div>/gi,
+      /<div[^>]+class=["'][^"']*(?:content|main|article|post|entry-content|post-content)[^"']*["'][\s\S]*?<\/div>/gi,
+      /<section[\s\S]*?<\/section>/gi,
+    ];
+    for (const re of patterns) {
+      const matches = html.match(re) || [];
+      for (const m of matches) candidates.push(m);
+    }
+    let bestBlock = pickLongestText(candidates.map(stripTags));
 
-    // If no article, collect many <p> blocks near main content
-    let paragraphs = [];
-    if (!articleHtml) {
+    // If no good block found, collect many <p> blocks
+    if (!bestBlock || bestBlock.length < 600) {
       const pMatches = html.match(/<p[\s\S]*?<\/p>/gi) || [];
-      // pick top 40 paragraphs
-      paragraphs = pMatches.slice(0, 40).map((p) => stripTags(p));
+      // pick more paragraphs to increase recall
+      const paragraphs = pMatches.slice(0, 120).map((p) => stripTags(p));
+      bestBlock = pickLongestText([bestBlock || '', paragraphs.join('\n\n')]);
     }
 
-    const text = articleHtml ? stripTags(articleHtml) : paragraphs.join('\n\n');
+    const text = bestBlock || '';
 
     // Try a few title candidates
     const title = pickLongestText([
