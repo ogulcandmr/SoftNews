@@ -133,7 +133,37 @@ exports.handler = async function (event) {
   // Provider
   const provider = selectProvider();
   if (!provider.key) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: `Missing API key for provider: ${provider.name}` }) };
+    // Local fallback summary when API key is missing
+    try {
+      const lastUser = (messages || []).slice().reverse().find(m => m.role === 'user');
+      const raw = (lastUser?.content || JSON.stringify(messages || '')).toString();
+      const lines = raw
+        .split(/\n+/)
+        .map(s => s.trim())
+        .filter(Boolean)
+        .slice(0, 20);
+      const bullets = lines
+        .map((s, i) => `- ${s.replace(/^[-•\s]+/, '')}`)
+        .slice(0, 7)
+        .join('\n');
+      const mock = {
+        id: 'softnews-mock-completion',
+        object: 'chat.completion',
+        created: Math.floor(Date.now() / 1000),
+        model,
+        choices: [
+          {
+            index: 0,
+            message: { role: 'assistant', content: bullets || '- Özet üretilemedi.' },
+            finish_reason: 'stop',
+          },
+        ],
+        usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
+      };
+      return { statusCode: 200, headers, body: JSON.stringify(mock) };
+    } catch (e) {
+      return { statusCode: 500, headers, body: JSON.stringify({ error: `AI fallback failed: ${e?.message || e}` }) };
+    }
   }
 
   try {

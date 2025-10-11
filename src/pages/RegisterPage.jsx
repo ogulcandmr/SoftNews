@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MDBContainer, MDBCol, MDBRow, MDBBtn, MDBInput, MDBProgress } from 'mdb-react-ui-kit';
 import ToastMessage from '../components/ToastMessage';
+import socialAuthService from '../services/socialAuthService';
 import { useAuth } from '../contexts/AuthContext';
 import ProtectedRoute from '../components/ProtectedRoute';
 
@@ -36,6 +37,30 @@ function RegisterPage() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleGoogleSignUp = async () => {
+    setIsSubmitting(true);
+    try {
+      const res = await socialAuthService.signInWithGoogle();
+      if (res?.success) {
+        setToast({ message: 'Google ile giriş başarılı!', type: 'success' });
+        setTimeout(() => navigate('/'), 800);
+      }
+    } catch (e) {
+      setToast({ message: e?.message || 'Google ile giriş başarısız.', type: 'error' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGitHubSignUp = async () => {
+    try {
+      await socialAuthService.signInWithGitHub();
+      // Redirect eder, burada ekstra bir şey yok
+    } catch (e) {
+      setToast({ message: e?.message || 'GitHub ile giriş başlatılamadı.', type: 'error' });
+    }
   };
 
   const handleRegister = async (e) => {
@@ -192,6 +217,17 @@ function RegisterPage() {
                 'Kayıt Ol'
               )}
             </MDBBtn>
+
+            <div className="my-3 text-center text-muted">veya</div>
+
+            <div className="d-grid gap-2 mb-3">
+              <MDBBtn color="danger" outline disabled={isSubmitting} onClick={handleGoogleSignUp}>
+                <span className="me-2">🔴</span> Google ile Kayıt Ol / Giriş Yap
+              </MDBBtn>
+              <MDBBtn color="dark" outline onClick={handleGitHubSignUp}>
+                <span className="me-2">🐱</span> GitHub ile Kayıt Ol / Giriş Yap
+              </MDBBtn>
+            </div>
             
             <p className="small fw-bold mt-2 pt-1 mb-2 text-center">
               Zaten hesabın var mı? <a href="/LoginPage" className="link-primary">Giriş Yap</a>
