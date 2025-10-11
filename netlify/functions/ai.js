@@ -28,8 +28,10 @@ function isSafePrompt(messages = []) {
   const text = JSON.stringify(messages).toLowerCase();
   // Very simple guardrails (expand as needed)
   const banned = [
-    'violence', 'terror', 'explosive', 'weapon', 'harm', 'hate',
-    'child sexual', 'csam', 'suicide', 'self-harm'
+    'violence','violent','terror','terrorist','explosive','bomb','weapon','harm','kill','hate','abuse',
+    'child sexual','csam','suicide','self-harm','self harm',
+    'doxx','doxxing','credit card','ssn','social security','password list','malware','ransomware','phishing',
+    'extremism','hate speech','genocide','chemical weapon','bioweapon'
   ];
   return !banned.some((k) => text.includes(k));
 }

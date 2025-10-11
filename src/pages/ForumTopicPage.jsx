@@ -8,11 +8,11 @@ async function apiGetTopicWithReplies(id) {
   return data.data;
 }
 
-async function apiPostReply(id, content) {
+async function apiPostReply(id, content, author) {
   const res = await fetch(`/api/forum/topics/${id}/replies`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content })
+    body: JSON.stringify({ content, author })
   });
   const data = await res.json();
   if (!res.ok || !data?.success) throw new Error(data?.message || 'Reply failed');
@@ -44,7 +44,14 @@ const ForumTopicPage = () => {
       .then(({ topic, replies }) => {
         if (!mounted) return;
         setTopic(topic);
-        setReplies(replies || []);
+        // Map server replies (content/author/created_at) to UI shape (text/author/date)
+        const mapped = (replies || []).map(r => ({
+          id: r.id,
+          author: r.author || 'guest',
+          date: (r.created_at || '').slice(0,10),
+          text: r.content,
+        }));
+        setReplies(mapped);
       })
       .catch((e) => {
         console.error('Load topic failed:', e);
@@ -57,10 +64,18 @@ const ForumTopicPage = () => {
   const handleReply = async (e) => {
     e.preventDefault();
     try {
-      const created = await apiPostReply(id, reply);
+      let author = 'guest';
+      try {
+        const raw = localStorage.getItem('softnews_user');
+        if (raw) {
+          const u = JSON.parse(raw);
+          author = u?.name || u?.email || 'guest';
+        }
+      } catch {}
+      const created = await apiPostReply(id, reply, author);
       setReplies(prev => [...prev, {
         id: created.id,
-        author: created.author || 'guest',
+        author: created.author || author || 'guest',
         date: (created.created_at || '').slice(0,10),
         text: created.content,
       }]);

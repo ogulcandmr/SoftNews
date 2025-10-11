@@ -10,6 +10,46 @@ function getConfig() {
   return { endpoint, model, provider };
 }
 
+// Rich article-specific summary
+export async function generateArticleSummary({ title, text }) {
+  const { tone, length, focus } = getUserPreferences();
+  const system =
+    'Sen SoftNews için Türkçe konuşan kıdemli bir teknoloji editörüsün. ' +
+    'Görevin: verilen haber metnini kaynak göstermeden, tarafsız ve detaylı biçimde özetlemek; ' +
+    'önemli noktalar, teknik detaylar, sektörel etkiler ve gelecek perspektifini ayrı başlıklar altında vermek. ' +
+    `Kullanıcı tercihleri → Ton: ${tone}; Uzunluk: ${length}; Odak: ${focus}. ` +
+    'Yanıtı markdownsız, sade metin olarak ver. Gerektiğinde maddeler kullan.';
+
+  const user =
+    `Haber başlığı: ${title}\n\n` +
+    `Haber metni:\n${text}\n\n` +
+    'Çıktı bölümleri: \n' +
+    '- Özet\n- Önemli Noktalar (madde madde)\n- Teknik Özellikler / Detaylar (varsa)\n- Sektörel Etkiler\n- Gelecek Perspektifi\n- Sonuç\n';
+
+  return callAI({
+    messages: [
+      { role: 'system', content: system },
+      { role: 'user', content: user },
+    ],
+    temperature: 0.35,
+    maxTokens: 700,
+  });
+}
+
+const PREFS_KEY = 'softnews_ai_prefs_v1';
+export function getUserPreferences() {
+  try {
+    const raw = localStorage.getItem(PREFS_KEY);
+    const p = raw ? JSON.parse(raw) : {};
+    const tone = p.tone || 'tarafsız'; // 'resmi' | 'samimi' | 'tarafsız'
+    const length = p.length || 'kısa'; // 'kısa' | 'orta' | 'uzun'
+    const focus = p.focus || 'genel'; // 'yapay zeka' | 'yazılım' | 'donanım' | 'genel'
+    return { tone, length, focus };
+  } catch {
+    return { tone: 'tarafsız', length: 'kısa', focus: 'genel' };
+  }
+}
+
 async function callAI({ messages, temperature = 0.3, maxTokens = 500 }) {
   const { endpoint, model } = getConfig();
 
@@ -48,10 +88,12 @@ async function callAI({ messages, temperature = 0.3, maxTokens = 500 }) {
 }
 
 export async function generateWeeklySummary({ contextText }) {
+  const { tone, length, focus } = getUserPreferences();
   const system =
     'Sen SoftNews için Türkçe konuşan bir teknoloji editörüsün. ' +
-    'Görevin: son günlerde yazılım, donanım, yapay zeka ve girişim dünyasındaki gelişmeleri kısa ve öz, maddeler halinde özetlemek. ' +
-    'Doğrulanmamış bilgileri kesin gerçek gibi sunma. Ton: bilgilendirici, tarafsız.';
+    'Görevin: son günlerde yazılım, donanım, yapay zeka ve girişim dünyasındaki gelişmeleri maddeler halinde özetlemek. ' +
+    `Kullanıcı tercihleri → Ton: ${tone}; Uzunluk: ${length}; Odak: ${focus}. ` +
+    'Doğrulanmamış bilgileri kesin gerçek gibi sunma. Ton: bilgilendirici, tarafsız kalmaya çalış.';
 
   const user =
     `İçerik bağlamı (haber özetleri veya başlıklar):\n${contextText}\n\n` +
@@ -68,9 +110,11 @@ export async function generateWeeklySummary({ contextText }) {
 }
 
 export function buildNewsAwareMessages({ newsContextText, history = [], userInput }) {
+  const { tone, length, focus } = getUserPreferences();
   const system =
     'Sen SoftNews için Türkçe konuşan bir yardımcısın. ' +
     'Odak alanları: yazılım, donanım, yapay zeka, girişimler ve teknoloji haberleri. ' +
+    `Kullanıcı tercihleri → Ton: ${tone}; Uzunluk: ${length}; Odak: ${focus}. ` +
     'Bilmediğin konuda uydurma; emin değilsen "emin değilim" de ve yönlendir. ' +
     'Kısa ve öz yanıt ver. Gerektiğinde madde madde yaz.';
 

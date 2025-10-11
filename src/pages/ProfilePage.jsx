@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { generateWeeklySummary } from '../services/aiClient';
 import { useAuth } from '../contexts/AuthContext';
 import ProtectedRoute from '../components/ProtectedRoute';
-import { MDBContainer, MDBRow, MDBCol, MDBBtn, MDBInput, MDBModal, MDBModalHeader, MDBModalBody, MDBModalFooter } from 'mdb-react-ui-kit';
+import { MDBContainer, MDBRow, MDBCol, MDBBtn, MDBInput, MDBModal, MDBModalHeader, MDBModalTitle, MDBModalBody, MDBModalFooter } from 'mdb-react-ui-kit';
 import ToastMessage from '../components/ToastMessage';
+const PREFS_KEY = 'softnews_ai_prefs_v1';
 
 const dummyFavorites = [
   {
@@ -43,6 +44,7 @@ const ProfilePage = () => {
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [toast, setToast] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [prefs, setPrefs] = useState({ tone: 'tarafsız', length: 'kısa', focus: 'genel' });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,6 +55,10 @@ const ProfilePage = () => {
       if (stats) {
         setAiStats(JSON.parse(stats));
       }
+      try {
+        const raw = localStorage.getItem(PREFS_KEY);
+        if (raw) setPrefs(JSON.parse(raw));
+      } catch {}
     }
   }, [user]);
 
@@ -125,6 +131,48 @@ const ProfilePage = () => {
             <div className="text-2xl font-bold">{aiStats.weeklySummariesGenerated}</div>
             <div className="text-sm opacity-90">Haftalık Özet</div>
           </div>
+
+        {/* AI Tercihleri */}
+        <div className="mb-8 bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl shadow p-4">
+          <h2 className="text-xl font-semibold text-purple-700 mb-3">AI Tercihlerim</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label className="text-sm text-gray-600">Ton</label>
+              <select className="w-full border rounded px-3 py-2" value={prefs.tone} onChange={(e)=>setPrefs(p=>({...p, tone: e.target.value}))}>
+                <option value="resmi">Resmi</option>
+                <option value="samimi">Samimi</option>
+                <option value="tarafsız">Tarafsız</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-sm text-gray-600">Uzunluk</label>
+              <select className="w-full border rounded px-3 py-2" value={prefs.length} onChange={(e)=>setPrefs(p=>({...p, length: e.target.value}))}>
+                <option value="kısa">Kısa</option>
+                <option value="orta">Orta</option>
+                <option value="uzun">Uzun</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-sm text-gray-600">Odak</label>
+              <select className="w-full border rounded px-3 py-2" value={prefs.focus} onChange={(e)=>setPrefs(p=>({...p, focus: e.target.value}))}>
+                <option value="genel">Genel</option>
+                <option value="yapay zeka">Yapay Zeka</option>
+                <option value="yazılım">Yazılım</option>
+                <option value="donanım">Donanım</option>
+              </select>
+            </div>
+          </div>
+          <div className="mt-3">
+            <button
+              className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+              onClick={() => {
+                try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); setToast({ message: 'AI tercihleri kaydedildi.', type: 'success' }); } catch {}
+              }}
+            >
+              Tercihleri Kaydet
+            </button>
+          </div>
+        </div>
           <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg text-center">
             <div className="text-2xl font-bold">{aiStats.aiChatMessages}</div>
             <div className="text-sm opacity-90">AI Sohbet</div>

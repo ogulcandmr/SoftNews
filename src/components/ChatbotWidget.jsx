@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { chatWithNewsContext } from '../services/aiClient';
+import { chatWithNewsContext, getAIConfigPublic } from '../services/aiClient';
 import { getNewsContextText, buildNewsContextFromItems } from '../data/newsData';
 import { fetchLatestNews } from '../services/newsService';
 
@@ -29,6 +29,7 @@ const ChatbotWidget = () => {
   const [error, setError] = useState('');
   const [history, setHistory] = useState(loadHistory());
   const endRef = useRef(null);
+  const [aiConfig, setAiConfig] = useState({ provider: '', model: '' });
 
   const [newsContext, setNewsContext] = useState(getNewsContextText(12));
 
@@ -43,6 +44,14 @@ const ChatbotWidget = () => {
     return () => { mounted = false; };
   }, []);
 
+  // Load AI config (provider/model)
+  useEffect(() => {
+    try {
+      const cfg = getAIConfigPublic();
+      setAiConfig(cfg);
+    } catch (_) {}
+  }, []);
+
   useEffect(() => {
     saveHistory(history);
   }, [history]);
@@ -52,6 +61,19 @@ const ChatbotWidget = () => {
       endRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [open, history]);
+
+  // Cmd+K toggle
+  useEffect(() => {
+    const onKey = (e) => {
+      const isCmdK = (e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K');
+      if (isCmdK) {
+        e.preventDefault();
+        setOpen((v) => !v);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const send = async () => {
     if (!input.trim()) return;
@@ -81,6 +103,7 @@ const ChatbotWidget = () => {
         className="fixed right-5 w-12 h-12 rounded-full bg-purple-700 text-white shadow-lg flex items-center justify-center hover:bg-purple-800 z-[9999]"
         style={{ bottom: 'calc(20px + env(safe-area-inset-bottom))' }}
         title="SoftNews Asistan"
+        data-chatbot-trigger
       >
         <span className="text-xl">💬</span>
       </button>
@@ -92,7 +115,19 @@ const ChatbotWidget = () => {
         >
           <div className="px-4 py-3 bg-gradient-to-r from-purple-700 to-blue-600 text-white flex items-center justify-between">
             <div className="font-semibold">SoftNews Asistan</div>
-            <button onClick={() => setOpen(false)} className="text-white/80 hover:text-white">✕</button>
+            <div className="flex items-center gap-2 text-[10px] opacity-80">
+              <span>{aiConfig.provider || 'ai'}</span>
+              <span>•</span>
+              <span>{aiConfig.model || 'model'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setHistory([])}
+                className="text-white/80 hover:text-white text-xs underline"
+                title="Sohbet geçmişini temizle"
+              >Temizle</button>
+              <button onClick={() => setOpen(false)} className="text-white/80 hover:text-white">✕</button>
+            </div>
           </div>
           <div className="p-3 h-80 overflow-y-auto space-y-2 bg-gradient-to-br from-purple-50 via-white to-blue-50">
             <div className="text-xs text-gray-500 mb-1">Haberlerle ilgili sorular sorabilirsiniz.</div>

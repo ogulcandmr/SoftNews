@@ -31,6 +31,10 @@ const VideosPage = () => {
   const [loadingVideos, setLoadingVideos] = useState(true);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('teknoloji haberleri');
+  const [searchInput, setSearchInput] = useState('teknoloji haberleri');
+  const [modalVideo, setModalVideo] = useState(null);
+  const [insights, setInsights] = useState({}); // { [videoId]: string }
+  const [insightLoading, setInsightLoading] = useState({}); // { [videoId]: boolean }
 
   const categories = ['Tümü', 'Yapay Zeka', 'Startup', 'Mobil', 'Oyun', 'Yazılım', 'Donanım', 'Teknoloji'];
 
@@ -69,6 +73,16 @@ const VideosPage = () => {
     return () => { mounted = false; };
   }, [query]);
 
+  // Debounce search input to query
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if ((searchInput || '').trim() !== (query || '').trim()) {
+        setQuery((searchInput || '').trim() || 'teknoloji haberleri');
+      }
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
   const filteredVideos = selectedCategory === 'Tümü'
     ? videos
     : videos.filter((video) => video.category === selectedCategory);
@@ -93,7 +107,25 @@ const VideosPage = () => {
     setLoadingInsights(false);
   };
 
+  const generatePerVideoInsights = async (video) => {
+    const vid = video.id;
+    setInsightLoading((s) => ({ ...s, [vid]: true }));
+    try {
+      const videoContextText = `Başlık: ${video.title}\nAçıklama: ${(video.description || '').slice(0, 400)}`;
+      const res = await generateVideoRecommendations({ videoContextText });
+      if (res.ok) {
+        setInsights((m) => ({ ...m, [vid]: res.content || '' }));
+      } else {
+        setInsights((m) => ({ ...m, [vid]: 'AI önerileri oluşturulamadı.' }));
+      }
+    } catch (e) {
+      setInsights((m) => ({ ...m, [vid]: 'AI önerileri oluşturulamadı.' }));
+    }
+    setInsightLoading((s) => ({ ...s, [vid]: false }));
+  };
+
   return (
+    <>
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 py-10 relative animate-fade-in-down">
       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center opacity-10 pointer-events-none" />
       <div className="max-w-6xl mx-auto px-4">
@@ -106,13 +138,13 @@ const VideosPage = () => {
         <div className="mb-6 flex flex-col md:flex-row gap-3 items-stretch md:items-center">
           <input
             type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             placeholder="YouTube'da ara: teknoloji, yapay zeka, donanım..."
             className="flex-1 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
           />
           <button
-            onClick={() => setQuery(query.trim() || 'teknoloji haberleri')}
+            onClick={() => setQuery((searchInput || '').trim() || 'teknoloji haberleri')}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Ara
@@ -186,7 +218,7 @@ const VideosPage = () => {
           ) : (
             filteredVideos.map((video) => (
               <div key={video.id} className="rounded-2xl shadow-xl bg-white overflow-hidden hover:shadow-2xl transition-shadow duration-300">
-                <div className="relative">
+                <div className="relative cursor-pointer" onClick={() => setModalVideo(video)}>
                   <iframe
                     src={video.url}
                     title={video.title}
@@ -210,7 +242,26 @@ const VideosPage = () => {
                     <span className="text-xs text-gray-500">{video.views} görüntüleme</span>
                   </div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-2">{video.title}</h2>
-                  <p className="text-sm text-gray-600">{video.description}</p>
+                  <p className="text-sm text-gray-600 mb-3">{video.description}</p>
+                  <div className="flex items-center justify-between mb-2">
+                    <button
+                      onClick={() => generatePerVideoInsights(video)}
+                      disabled={!!insightLoading[video.id]}
+                      className="text-xs px-3 py-1 rounded-full bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-60"
+                    >
+                      {insightLoading[video.id] ? 'Oluşturuluyor…' : '3 madde çıkar'}
+                    </button>
+                  </div>
+                  {insights[video.id] && (
+                    <div className="mt-2 p-3 rounded-lg bg-purple-50 border border-purple-100">
+                      {insights[video.id].split('\n').filter(Boolean).slice(0,3).map((line, idx) => (
+                        <div key={idx} className="flex gap-2 items-start text-sm mb-1">
+                          <span className="text-purple-600 mt-1">•</span>
+                          <span>{line.replace(/^[-•\s]+/, '')}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))
@@ -219,7 +270,30 @@ const VideosPage = () => {
         )}
       </div>
     </div>
+    {modalVideo && (
+      <div
+        className="fixed inset-0 bg-black/60 flex items-center justify-center z-[10000]"
+        onClick={() => setModalVideo(null)}
+      >
+        <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-3xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+          <div className="relative">
+            <button className="absolute top-2 right-2 bg-black/60 text-white rounded-full px-3 py-1 text-sm" onClick={() => setModalVideo(null)}>Kapat</button>
+            <iframe
+              src={modalVideo.url}
+              title={modalVideo.title}
+              allowFullScreen
+              className="w-full h-[60vh]"
+            ></iframe>
+          </div>
+          <div className="p-4">
+            <div className="text-xs text-gray-500 mb-1">{modalVideo.category} • {modalVideo.views} görüntüleme</div>
+            <div className="text-lg font-semibold mb-1">{modalVideo.title}</div>
+            <div className="text-sm text-gray-600">{modalVideo.description}</div>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
-
 export default VideosPage;

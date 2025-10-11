@@ -94,6 +94,7 @@ const ForumPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: '', category: 'Genel' });
   const [aiProcessing, setAiProcessing] = useState(false);
+  const [suggestions, setSuggestions] = useState({ titles: [], tags: [] });
 
   const filtered = selected === 'Tümü' ? topics : topics.filter(t => t.category === selected);
 
@@ -148,6 +149,27 @@ const ForumPage = () => {
       setShowForm(false);
     }
   };
+
+  // Suggest similar titles and tags when typing
+  useEffect(() => {
+    const t = (form.title || '').toLowerCase();
+    if (!t) {
+      setSuggestions({ titles: [], tags: [] });
+      return;
+    }
+    const titles = topics
+      .filter((x) => x.title?.toLowerCase().includes(t))
+      .slice(0, 5)
+      .map((x) => x.title);
+    const tags = [];
+    if (/yapay zeka|ai|makine öğrenimi|ml/.test(t)) tags.push('Yapay Zeka');
+    if (/donanım|işlemci|ekran kartı|gpu|cpu|hardware/.test(t)) tags.push('Donanım');
+    if (/oyun|gaming|playstation|xbox|steam/.test(t)) tags.push('Oyun');
+    if (/yazılım|software|kod|react|vue|angular|node/.test(t)) tags.push('Yazılım');
+    if (/startup|girişim|yatırım|finansman/.test(t)) tags.push('Startup');
+    if (/mobil|telefon|ios|android/.test(t)) tags.push('Mobil');
+    setSuggestions({ titles, tags });
+  }, [form.title, topics]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 py-10 relative animate-fade-in-down">
@@ -212,6 +234,39 @@ const ForumPage = () => {
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
+            {(suggestions.titles.length > 0 || suggestions.tags.length > 0) && (
+              <div className="rounded border border-purple-100 bg-purple-50/50 p-3">
+                {suggestions.titles.length > 0 && (
+                  <div className="mb-2">
+                    <div className="text-xs text-purple-700 font-semibold mb-1">Benzer başlıklar</div>
+                    <ul className="list-disc pl-5 text-sm text-gray-700 space-y-1">
+                      {suggestions.titles.map((t, i) => (
+                        <li key={i}>
+                          <button type="button" className="underline hover:text-purple-700" onClick={() => setForm(f => ({ ...f, title: t }))}>{t}</button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {suggestions.tags.length > 0 && (
+                  <div>
+                    <div className="text-xs text-purple-700 font-semibold mb-1">Önerilen etiket/kategori</div>
+                    <div className="flex flex-wrap gap-2">
+                      {suggestions.tags.map((tg) => (
+                        <button
+                          key={tg}
+                          type="button"
+                          className={`px-2 py-1 rounded-full text-xs border ${form.category===tg? 'bg-purple-600 text-white':'bg-white text-purple-700'}`}
+                          onClick={() => setForm(f => ({ ...f, category: tg }))}
+                        >
+                          {tg}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             <button type="submit" className="self-end px-5 py-2 rounded bg-purple-700 text-white font-semibold hover:bg-purple-800 transition">Konu Oluştur</button>
           </form>
         )}

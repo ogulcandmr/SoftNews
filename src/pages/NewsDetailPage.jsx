@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import NewsCard from '../components/NewsCard';
 import { fetchLatestNews } from '../services/newsService';
+import { generateArticleSummary } from '../services/aiClient';
 
 const allNews = [
   {
@@ -32,6 +33,10 @@ const NewsDetailPage = () => {
   const navigate = useNavigate();
   const [allArticles, setAllArticles] = useState(allNews);
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState('');
+  const [aiSummary, setAiSummary] = useState('');
+  const [articleText, setArticleText] = useState('');
   
   const news = article || allArticles.find(n => n.id === id);
   const related = allArticles.filter(n => n.category === news?.category && n.id !== id).slice(0, 4);
@@ -48,6 +53,30 @@ const NewsDetailPage = () => {
     });
     return () => { mounted = false; };
   }, []);
+
+  // Fetch full article text from source URL if available
+  useEffect(() => {
+    let active = true;
+    async function run() {
+      try {
+        const url = news?.url;
+        if (!url) {
+          setArticleText(news?.content || news?.description || '');
+          return;
+        }
+        const res = await fetch(`/api/article?url=${encodeURIComponent(url)}`);
+        const data = await res.json().catch(() => ({}));
+        if (!active) return;
+        const text = (data?.text || '').trim();
+        setArticleText(text || news?.content || news?.description || '');
+      } catch {
+        if (!active) return;
+        setArticleText(news?.content || news?.description || '');
+      }
+    }
+    if (news) run();
+    return () => { active = false; };
+  }, [news]);
 
   if (!news) {
     return (
@@ -102,8 +131,8 @@ const NewsDetailPage = () => {
             />
             
             <div className="prose prose-lg max-w-none">
-              <p className="text-gray-700 text-lg leading-relaxed mb-6">
-                {news.content || news.description}
+              <p className="text-gray-700 text-lg leading-relaxed mb-6 whitespace-pre-wrap">
+                {(articleText && articleText.length > 300) ? articleText : (news.content || news.description)}
               </p>
               
               {/* Extended article content */}
@@ -362,38 +391,31 @@ const NewsDetailPage = () => {
                 </svg>
                 AI Asistanı
               </h3>
-              <div className="space-y-3">
-                <button 
-                  onClick={() => {
-                    // Open chatbot with pre-filled question
-                    const chatbot = document.querySelector('[data-chatbot-trigger]');
-                    if (chatbot) chatbot.click();
+              <div className="space-y-4">
+                <button
+                  onClick={async () => {
+                    setAiError('');
+                    setAiLoading(true);
+                    try {
+                      const res = await generateArticleSummary({ title: news.title, text: articleText || news.content || news.description || '' });
+                      if (res.ok) setAiSummary(res.content || '');
+                      else setAiError('AI özeti üretilemedi.');
+                    } catch (e) {
+                      setAiError('AI özeti üretilemedi.');
+                    }
+                    setAiLoading(false);
                   }}
-                  className="w-full p-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-left"
+                  disabled={aiLoading}
+                  className="w-full p-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-60"
                 >
-                  <div className="font-semibold">Bu haber hakkında soru sor</div>
-                  <div className="text-sm opacity-90">AI'ya bu konuda detaylı bilgi al</div>
+                  {aiLoading ? 'Özet oluşturuluyor…' : 'Bu Haberi AI ile Özetle'}
                 </button>
-                <button 
-                  onClick={() => {
-                    // Navigate to summary page
-                    navigate('/summary');
-                  }}
-                  className="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-left"
-                >
-                  <div className="font-semibold">Haftalık AI Özeti</div>
-                  <div className="text-sm opacity-90">Bu haftanın önemli gelişmeleri</div>
-                </button>
-                <button 
-                  onClick={() => {
-                    // Open forum
-                    navigate('/forum');
-                  }}
-                  className="w-full p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-left"
-                >
-                  <div className="font-semibold">Toplulukta Tartış</div>
-                  <div className="text-sm opacity-90">Bu konuyu forumda paylaş</div>
-                </button>
+                {aiError && <div className="text-sm text-red-600">{aiError}</div>}
+                {aiSummary && (
+                  <div className="p-4 bg-purple-50 border border-purple-100 rounded-lg whitespace-pre-wrap">
+                    {aiSummary}
+                  </div>
+                )}
               </div>
             </div>
 
