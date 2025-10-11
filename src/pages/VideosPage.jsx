@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { generateWeeklySummary } from '../services/aiClient';
+import { generateVideoRecommendations } from '../services/aiClient';
 
 function formatViews(n) {
   if (!n && n !== 0) return '';
@@ -30,6 +30,7 @@ const VideosPage = () => {
   const [videos, setVideos] = useState([]);
   const [loadingVideos, setLoadingVideos] = useState(true);
   const [error, setError] = useState('');
+  const [query, setQuery] = useState('teknoloji haberleri');
 
   const categories = ['Tümü', 'Yapay Zeka', 'Startup', 'Mobil', 'Oyun', 'Yazılım', 'Donanım', 'Teknoloji'];
 
@@ -37,7 +38,7 @@ const VideosPage = () => {
     let mounted = true;
     setLoadingVideos(true);
     setError('');
-    fetch('/api/youtube?q=teknoloji haberleri')
+    fetch(`/api/youtube?q=${encodeURIComponent(query)}`)
       .then(async (res) => {
         if (!res.ok) throw new Error(await res.text());
         return res.json();
@@ -66,7 +67,7 @@ const VideosPage = () => {
         setLoadingVideos(false);
       });
     return () => { mounted = false; };
-  }, []);
+  }, [query]);
 
   const filteredVideos = selectedCategory === 'Tümü'
     ? videos
@@ -75,11 +76,11 @@ const VideosPage = () => {
   const generateAIInsights = async () => {
     setLoadingInsights(true);
     try {
-      const contextText = videos
+      const videoContextText = videos
         .slice(0, 12)
         .map(v => `Başlık: ${v.title}\nAçıklama: ${v.description?.slice(0, 200) || ''}`)
         .join('\n\n');
-      const res = await generateWeeklySummary({ contextText });
+      const res = await generateVideoRecommendations({ videoContextText });
       if (res.ok) {
         setAiInsights(res.content);
       } else {
@@ -101,7 +102,22 @@ const VideosPage = () => {
           <div className="mb-6 text-center text-red-600 text-sm">{error}</div>
         )}
         
-        {/* AI Önerileri */}
+        {/* Arama & AI Önerileri */}
+        <div className="mb-6 flex flex-col md:flex-row gap-3 items-stretch md:items-center">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="YouTube'da ara: teknoloji, yapay zeka, donanım..."
+            className="flex-1 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
+          />
+          <button
+            onClick={() => setQuery(query.trim() || 'teknoloji haberleri')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Ara
+          </button>
+        </div>
         <div className="mb-8 bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-purple-800">🤖 AI Video Önerileri</h2>

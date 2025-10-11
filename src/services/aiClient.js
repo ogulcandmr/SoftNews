@@ -117,4 +117,25 @@ export function getAIConfigPublic() {
   return { provider, model };
 }
 
+// Focused helper for video recommendations
+export async function generateVideoRecommendations({ videoContextText }) {
+  const system =
+    'Sen SoftNews için Türkçe konuşan bir video öneri asistanısın. ' +
+    'Görevin: verilen video başlıkları ve açıklamalarına göre 3-5 maddede izlenmeye değer öneriler üretmek. ' +
+    'Kısa, net ve tıklanabilir başlık odaklı öneriler yaz. Gereksiz tekrar yapma.';
+
+  const user =
+    `Video bağlamı (başlık + kısa açıklama):\n${videoContextText}\n\n` +
+    'Lütfen 3-5 madde halinde, her maddede kısa bir gerekçe ile öneri üret. Başlığı öne çıkar.';
+
+  return callAI({
+    messages: [
+      { role: 'system', content: system },
+      { role: 'user', content: user },
+    ],
+    temperature: 0.35,
+    maxTokens: 450,
+  });
+}
+
 

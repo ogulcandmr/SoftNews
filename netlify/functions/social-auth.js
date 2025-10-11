@@ -4,8 +4,13 @@ const { OAuth2Client } = require('google-auth-library');
 // JWT secret key
 const JWT_SECRET = process.env.JWT_SECRET || 'softnews_secret_key_2024';
 
+// Resolve envs (support both VITE_* and server-side names)
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID || '';
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || process.env.VITE_GITHUB_CLIENT_ID || '';
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || process.env.VITE_GITHUB_CLIENT_SECRET || '';
+
 // Google OAuth client
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // In-memory user storage (production'da veritabanı kullanılmalı)
 let users = [
@@ -110,7 +115,7 @@ exports.handler = async (event, context) => {
         // Verify Google token
         const ticket = await googleClient.verifyIdToken({
           idToken: token,
-          audience: process.env.GOOGLE_CLIENT_ID
+          audience: GOOGLE_CLIENT_ID
         });
 
         const payload = ticket.getPayload();
@@ -193,6 +198,17 @@ exports.handler = async (event, context) => {
 
       try {
         // Exchange code for access token
+        if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET) {
+          return {
+            statusCode: 400,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ success: false, message: 'GitHub OAuth env eksik. Lütfen GITHUB_CLIENT_ID ve GITHUB_CLIENT_SECRET ayarlayın.' })
+          };
+        }
+
         const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
           method: 'POST',
           headers: {
@@ -200,8 +216,8 @@ exports.handler = async (event, context) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            client_id: process.env.GITHUB_CLIENT_ID,
-            client_secret: process.env.GITHUB_CLIENT_SECRET,
+            client_id: GITHUB_CLIENT_ID,
+            client_secret: GITHUB_CLIENT_SECRET,
             code: code
           })
         });
