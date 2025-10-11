@@ -66,7 +66,10 @@ async function fetchYouTube(query, maxResults = 9) {
     key,
   });
   const searchRes = await fetch(`${YT_API_URL}/search?${searchParams.toString()}`);
-  if (!searchRes.ok) throw new Error(`YouTube search failed: ${searchRes.status}`);
+  if (!searchRes.ok) {
+    // Fall back gracefully on API errors like 403/429
+    return { ok: true, source: `fallback_api_error_${searchRes.status}`, items: FALLBACK_VIDEOS };
+  }
   const searchData = await searchRes.json();
   const ids = searchData.items.map((i) => i.id.videoId).filter(Boolean);
   if (!ids.length) return { ok: true, source: 'empty', items: [] };
@@ -78,7 +81,22 @@ async function fetchYouTube(query, maxResults = 9) {
     key,
   });
   const detailsRes = await fetch(`${YT_API_URL}/videos?${detailsParams.toString()}`);
-  if (!detailsRes.ok) throw new Error(`YouTube details failed: ${detailsRes.status}`);
+  if (!detailsRes.ok) {
+    // Build minimal items from search when details fail
+    const items = searchData.items.map((s) => ({
+      id: s.id.videoId,
+      title: s.snippet.title,
+      description: s.snippet.description,
+      url: `https://www.youtube.com/watch?v=${s.id.videoId}`,
+      embedUrl: `https://www.youtube.com/embed/${s.id.videoId}`,
+      thumbnails: s.snippet.thumbnails,
+      durationISO8601: null,
+      views: 0,
+      category: 'Teknoloji',
+      aiRecommended: false,
+    }));
+    return { ok: true, source: `partial_fallback_${detailsRes.status}`, items };
+  }
   const detailsData = await detailsRes.json();
 
   const items = detailsData.items.map((v) => ({
@@ -110,6 +128,7 @@ exports.handler = async (event) => {
     const data = await fetchYouTube(q, 9);
     return { statusCode: 200, headers, body: JSON.stringify(data) };
   } catch (e) {
-    return { statusCode: 500, headers, body: JSON.stringify({ ok: false, error: e?.message || 'youtube error' }) };
+    // Absolute fallback on unexpected errors
+    return { statusCode: 200, headers, body: JSON.stringify({ ok: true, source: 'fallback_exception', items: FALLBACK_VIDEOS }) };
   }
 };

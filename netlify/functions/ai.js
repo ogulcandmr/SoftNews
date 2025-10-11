@@ -111,7 +111,7 @@ exports.handler = async function (event) {
   try {
     body = JSON.parse(event.body || '{}');
   } catch (e) {
-    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+    body = {};
   }
 
   const {
@@ -121,13 +121,23 @@ exports.handler = async function (event) {
     max_tokens = 800,
   } = body;
 
-  // Guardrails
+  // Guardrails: if unsafe, reply with a neutral safe message instead of 400
   if (!isSafePrompt(messages)) {
-    return {
-      statusCode: 400,
-      headers,
-      body: JSON.stringify({ error: 'Request content not allowed by policy.' }),
+    const mock = {
+      id: 'softnews-guardrails',
+      object: 'chat.completion',
+      created: Math.floor(Date.now() / 1000),
+      model: body?.model || process.env.VITE_AI_MODEL || 'llama-3.1-8b-instant',
+      choices: [
+        {
+          index: 0,
+          message: { role: 'assistant', content: '- Bu içerik politikamız gereği özetlenemiyor. Lütfen konuyu daha genel ve güvenli terimlerle ifade edin.' },
+          finish_reason: 'stop',
+        },
+      ],
+      usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
     };
+    return { statusCode: 200, headers, body: JSON.stringify(mock) };
   }
 
   // Provider
