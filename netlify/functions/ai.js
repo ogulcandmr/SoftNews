@@ -26,12 +26,13 @@ function getClientIp(event) {
 
 function isSafePrompt(messages = []) {
   const text = JSON.stringify(messages).toLowerCase();
-  // Very simple guardrails (expand as needed)
+  // Strict guardrails - only block extremely dangerous content
   const banned = [
-    'violence','violent','terror','terrorist','explosive','bomb','weapon','harm','kill','hate','abuse',
-    'child sexual','csam','suicide','self-harm','self harm',
-    'doxx','doxxing','credit card','ssn','social security','password list','malware','ransomware','phishing',
-    'extremism','hate speech','genocide','chemical weapon','bioweapon'
+    'child sexual','csam','child abuse',
+    'how to make bomb','how to make explosive',
+    'credit card number','ssn:','social security:',
+    'password:','api key:','secret key:',
+    'malware code','ransomware code','exploit code'
   ];
   return !banned.some((k) => text.includes(k));
 }
