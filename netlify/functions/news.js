@@ -43,21 +43,16 @@ exports.handler = async function (event) {
         const text = title + ' ' + desc;
         const source = (article.source?.name || '').toLowerCase();
         
-        // EXCLUDE - Kesinlikle istemediğimiz konular
+        // EXCLUDE - Sadece çok açık alakasız konular
         const excludeKeywords = [
-          // Alışveriş
-          'phone case', 'case', 'accessories', 'accessory', 'deals', 'deal', 'discount', 'sale', 'buy now', 
-          'price drop', 'review roundup', 'best buy', 'amazon', 'ebay', 'shopping', 'coupon',
-          // Eğlence & Medya
-          'celebrity', 'entertainment', 'movie', 'music', 'sport', 'football', 'basketball', 'film', 'dizi', 'series',
-          // Politika & Toplum
-          'politics', 'election', 'trump', 'biden', 'war', 'military', 'crime', 'police', 'mahkeme', 'suç', 'cinayet', 'öldür',
-          'court', 'trial', 'arrest', 'prison', 'jail', 'hapis', 'tutuklama', 'gözaltı',
+          // Suç & Mahkeme
+          'crime', 'police', 'mahkeme', 'suç', 'cinayet', 'öldür', 'court', 'trial', 'arrest', 'prison', 'hapis',
+          // Politika
+          'election', 'trump', 'biden', 'war',
           // Sağlık
-          'weather', 'climate change', 'health', 'medical', 'covid', 'vaccine', 'doctor', 'hospital', 'sağlık', 'hastane',
+          'covid', 'vaccine', 'hastane',
           // Diğer
-          'fashion', 'beauty', 'travel', 'food', 'recipe', 'restaurant', 'moda', 'güzelliğ', 'yemek',
-          'real estate', 'property', 'mortgage', 'loan', 'insurance', 'finance tips', 'emlak', 'konut'
+          'phone case', 'recipe', 'restaurant', 'yemek'
         ];
         if (excludeKeywords.some(kw => text.includes(kw))) return false;
         
@@ -65,42 +60,42 @@ exports.handler = async function (event) {
         const excludeSources = ['hürriyet', 'sabah', 'sözcü', 'milliyet', 'cnn türk', 'ntv', 'habertürk', 'mynet', 'ensonhaber'];
         if (excludeSources.some(src => source.includes(src))) return false;
         
-        // MUST INCLUDE - Sadece bunlarla ilgili haberler (TECH ONLY)
+        // MUST INCLUDE - Tech keywords (daha geniş)
         const mustIncludeKeywords = [
+          // Genel Tech
+          'tech', 'technology', 'software', 'hardware', 'digital', 'innovation', 'startup',
           // Yazılım & Programlama
-          'software development', 'programming language', 'developer tool', 'code editor', 'framework', 'library', 'api', 'github', 'open source',
-          'python', 'javascript', 'react', 'vue', 'angular', 'node.js', 'typescript', 'rust', 'go lang', 'java',
-          // Yapay Zeka (SADECE TECH BAĞLAMINDA)
-          'ai model', 'artificial intelligence', 'machine learning', 'deep learning', 'neural network', 'chatgpt', 'gpt-4', 'llm', 'openai', 'anthropic', 'claude',
-          'ai tool', 'ai assistant', 'generative ai', 'computer vision', 'natural language',
-          // Oyun Teknolojisi
-          'game engine', 'game development', 'playstation 5', 'xbox series', 'nintendo switch', 'steam deck', 'epic games', 'unity engine', 'unreal engine', 'esports',
-          'gaming pc', 'gaming laptop', 'game release', 'game update',
+          'programming', 'developer', 'code', 'coding', 'framework', 'library', 'api', 'github', 'open source',
+          'python', 'javascript', 'react', 'vue', 'node', 'typescript', 'rust', 'java', 'app',
+          // Yapay Zeka
+          'ai', 'artificial intelligence', 'machine learning', 'deep learning', 'chatgpt', 'gpt', 'llm', 'openai', 'claude',
+          'neural network', 'computer vision', 'generative',
+          // Oyun
+          'gaming', 'game', 'playstation', 'xbox', 'nintendo', 'steam', 'epic games', 'unity', 'unreal', 'esports',
           // Donanım
-          'new processor', 'cpu', 'gpu', 'nvidia rtx', 'amd radeon', 'intel core', 'graphics card', 'ram', 'ssd', 'nvme',
-          'motherboard', 'pc build', 'laptop review', 'tech specs',
-          // Mobil Teknoloji
-          'mobile app', 'ios app', 'android app', 'app development', 'flutter', 'react native', 'swift', 'kotlin',
-          'smartphone', 'tablet', 'mobile os', 'app store', 'play store',
-          // Startup & Tech Şirketleri
-          'tech startup', 'tech company', 'venture capital', 'series a', 'series b', 'funding round', 'ipo', 'tech acquisition',
-          'silicon valley', 'y combinator', 'techstars',
-          // Cloud & Infrastructure
-          'cloud computing', 'aws', 'azure', 'google cloud', 'kubernetes', 'docker', 'devops', 'serverless',
-          // Güvenlik & Blockchain
-          'cybersecurity', 'data breach', 'encryption', 'blockchain', 'cryptocurrency', 'bitcoin', 'ethereum', 'web3', 'nft',
-          // Emerging Tech
-          'metaverse', 'virtual reality', 'augmented reality', 'vr headset', 'ar glasses', 'quantum computing',
-          // Tech Platforms
-          'social media platform', 'streaming platform', 'tech platform', 'saas', 'paas',
-          // Türkçe (SADECE TECH)
-          'yazılım geliştirme', 'programlama dili', 'mobil uygulama', 'oyun motoru', 'işlemci', 'ekran kartı',
-          'teknoloji şirketi', 'girişim', 'yatırım', 'uygulama geliştirme'
+          'processor', 'cpu', 'gpu', 'nvidia', 'amd', 'intel', 'graphics', 'ram', 'ssd', 'chip',
+          // Mobil
+          'mobile', 'ios', 'android', 'iphone', 'samsung', 'smartphone', 'tablet', 'app store',
+          // Şirketler
+          'google', 'apple', 'microsoft', 'meta', 'amazon', 'tesla', 'spacex', 'netflix',
+          // Cloud & Platform
+          'cloud', 'aws', 'azure', 'platform', 'saas', 'data', 'database',
+          // Blockchain & Crypto
+          'blockchain', 'crypto', 'bitcoin', 'ethereum', 'web3',
+          // Emerging
+          'vr', 'ar', 'metaverse', 'virtual reality', 'quantum',
+          // Türkçe
+          'yazılım', 'teknoloji', 'uygulama', 'oyun', 'donanım'
         ];
         
-        // At least 2 tech keywords for better filtering
-        const matchCount = mustIncludeKeywords.filter(kw => text.includes(kw)).length;
-        return matchCount >= 1;
+        // At least 1 tech keyword
+        const hasKeyword = mustIncludeKeywords.some(kw => text.includes(kw));
+        
+        // OR check if it's from a trusted tech source
+        const trustedSources = ['techcrunch', 'wired', 'theverge', 'engadget', 'arstechnica', 'venturebeat', 'techmeme', 'hackernews'];
+        const isTrustedSource = trustedSources.some(src => source.includes(src));
+        
+        return hasKeyword || isTrustedSource;
       });
       
       // Remove duplicates and prioritize Turkish + quality sources

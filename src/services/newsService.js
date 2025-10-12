@@ -71,14 +71,17 @@ export async function fetchLatestNews() {
     });
     
     console.log('API response status:', res.status);
+    console.log('API response headers:', res.headers);
     
     if (!res.ok) {
-      console.error('API request failed:', res.status, res.statusText);
-      throw new Error(`news request failed: ${res.status} ${res.statusText}`);
+      const errorText = await res.text();
+      console.error('API request failed:', res.status, res.statusText, errorText);
+      throw new Error(`news request failed: ${res.status} ${res.statusText} - ${errorText}`);
     }
     
     const data = await res.json();
     console.log('API response data:', data);
+    console.log('Articles received:', data?.articles?.length);
     
     if (!data?.ok) {
       console.error('API returned error:', data?.error);
