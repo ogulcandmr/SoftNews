@@ -35,6 +35,7 @@ const VideosPage = () => {
   const [modalVideo, setModalVideo] = useState(null);
   const [insights, setInsights] = useState({}); // { [videoId]: string }
   const [insightLoading, setInsightLoading] = useState({}); // { [videoId]: boolean }
+  const [visibleCount, setVisibleCount] = useState(9);
 
   const categories = ['Tümü', 'Yapay Zeka', 'Startup', 'Mobil', 'Oyun', 'Yazılım', 'Donanım', 'Teknoloji'];
 
@@ -42,7 +43,7 @@ const VideosPage = () => {
     let mounted = true;
     setLoadingVideos(true);
     setError('');
-    fetch(`/api/youtube?q=${encodeURIComponent(query)}`)
+    fetch(`/api/youtube?q=${encodeURIComponent(query)}&max=24`)
       .then(async (res) => {
         if (!res.ok) throw new Error(await res.text());
         return res.json();
@@ -61,11 +62,34 @@ const VideosPage = () => {
           aiRecommended: !!v.aiRecommended,
         }));
         setVideos(items);
+        setVisibleCount((c) => Math.min(Math.max(c, 9), items.length));
       })
-      .catch((e) => {
-        console.error('youtube fetch error', e);
+      .catch(async (e) => {
+        console.error('youtube fetch error (primary)', e);
         if (!mounted) return;
-        setError('Videolar getirilemedi. Daha sonra tekrar deneyin.');
+        try {
+          const res2 = await fetch(`/.netlify/functions/youtube?q=${encodeURIComponent(query)}&max=24`);
+          if (!res2.ok) throw new Error(await res2.text());
+          const data2 = await res2.json();
+          if (!mounted) return;
+          const items = (data2?.items || []).map((v) => ({
+            id: v.id,
+            title: v.title,
+            description: v.description,
+            embedUrl: v.embedUrl || `https://www.youtube.com/embed/${v.id}`,
+            watchUrl: v.url || `https://www.youtube.com/watch?v=${v.id}`,
+            category: v.category || 'Teknoloji',
+            duration: v.duration || iso8601ToMinSec(v.durationISO8601),
+            views: formatViews(v.views),
+            aiRecommended: !!v.aiRecommended,
+          }));
+          setVideos(items);
+          setVisibleCount((c) => Math.min(Math.max(c, 9), items.length));
+          setError('');
+        } catch (e2) {
+          console.error('youtube fetch error (fallback)', e2);
+          setError('Videolar getirilemedi. Daha sonra tekrar deneyin.');
+        }
       })
       .finally(() => {
         if (!mounted) return;
@@ -211,13 +235,14 @@ const VideosPage = () => {
             ))}
           </div>
         ) : (
+          <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredVideos.length === 0 ? (
             <div className="text-center text-2xl font-semibold text-gray-600">
               Hiçbir video bulunamadı.
             </div>
           ) : (
-            filteredVideos.map((video) => (
+            filteredVideos.slice(0, visibleCount).map((video) => (
               <div key={video.id} className="rounded-2xl shadow-xl bg-white overflow-hidden hover:shadow-2xl transition-shadow duration-300">
                 <div className="relative cursor-pointer" onClick={() => setModalVideo(video)}>
                   <iframe
@@ -256,7 +281,7 @@ const VideosPage = () => {
                   {insights[video.id] && (
                     <div className="mt-2 p-3 rounded-lg bg-purple-50 border border-purple-100">
                       {insights[video.id].split('\n').filter(Boolean).slice(0,3).map((line, idx) => {
-                        const clean = line.replace(/^[−-•\s]+/, '');
+                        const clean = line.replace(/^[\u2212\-\u2022\s]+/, '');
                         const m = clean.match(/(https?:\/\/[^\s]+)$/);
                         const url = m ? m[1] : null;
                         const text = url ? clean.replace(url, '').trim() : clean;
@@ -276,6 +301,17 @@ const VideosPage = () => {
             ))
           )}
           </div>
+          {filteredVideos.length > visibleCount && (
+            <div className="mt-6 flex justify-center">
+              <button
+                className="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700"
+                onClick={() => setVisibleCount((c) => Math.min(c + 9, filteredVideos.length))}
+              >
+                Daha fazla yükle
+              </button>
+            </div>
+          )}
+          </>
         )}
       </div>
     </div>

@@ -64,7 +64,10 @@ const NewsDetailPage = () => {
           setArticleText(news?.content || news?.description || '');
           return;
         }
-        const res = await fetch(`/api/article?url=${encodeURIComponent(url)}`);
+        let res = await fetch(`/api/article?url=${encodeURIComponent(url)}`);
+        if (!res.ok) {
+          res = await fetch(`/.netlify/functions/article?url=${encodeURIComponent(url)}`);
+        }
         const data = await res.json().catch(() => ({}));
         if (!active) return;
         const text = (data?.text || '').trim();

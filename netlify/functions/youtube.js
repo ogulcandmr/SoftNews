@@ -194,9 +194,11 @@ exports.handler = async (event) => {
     return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
 
-  const q = new URLSearchParams(event.queryStringParameters || {}).get('q') || 'teknoloji haberleri';
+  const params = new URLSearchParams(event.queryStringParameters || {});
+  const q = params.get('q') || 'teknoloji haberleri';
+  const max = Math.max(1, Math.min(50, Number(params.get('max') || 9)));
   try {
-    const data = await fetchYouTube(q, 9);
+    const data = await fetchYouTube(q, max);
     return { statusCode: 200, headers, body: JSON.stringify(data) };
   } catch (e) {
     // Absolute fallback on unexpected errors

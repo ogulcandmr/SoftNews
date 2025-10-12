@@ -53,11 +53,8 @@ export function getUserPreferences() {
 async function callAI({ messages, temperature = 0.3, maxTokens = 500 }) {
   const { endpoint, model } = getConfig();
 
-  // Always use backend proxy - no frontend API key needed
-  const isProxyEndpoint = typeof endpoint === 'string' && endpoint.startsWith('/');
-
-  try {
-    const res = await fetch(endpoint, {
+  async function postJson(url) {
+    const res = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -66,24 +63,28 @@ async function callAI({ messages, temperature = 0.3, maxTokens = 500 }) {
       cache: 'no-cache',
       body: JSON.stringify({ model, messages, temperature, max_tokens: maxTokens }),
     });
+    return res;
+  }
 
+  try {
+    // Attempt primary endpoint
+    let res = await postJson(endpoint);
+    if (!res.ok) {
+      // Retry with Netlify functions path if proxy is not configured
+      if (endpoint.startsWith('/api/ai')) {
+        res = await postJson('/.netlify/functions/ai');
+      }
+    }
     if (!res.ok) {
       const text = await res.text();
       throw new Error(text || 'AI request failed');
     }
-
     const data = await res.json();
-
-    // Try to be compatible with OpenAI-like responses
-    const content =
-      data?.choices?.[0]?.message?.content || data?.content || data?.text || '';
+    const content = data?.choices?.[0]?.message?.content || data?.content || data?.text || '';
     const usage = data?.usage || {};
     return { ok: true, content, usage };
   } catch (error) {
-    return {
-      ok: false,
-      error: error?.message || 'Unknown AI error',
-    };
+    return { ok: false, error: error?.message || 'Unknown AI error' };
   }
 }
 
