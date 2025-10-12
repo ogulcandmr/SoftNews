@@ -1,5 +1,5 @@
-const NEWS_CACHE_KEY = 'softnews_articles_v1';
-const NEWS_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 saat cache - günde 4 kez yenilenir
+const NEWS_CACHE_KEY = 'softnews_articles_v2'; // v2 - yeni cache
+const NEWS_CACHE_TTL_MS = 1 * 60 * 60 * 1000; // 1 saat cache - test için kısa
 
 function loadNewsCache() {
   try {
@@ -51,6 +51,13 @@ function categorizeArticle(title, description) {
 
 export async function fetchLatestNews() {
   console.log('Fetching fresh news...');
+  
+  // CACHE DEVRE DIŞI - Her zaman yeni haber çek
+  // const cached = loadNewsCache();
+  // if (cached) {
+  //   console.log('Using cached news:', cached.length);
+  //   return { ok: true, articles: cached };
+  // }
 
   try {
     console.log('Making API request to /api/news...');
@@ -91,6 +98,9 @@ export async function fetchLatestNews() {
     }));
     
       console.log('Processed articles:', articles.length);
+      
+      // CACHE KAYDETME DEVRE DIŞI
+      // saveNewsCache(articles);
       
       return { ok: true, articles };
   } catch (e) {

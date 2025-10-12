@@ -127,19 +127,35 @@ exports.handler = async function (event) {
     if (!NEWS_API_KEY) {
       return { statusCode: 500, body: 'Missing NEWS_API_KEY' };
     }
-    const q = 'technology OR software OR AI';
-    const urlTop = `https://newsapi.org/v2/top-headlines?language=tr&category=technology&pageSize=12&q=${encodeURIComponent(q)}`;
-    let res = await fetch(urlTop, { headers: { 'X-Api-Key': NEWS_API_KEY } });
-    let data = await res.json();
-    if (!Array.isArray(data?.articles) || data.articles.length === 0) {
-      // Fallback: broader search if top-headlines is empty in TR
-      const urlEverything = `https://newsapi.org/v2/everything?language=tr&q=${encodeURIComponent('teknoloji OR yazılım OR yapay zeka')}&sortBy=publishedAt&pageSize=12`;
-      res = await fetch(urlEverything, { headers: { 'X-Api-Key': NEWS_API_KEY } });
-      data = await res.json();
+    
+    // Fetch multiple queries to get more articles
+    const queries = [
+      `https://newsapi.org/v2/top-headlines?category=technology&language=en&pageSize=20`,
+      `https://newsapi.org/v2/everything?q=artificial intelligence OR AI&language=en&sortBy=publishedAt&pageSize=20`,
+      `https://newsapi.org/v2/everything?q=software OR programming&language=en&sortBy=publishedAt&pageSize=20`,
+    ];
+    
+    let allArticles = [];
+    for (const url of queries) {
+      try {
+        const res = await fetch(url, { headers: { 'X-Api-Key': NEWS_API_KEY } });
+        const data = await res.json();
+        if (data?.articles) {
+          allArticles = allArticles.concat(data.articles);
+        }
+      } catch (e) {
+        // Continue with next query
+      }
     }
+    
+    // Remove duplicates
+    const uniqueArticles = allArticles.filter((article, index, self) => 
+      index === self.findIndex(a => a.url === article.url)
+    ).slice(0, 60);
+    
     return {
       statusCode: 200,
-      body: JSON.stringify({ ok: true, articles: data?.articles || [] }),
+      body: JSON.stringify({ ok: true, articles: uniqueArticles }),
     };
   } catch (e) {
     // Fallback to dummy data if API fails

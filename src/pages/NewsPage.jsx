@@ -193,11 +193,11 @@ const NewsPage = () => {
           <h1 className="text-3xl font-bold text-blue-800 drop-shadow">Haberler</h1>
           <p className="text-gray-600 mt-2">Güncel teknoloji haberleri - Haftada bir güncellenir</p>
           {!loading && items.length > 0 && (
-            <div className="mt-2 text-sm text-green-600 flex items-center justify-center gap-2">
+            <div className="text-sm text-green-600 mb-4 flex items-center justify-center gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Haberler yüklendi - Cache'den geliyor
+              {items.length} haber yüklendi
             </div>
           )}
         </div>
