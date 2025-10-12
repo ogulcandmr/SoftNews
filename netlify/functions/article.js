@@ -50,29 +50,57 @@ exports.handler = async (event) => {
     }
     const html = await res.text();
 
-    // Try to find main content containers
-    const candidates = [];
-    const patterns = [
-      /<article[\s\S]*?<\/article>/gi,
-      /<div[^>]+id=["'](?:content|main|article|post)["'][\s\S]*?<\/div>/gi,
-      /<div[^>]+class=["'][^"']*(?:content|main|article|post|entry-content|post-content)[^"']*["'][\s\S]*?<\/div>/gi,
-      /<section[\s\S]*?<\/section>/gi,
+    // Try common article containers with priority
+    const selectors = [
+      'article',
+      '[role="main"] article',
+      '.article-body',
+      '.article-content',
+      '.post-content',
+      '.entry-content',
+      '.story-body',
+      '.article__body',
+      '#article-body',
+      '#content article',
+      'main article',
+      '.content',
+      'main',
+      'section'
     ];
-    for (const re of patterns) {
-      const matches = html.match(re) || [];
-      for (const m of matches) candidates.push(m);
-    }
-    let bestBlock = pickLongestText(candidates.map(stripTags));
 
-    // If no good block found, collect many <p> blocks
-    if (!bestBlock || bestBlock.length < 600) {
-      const pMatches = html.match(/<p[\s\S]*?<\/p>/gi) || [];
-      // pick more paragraphs to increase recall
-      const paragraphs = pMatches.slice(0, 120).map((p) => stripTags(p));
-      bestBlock = pickLongestText([bestBlock || '', paragraphs.join('\n\n')]);
+    let bestText = '';
+    let bestEl = null;
+    for (const sel of selectors) {
+      const el = dom.window.document.querySelector(sel);
+      if (el) {
+        const text = el.textContent || '';
+        if (text.length > bestText.length) {
+          bestText = text;
+          bestEl = el;
+        }
+      }
     }
 
-    const text = bestBlock || '';
+    // Enhanced extraction: get all paragraphs from best container
+    if (bestEl) {
+      const paragraphs = Array.from(bestEl.querySelectorAll('p, h2, h3, h4, li'));
+      const richText = paragraphs
+        .map(p => p.textContent.trim())
+        .filter(t => t.length > 20) // Filter out very short fragments
+        .join('\n\n');
+      if (richText.length > bestText.length) bestText = richText;
+    }
+
+    // Fallback: collect all <p> tags from entire document
+    if (!bestText || bestText.length < 200) {
+      const paragraphs = Array.from(dom.window.document.querySelectorAll('p'));
+      bestText = paragraphs
+        .map(p => p.textContent.trim())
+        .filter(t => t.length > 20)
+        .join('\n\n');
+    }
+
+    const text = bestText || '';
 
     // Try a few title candidates
     const title = pickLongestText([

@@ -15,36 +15,43 @@ export async function generateArticleSections({ title, text }) {
   const { tone, length, focus } = getUserPreferences();
   const system =
     'Sen SoftNews için Türkçe konuşan kıdemli bir teknoloji editörüsün. ' +
-    'Verilen haber içeriğine göre dinamik bölümler üret ve JSON olarak dön. ' +
-    'Sadece geçerli JSON döndür, açıklama ekleme.';
+    'Verilen haber içeriğine göre detaylı, zengin ve anlamlı bölümler üret. ' +
+    'Her bölüm en az 2-3 cümle içermeli ve haberin derinliğini yansıtmalı. ' +
+    'SADECE geçerli JSON döndür, başka metin ekleme. JSON dışında hiçbir şey yazma.';
 
   const user =
     `Haber başlığı: ${title}\n\n` +
-    `Haber metni:\n${text}\n\n` +
-    `Kullanıcı tercihleri → Ton: ${tone}; Uzunluk: ${length}; Odak: ${focus}.\n` +
-    'JSON şeması:\n' +
+    `Haber metni (ilk 8000 karakter):\n${(text || '').slice(0, 8000)}\n\n` +
+    `Kullanıcı tercihleri → Ton: ${tone}; Uzunluk: ${length}; Odak: ${focus}.\n\n` +
+    'Aşağıdaki JSON formatında detaylı bölümler üret:\n' +
     '{\n' +
-    '  "details": string,\n' +
-    '  "technical": string,\n' +
-    '  "impacts": string,\n' +
-    '  "outlook": string,\n' +
-    '  "keyPoints": string[]\n' +
-    '}\n';
+    '  "details": "Gelişmenin tüm detaylarını, arka planını, neden önemli olduğunu 3-5 cümle ile açıkla.",\n' +
+    '  "technical": "Teknik özellikleri, kullanılan teknolojileri, yenilikleri 2-4 cümle ile detaylandır. Teknik bir boyut yoksa boş bırak.",\n' +
+    '  "impacts": "Sektörel etkileri, kullanıcılar ve şirketler üzerindeki sonuçları, pazar değişimlerini 3-4 cümle ile analiz et.",\n' +
+    '  "outlook": "Gelecek perspektifi, beklentiler, olası gelişmeler hakkında 2-3 cümle yorum yap.",\n' +
+    '  "keyPoints": ["Önemli nokta 1", "Önemli nokta 2", "Önemli nokta 3", "..."] (en az 4-6 madde)\n' +
+    '}\n\n' +
+    'SADECE JSON döndür, başka açıklama yapma.';
 
   const res = await callAI({
     messages: [
       { role: 'system', content: system },
       { role: 'user', content: user },
     ],
-    temperature: 0.3,
-    maxTokens: 700,
+    temperature: 0.4,
+    maxTokens: 1200,
   });
 
   if (!res.ok) return { ok: false, error: res.error };
   try {
-    const parsed = JSON.parse(res.content || '{}');
+    let content = (res.content || '').trim();
+    // Remove markdown code blocks if present
+    content = content.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    content = content.replace(/^```\s*/, '').replace(/\s*```$/, '');
+    const parsed = JSON.parse(content);
     return { ok: true, sections: parsed };
   } catch (e) {
+    console.error('AI sections parse error:', e, 'Raw:', res.content);
     // Fallback: return as a single details blob
     return { ok: true, sections: { details: res.content || '', technical: '', impacts: '', outlook: '', keyPoints: [] } };
   }
