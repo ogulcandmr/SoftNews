@@ -11,16 +11,16 @@ exports.handler = async function (event) {
       if (!GNEWS_API_KEY) {
         return { statusCode: 500, body: 'Missing GNEWS_API_KEY' };
       }
-      // Optimized queries - 4 calls with max results
+      // Optimized queries - Focus on relevant tech news
       const queries = [
-        // Comprehensive tech search
-        'https://gnews.io/api/v4/search?q=technology OR artificial intelligence OR software&lang=en&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // Turkish tech news - PRIORITY
+        'https://gnews.io/api/v4/search?q=yapay zeka OR yazılım OR teknoloji OR bilgisayar&lang=tr&max=15&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // AI and Software
+        'https://gnews.io/api/v4/search?q=artificial intelligence OR machine learning OR software development&lang=en&max=12&apikey=' + encodeURIComponent(GNEWS_API_KEY),
         // Gaming and hardware
-        'https://gnews.io/api/v4/search?q=gaming OR hardware OR mobile&lang=en&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        // Startup and business
-        'https://gnews.io/api/v4/search?q=startup OR tech company OR innovation&lang=en&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        // Turkish tech news
-        'https://gnews.io/api/v4/search?q=teknoloji OR yapay zeka OR yazılım&lang=tr&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY)
+        'https://gnews.io/api/v4/search?q=gaming OR GPU OR processor OR hardware&lang=en&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // Startup and innovation
+        'https://gnews.io/api/v4/search?q=tech startup OR innovation OR venture capital&lang=en&max=8&apikey=' + encodeURIComponent(GNEWS_API_KEY)
       ];
       
       let allArticles = [];
@@ -36,21 +36,68 @@ exports.handler = async function (event) {
         }
       }
       
-      // Remove duplicates and prioritize quality sources, get up to 60 articles
-      const uniqueArticles = allArticles.filter((article, index, self) => 
+      // STRICT filter - Only real tech news
+      const relevantArticles = allArticles.filter(article => {
+        const title = (article.title || '').toLowerCase();
+        const desc = (article.description || '').toLowerCase();
+        const text = title + ' ' + desc;
+        
+        // EXCLUDE - Kesinlikle istemediğimiz konular
+        const excludeKeywords = [
+          'phone case', 'case', 'accessories', 'accessory', 'deals', 'deal', 'discount', 'sale', 'buy now', 
+          'price drop', 'review roundup', 'best buy', 'amazon', 'ebay', 'shopping', 'coupon',
+          'celebrity', 'entertainment', 'movie', 'music', 'sport', 'football', 'basketball',
+          'politics', 'election', 'trump', 'biden', 'war', 'military', 'crime', 'police',
+          'weather', 'climate change', 'health', 'medical', 'covid', 'vaccine',
+          'fashion', 'beauty', 'travel', 'food', 'recipe', 'restaurant',
+          'real estate', 'property', 'mortgage', 'loan', 'insurance', 'finance tips'
+        ];
+        if (excludeKeywords.some(kw => text.includes(kw))) return false;
+        
+        // MUST INCLUDE - Sadece bunlarla ilgili haberler
+        const mustIncludeKeywords = [
+          // Yazılım & Programlama
+          'software', 'programming', 'developer', 'code', 'coding', 'framework', 'library', 'api', 'github', 'open source',
+          'python', 'javascript', 'react', 'node', 'typescript', 'rust', 'go', 'java', 'c++',
+          // Yapay Zeka
+          'ai', 'artificial intelligence', 'machine learning', 'deep learning', 'neural network', 'chatgpt', 'gpt', 'llm', 'openai', 'anthropic',
+          // Oyun
+          'gaming', 'game', 'playstation', 'xbox', 'nintendo', 'steam', 'epic games', 'unity', 'unreal engine', 'esports',
+          // Donanım
+          'processor', 'cpu', 'gpu', 'nvidia', 'amd', 'intel', 'graphics card', 'ram', 'ssd', 'hardware',
+          // Mobil Geliştirme
+          'mobile app', 'ios app', 'android app', 'app development', 'flutter', 'react native', 'swift', 'kotlin',
+          // Startup & Tech Companies
+          'startup', 'tech company', 'venture capital', 'funding', 'ipo', 'acquisition', 'merger',
+          // Genel Tech
+          'technology', 'innovation', 'platform', 'cloud computing', 'aws', 'azure', 'google cloud',
+          'cybersecurity', 'blockchain', 'cryptocurrency', 'web3', 'metaverse', 'vr', 'ar',
+          // Türkçe
+          'yapay zeka', 'yazılım', 'programlama', 'geliştirici', 'uygulama', 'oyun', 'donanım', 'işlemci', 'ekran kartı'
+        ];
+        return mustIncludeKeywords.some(kw => text.includes(kw));
+      });
+      
+      // Remove duplicates and prioritize Turkish + quality sources
+      const uniqueArticles = relevantArticles.filter((article, index, self) => 
         index === self.findIndex(a => a.url === article.url)
       ).sort((a, b) => {
+        // Prioritize Turkish articles
+        const aTurkish = (a.title || '').match(/[çğıöşüÇĞİÖŞÜ]/) ? 2 : 0;
+        const bTurkish = (b.title || '').match(/[çğıöşüÇĞİÖŞÜ]/) ? 2 : 0;
+        
         // Prioritize major tech sources
-        const qualitySources = ['techcrunch', 'wired', 'theverge', 'engadget', 'arstechnica', 'reuters', 'bloomberg', 'cnn', 'bbc', 'forbes', 'wsj', 'nytimes', 'guardian'];
+        const qualitySources = ['techcrunch', 'wired', 'theverge', 'engadget', 'arstechnica', 'reuters', 'bloomberg', 'cnn', 'bbc', 'forbes', 'wsj', 'nytimes', 'guardian', 'shiftdelete', 'webtekno', 'donanimhaber'];
         const aQuality = qualitySources.some(source => a.source?.name?.toLowerCase().includes(source)) ? 1 : 0;
         const bQuality = qualitySources.some(source => b.source?.name?.toLowerCase().includes(source)) ? 1 : 0;
-        return bQuality - aQuality;
+        
+        return (bTurkish + bQuality) - (aTurkish + aQuality);
       }).slice(0, 60);
       
       const articles = uniqueArticles.map((a) => ({
         title: a?.title,
         description: a?.description,
-        content: a?.content || a?.description || 'Bu haber hakkında daha detaylı bilgi için kaynak linkini ziyaret edebilirsiniz.',
+        content: a?.description || 'Bu haber hakkında daha detaylı bilgi için kaynak linkini ziyaret edebilirsiniz.',
         url: a?.url,
         urlToImage: a?.image,
         publishedAt: a?.publishedAt,
