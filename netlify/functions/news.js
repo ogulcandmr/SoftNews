@@ -28,75 +28,33 @@ exports.handler = async function (event) {
         try {
           const res = await fetch(url);
           const data = await res.json();
+          console.log('GNews API response:', data);
           if (data?.articles) {
+            console.log('Articles from query:', data.articles.length);
             allArticles = allArticles.concat(data.articles);
           }
         } catch (e) {
+          console.error('Query failed:', e);
           // Continue with next query
         }
       }
       
-      // STRICT filter - Only real tech news
+      console.log('Total articles before filter:', allArticles.length);
+      
+      // Simple filter - Exclude obvious non-tech
       const relevantArticles = allArticles.filter(article => {
         const title = (article.title || '').toLowerCase();
         const desc = (article.description || '').toLowerCase();
         const text = title + ' ' + desc;
-        const source = (article.source?.name || '').toLowerCase();
         
-        // EXCLUDE - Sadece çok açık alakasız konular
-        const excludeKeywords = [
-          // Suç & Mahkeme
-          'crime', 'police', 'mahkeme', 'suç', 'cinayet', 'öldür', 'court', 'trial', 'arrest', 'prison', 'hapis',
-          // Politika
-          'election', 'trump', 'biden', 'war',
-          // Sağlık
-          'covid', 'vaccine', 'hastane',
-          // Diğer
-          'phone case', 'recipe', 'restaurant', 'yemek'
-        ];
+        // EXCLUDE only obvious non-tech
+        const excludeKeywords = ['crime', 'mahkeme', 'cinayet', 'öldür', 'court', 'arrest', 'prison', 'election', 'war', 'covid', 'vaccine', 'recipe', 'yemek'];
         if (excludeKeywords.some(kw => text.includes(kw))) return false;
         
-        // EXCLUDE news sources (haber siteleri değil tech siteleri)
-        const excludeSources = ['hürriyet', 'sabah', 'sözcü', 'milliyet', 'cnn türk', 'ntv', 'habertürk', 'mynet', 'ensonhaber'];
-        if (excludeSources.some(src => source.includes(src))) return false;
-        
-        // MUST INCLUDE - Tech keywords (daha geniş)
-        const mustIncludeKeywords = [
-          // Genel Tech
-          'tech', 'technology', 'software', 'hardware', 'digital', 'innovation', 'startup',
-          // Yazılım & Programlama
-          'programming', 'developer', 'code', 'coding', 'framework', 'library', 'api', 'github', 'open source',
-          'python', 'javascript', 'react', 'vue', 'node', 'typescript', 'rust', 'java', 'app',
-          // Yapay Zeka
-          'ai', 'artificial intelligence', 'machine learning', 'deep learning', 'chatgpt', 'gpt', 'llm', 'openai', 'claude',
-          'neural network', 'computer vision', 'generative',
-          // Oyun
-          'gaming', 'game', 'playstation', 'xbox', 'nintendo', 'steam', 'epic games', 'unity', 'unreal', 'esports',
-          // Donanım
-          'processor', 'cpu', 'gpu', 'nvidia', 'amd', 'intel', 'graphics', 'ram', 'ssd', 'chip',
-          // Mobil
-          'mobile', 'ios', 'android', 'iphone', 'samsung', 'smartphone', 'tablet', 'app store',
-          // Şirketler
-          'google', 'apple', 'microsoft', 'meta', 'amazon', 'tesla', 'spacex', 'netflix',
-          // Cloud & Platform
-          'cloud', 'aws', 'azure', 'platform', 'saas', 'data', 'database',
-          // Blockchain & Crypto
-          'blockchain', 'crypto', 'bitcoin', 'ethereum', 'web3',
-          // Emerging
-          'vr', 'ar', 'metaverse', 'virtual reality', 'quantum',
-          // Türkçe
-          'yazılım', 'teknoloji', 'uygulama', 'oyun', 'donanım'
-        ];
-        
-        // At least 1 tech keyword
-        const hasKeyword = mustIncludeKeywords.some(kw => text.includes(kw));
-        
-        // OR check if it's from a trusted tech source
-        const trustedSources = ['techcrunch', 'wired', 'theverge', 'engadget', 'arstechnica', 'venturebeat', 'techmeme', 'hackernews'];
-        const isTrustedSource = trustedSources.some(src => source.includes(src));
-        
-        return hasKeyword || isTrustedSource;
+        return true; // Accept all tech news from GNews
       });
+      
+      console.log('Articles after filter:', relevantArticles.length);
       
       // Remove duplicates and prioritize Turkish + quality sources
       const uniqueArticles = relevantArticles.filter((article, index, self) => 
@@ -126,7 +84,16 @@ exports.handler = async function (event) {
         id: Math.random().toString(36).substr(2, 9),
       }));
       
-      return { statusCode: 200, body: JSON.stringify({ ok: true, articles }) };
+      return { 
+        statusCode: 200, 
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        },
+        body: JSON.stringify({ ok: true, articles }) 
+      };
     }
 
     if (provider === 'trhaberler') {

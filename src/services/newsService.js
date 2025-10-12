@@ -1,5 +1,5 @@
-const NEWS_CACHE_KEY = 'softnews_articles_v2'; // v2 - yeni cache
-const NEWS_CACHE_TTL_MS = 1 * 60 * 60 * 1000; // 1 saat cache - test için kısa
+const NEWS_CACHE_KEY = 'softnews_articles_v5_final'; // v5 - final cache
+const NEWS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat cache - günde 1 kez yenilenir
 
 function loadNewsCache() {
   try {
@@ -50,15 +50,17 @@ function categorizeArticle(title, description) {
 }
 
 export async function fetchLatestNews() {
-  console.log('Fetching fresh news...');
+  console.log('Fetching news...');
   
-  // CACHE DEVRE DIŞI - Her zaman yeni haber çek
-  // const cached = loadNewsCache();
-  // if (cached) {
-  //   console.log('Using cached news:', cached.length);
-  //   return { ok: true, articles: cached };
-  // }
+  // CACHE AKTIF - 24 saat boyunca aynı haberler
+  const cached = loadNewsCache();
+  if (cached) {
+    console.log('Using cached news (24h):', cached.length);
+    return { ok: true, articles: cached };
+  }
 
+  console.log('Cache expired or empty, fetching fresh news...');
+  
   try {
     console.log('Making API request to /api/news...');
     const res = await fetch('/api/news', { 
@@ -102,8 +104,13 @@ export async function fetchLatestNews() {
     
       console.log('Processed articles:', articles.length);
       
-      // CACHE KAYDETME DEVRE DIŞI
-      // saveNewsCache(articles);
+      // CACHE KAYDET - Sadece haber varsa kaydet
+      if (articles.length > 0) {
+        saveNewsCache(articles);
+        console.log('Articles cached for 24 hours:', articles.length);
+      } else {
+        console.warn('No articles to cache!');
+      }
       
       return { ok: true, articles };
   } catch (e) {
