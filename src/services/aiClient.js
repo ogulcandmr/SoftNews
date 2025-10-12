@@ -10,6 +10,46 @@ function getConfig() {
   return { endpoint, model, provider };
 }
 
+// Generate structured sections per article: details, technical, impacts, outlook, keyPoints
+export async function generateArticleSections({ title, text }) {
+  const { tone, length, focus } = getUserPreferences();
+  const system =
+    'Sen SoftNews için Türkçe konuşan kıdemli bir teknoloji editörüsün. ' +
+    'Verilen haber içeriğine göre dinamik bölümler üret ve JSON olarak dön. ' +
+    'Sadece geçerli JSON döndür, açıklama ekleme.';
+
+  const user =
+    `Haber başlığı: ${title}\n\n` +
+    `Haber metni:\n${text}\n\n` +
+    `Kullanıcı tercihleri → Ton: ${tone}; Uzunluk: ${length}; Odak: ${focus}.\n` +
+    'JSON şeması:\n' +
+    '{\n' +
+    '  "details": string,\n' +
+    '  "technical": string,\n' +
+    '  "impacts": string,\n' +
+    '  "outlook": string,\n' +
+    '  "keyPoints": string[]\n' +
+    '}\n';
+
+  const res = await callAI({
+    messages: [
+      { role: 'system', content: system },
+      { role: 'user', content: user },
+    ],
+    temperature: 0.3,
+    maxTokens: 700,
+  });
+
+  if (!res.ok) return { ok: false, error: res.error };
+  try {
+    const parsed = JSON.parse(res.content || '{}');
+    return { ok: true, sections: parsed };
+  } catch (e) {
+    // Fallback: return as a single details blob
+    return { ok: true, sections: { details: res.content || '', technical: '', impacts: '', outlook: '', keyPoints: [] } };
+  }
+}
+
 // Rich article-specific summary
 export async function generateArticleSummary({ title, text }) {
   const { tone, length, focus } = getUserPreferences();
