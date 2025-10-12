@@ -11,14 +11,16 @@ exports.handler = async function (event) {
       if (!GNEWS_API_KEY) {
         return { statusCode: 500, body: 'Missing GNEWS_API_KEY' };
       }
-      // Reduced queries to save API quota - only 3 calls instead of 11
+      // Optimized queries - 4 calls with max results
       const queries = [
-        // Single comprehensive tech search
-        'https://gnews.io/api/v4/search?q=technology OR artificial intelligence OR software&lang=en&max=8&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // Comprehensive tech search
+        'https://gnews.io/api/v4/search?q=technology OR artificial intelligence OR software&lang=en&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY),
         // Gaming and hardware
-        'https://gnews.io/api/v4/search?q=gaming OR hardware OR mobile&lang=en&max=8&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=gaming OR hardware OR mobile&lang=en&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // Startup and business
+        'https://gnews.io/api/v4/search?q=startup OR tech company OR innovation&lang=en&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY),
         // Turkish tech news
-        'https://gnews.io/api/v4/search?q=teknoloji OR yapay zeka&lang=tr&max=8&apikey=' + encodeURIComponent(GNEWS_API_KEY)
+        'https://gnews.io/api/v4/search?q=teknoloji OR yapay zeka OR yazılım&lang=tr&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY)
       ];
       
       let allArticles = [];
@@ -34,7 +36,7 @@ exports.handler = async function (event) {
         }
       }
       
-      // Remove duplicates and prioritize quality sources, get 24 articles
+      // Remove duplicates and prioritize quality sources, get up to 60 articles
       const uniqueArticles = allArticles.filter((article, index, self) => 
         index === self.findIndex(a => a.url === article.url)
       ).sort((a, b) => {
@@ -43,7 +45,7 @@ exports.handler = async function (event) {
         const aQuality = qualitySources.some(source => a.source?.name?.toLowerCase().includes(source)) ? 1 : 0;
         const bQuality = qualitySources.some(source => b.source?.name?.toLowerCase().includes(source)) ? 1 : 0;
         return bQuality - aQuality;
-      }).slice(0, 24);
+      }).slice(0, 60);
       
       const articles = uniqueArticles.map((a) => ({
         title: a?.title,

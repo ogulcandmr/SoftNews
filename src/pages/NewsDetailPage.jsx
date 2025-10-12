@@ -285,42 +285,46 @@ const NewsDetailPage = () => {
                 <div className="mt-4 text-sm text-red-600">{sectionsError}</div>
               )}
 
-              {news.url && (
-                <div className="mt-8 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
-                  <div className="flex items-start gap-3">
-                    <svg className="w-5 h-5 text-gray-600 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                    </svg>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-gray-700 mb-2">Haber Kaynağı:</p>
-                      <a 
-                        href={news.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 font-medium underline break-all text-sm"
-                      >
-                        {news.source?.name || new URL(news.url).hostname}
-                      </a>
-                      <p className="text-xs text-gray-500 mt-1">Orijinal haberi okumak için tıklayın</p>
-                    </div>
+              <div className="mt-8 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+                <div className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-gray-600 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-gray-700 mb-2">Haber Kaynağı:</p>
+                    {news.url ? (
+                      <>
+                        <a 
+                          href={news.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 font-medium underline break-all text-sm"
+                        >
+                          {news.source?.name || (() => { try { return new URL(news.url).hostname; } catch { return news.url; } })()}
+                        </a>
+                        <p className="text-xs text-gray-500 mt-1">Orijinal haberi okumak için tıklayın</p>
+                      </>
+                    ) : (
+                      <p className="text-sm text-gray-600">{news.source?.name || 'SoftNews'}</p>
+                    )}
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
 
-            {/* Related Articles */}
-            <div className="bg-white rounded-2xl shadow-xl p-6">
+            {/* Related Articles - Below main content */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 mt-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                 </svg>
-                İlgili Haberler
+                Başka Haberler
               </h2>
               
               {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="bg-gray-100 rounded-lg p-4 animate-pulse">
                       <div className="h-4 bg-gray-200 rounded mb-2"></div>
@@ -330,11 +334,10 @@ const NewsDetailPage = () => {
                   ))}
                 </div>
               ) : related.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {related.map(r => (
                 <div key={r.id} className="group cursor-pointer" onClick={() => {
                   navigate(`/news/${r.id}`, { state: { article: r } });
-                  // Scroll to top when navigating to new article
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}>
                   <NewsCard {...r} />

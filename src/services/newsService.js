@@ -1,5 +1,5 @@
 const NEWS_CACHE_KEY = 'softnews_articles_v1';
-const NEWS_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 gün cache - haftada sadece 1 kez çek
+const NEWS_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 saat cache - günde 4 kez yenilenir
 
 function loadNewsCache() {
   try {
@@ -82,10 +82,12 @@ export async function fetchLatestNews() {
       id: idx + 1000,
       title: a.title || 'Başlık yok',
       description: a.description || a.content || '',
+      content: a.content || a.description || '',
       image: a.urlToImage || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=800&q=80',
       category: categorizeArticle(a.title || '', a.description || ''),
       date: (a.publishedAt || '').slice(0, 10),
       url: a.url,
+      source: a.source || { name: 'SoftNews' },
     }));
     
       console.log('Processed articles:', articles.length);
