@@ -11,16 +11,16 @@ exports.handler = async function (event) {
       if (!GNEWS_API_KEY) {
         return { statusCode: 500, body: 'Missing GNEWS_API_KEY' };
       }
-      // Optimized queries - Focus on relevant tech news
+      // Optimized queries - ONLY tech sources and topics
       const queries = [
-        // Turkish tech news - PRIORITY
-        'https://gnews.io/api/v4/search?q=yapay zeka OR yazılım OR teknoloji OR bilgisayar&lang=tr&max=15&apikey=' + encodeURIComponent(GNEWS_API_KEY),
         // AI and Software
-        'https://gnews.io/api/v4/search?q=artificial intelligence OR machine learning OR software development&lang=en&max=12&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=artificial intelligence OR machine learning OR ChatGPT OR OpenAI&lang=en&max=15&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // Software Development
+        'https://gnews.io/api/v4/search?q=software development OR programming OR GitHub OR developer&lang=en&max=12&apikey=' + encodeURIComponent(GNEWS_API_KEY),
         // Gaming and hardware
-        'https://gnews.io/api/v4/search?q=gaming OR GPU OR processor OR hardware&lang=en&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        // Startup and innovation
-        'https://gnews.io/api/v4/search?q=tech startup OR innovation OR venture capital&lang=en&max=8&apikey=' + encodeURIComponent(GNEWS_API_KEY)
+        'https://gnews.io/api/v4/search?q=gaming OR GPU OR NVIDIA OR AMD OR Intel processor&lang=en&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // Startup and tech companies
+        'https://gnews.io/api/v4/search?q=tech startup OR venture capital OR tech company OR IPO&lang=en&max=8&apikey=' + encodeURIComponent(GNEWS_API_KEY)
       ];
       
       let allArticles = [];
@@ -41,41 +41,66 @@ exports.handler = async function (event) {
         const title = (article.title || '').toLowerCase();
         const desc = (article.description || '').toLowerCase();
         const text = title + ' ' + desc;
+        const source = (article.source?.name || '').toLowerCase();
         
         // EXCLUDE - Kesinlikle istemediğimiz konular
         const excludeKeywords = [
+          // Alışveriş
           'phone case', 'case', 'accessories', 'accessory', 'deals', 'deal', 'discount', 'sale', 'buy now', 
           'price drop', 'review roundup', 'best buy', 'amazon', 'ebay', 'shopping', 'coupon',
-          'celebrity', 'entertainment', 'movie', 'music', 'sport', 'football', 'basketball',
-          'politics', 'election', 'trump', 'biden', 'war', 'military', 'crime', 'police',
-          'weather', 'climate change', 'health', 'medical', 'covid', 'vaccine',
-          'fashion', 'beauty', 'travel', 'food', 'recipe', 'restaurant',
-          'real estate', 'property', 'mortgage', 'loan', 'insurance', 'finance tips'
+          // Eğlence & Medya
+          'celebrity', 'entertainment', 'movie', 'music', 'sport', 'football', 'basketball', 'film', 'dizi', 'series',
+          // Politika & Toplum
+          'politics', 'election', 'trump', 'biden', 'war', 'military', 'crime', 'police', 'mahkeme', 'suç', 'cinayet', 'öldür',
+          'court', 'trial', 'arrest', 'prison', 'jail', 'hapis', 'tutuklama', 'gözaltı',
+          // Sağlık
+          'weather', 'climate change', 'health', 'medical', 'covid', 'vaccine', 'doctor', 'hospital', 'sağlık', 'hastane',
+          // Diğer
+          'fashion', 'beauty', 'travel', 'food', 'recipe', 'restaurant', 'moda', 'güzelliğ', 'yemek',
+          'real estate', 'property', 'mortgage', 'loan', 'insurance', 'finance tips', 'emlak', 'konut'
         ];
         if (excludeKeywords.some(kw => text.includes(kw))) return false;
         
-        // MUST INCLUDE - Sadece bunlarla ilgili haberler
+        // EXCLUDE news sources (haber siteleri değil tech siteleri)
+        const excludeSources = ['hürriyet', 'sabah', 'sözcü', 'milliyet', 'cnn türk', 'ntv', 'habertürk', 'mynet', 'ensonhaber'];
+        if (excludeSources.some(src => source.includes(src))) return false;
+        
+        // MUST INCLUDE - Sadece bunlarla ilgili haberler (TECH ONLY)
         const mustIncludeKeywords = [
           // Yazılım & Programlama
-          'software', 'programming', 'developer', 'code', 'coding', 'framework', 'library', 'api', 'github', 'open source',
-          'python', 'javascript', 'react', 'node', 'typescript', 'rust', 'go', 'java', 'c++',
-          // Yapay Zeka
-          'ai', 'artificial intelligence', 'machine learning', 'deep learning', 'neural network', 'chatgpt', 'gpt', 'llm', 'openai', 'anthropic',
-          // Oyun
-          'gaming', 'game', 'playstation', 'xbox', 'nintendo', 'steam', 'epic games', 'unity', 'unreal engine', 'esports',
+          'software development', 'programming language', 'developer tool', 'code editor', 'framework', 'library', 'api', 'github', 'open source',
+          'python', 'javascript', 'react', 'vue', 'angular', 'node.js', 'typescript', 'rust', 'go lang', 'java',
+          // Yapay Zeka (SADECE TECH BAĞLAMINDA)
+          'ai model', 'artificial intelligence', 'machine learning', 'deep learning', 'neural network', 'chatgpt', 'gpt-4', 'llm', 'openai', 'anthropic', 'claude',
+          'ai tool', 'ai assistant', 'generative ai', 'computer vision', 'natural language',
+          // Oyun Teknolojisi
+          'game engine', 'game development', 'playstation 5', 'xbox series', 'nintendo switch', 'steam deck', 'epic games', 'unity engine', 'unreal engine', 'esports',
+          'gaming pc', 'gaming laptop', 'game release', 'game update',
           // Donanım
-          'processor', 'cpu', 'gpu', 'nvidia', 'amd', 'intel', 'graphics card', 'ram', 'ssd', 'hardware',
-          // Mobil Geliştirme
+          'new processor', 'cpu', 'gpu', 'nvidia rtx', 'amd radeon', 'intel core', 'graphics card', 'ram', 'ssd', 'nvme',
+          'motherboard', 'pc build', 'laptop review', 'tech specs',
+          // Mobil Teknoloji
           'mobile app', 'ios app', 'android app', 'app development', 'flutter', 'react native', 'swift', 'kotlin',
-          // Startup & Tech Companies
-          'startup', 'tech company', 'venture capital', 'funding', 'ipo', 'acquisition', 'merger',
-          // Genel Tech
-          'technology', 'innovation', 'platform', 'cloud computing', 'aws', 'azure', 'google cloud',
-          'cybersecurity', 'blockchain', 'cryptocurrency', 'web3', 'metaverse', 'vr', 'ar',
-          // Türkçe
-          'yapay zeka', 'yazılım', 'programlama', 'geliştirici', 'uygulama', 'oyun', 'donanım', 'işlemci', 'ekran kartı'
+          'smartphone', 'tablet', 'mobile os', 'app store', 'play store',
+          // Startup & Tech Şirketleri
+          'tech startup', 'tech company', 'venture capital', 'series a', 'series b', 'funding round', 'ipo', 'tech acquisition',
+          'silicon valley', 'y combinator', 'techstars',
+          // Cloud & Infrastructure
+          'cloud computing', 'aws', 'azure', 'google cloud', 'kubernetes', 'docker', 'devops', 'serverless',
+          // Güvenlik & Blockchain
+          'cybersecurity', 'data breach', 'encryption', 'blockchain', 'cryptocurrency', 'bitcoin', 'ethereum', 'web3', 'nft',
+          // Emerging Tech
+          'metaverse', 'virtual reality', 'augmented reality', 'vr headset', 'ar glasses', 'quantum computing',
+          // Tech Platforms
+          'social media platform', 'streaming platform', 'tech platform', 'saas', 'paas',
+          // Türkçe (SADECE TECH)
+          'yazılım geliştirme', 'programlama dili', 'mobil uygulama', 'oyun motoru', 'işlemci', 'ekran kartı',
+          'teknoloji şirketi', 'girişim', 'yatırım', 'uygulama geliştirme'
         ];
-        return mustIncludeKeywords.some(kw => text.includes(kw));
+        
+        // At least 2 tech keywords for better filtering
+        const matchCount = mustIncludeKeywords.filter(kw => text.includes(kw)).length;
+        return matchCount >= 1;
       });
       
       // Remove duplicates and prioritize Turkish + quality sources
