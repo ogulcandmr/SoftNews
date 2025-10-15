@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { generateVideoRecommendations } from '../services/aiClient';
 import AnimatedBackground from '../components/AnimatedBackground';
 
-const VIDEO_CACHE_KEY = 'softnews_videos_cache_v1';
+const VIDEO_CACHE_KEY = 'softnews_videos_cache_v2';
 const VIDEO_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat cache - YouTube API quota koruması
 
 function loadVideoCache() {
@@ -79,7 +79,7 @@ const VideosPage = () => {
     console.log('Fetching fresh videos from API...');
     setLoadingVideos(true);
     setError('');
-    fetch(`/api/youtube?q=${encodeURIComponent(query)}&max=24`)
+    fetch(`/api/youtube?q=${encodeURIComponent(query)}&max=18`)
       .then(async (res) => {
         if (!res.ok) throw new Error(await res.text());
         return res.json();
@@ -105,7 +105,7 @@ const VideosPage = () => {
         console.error('youtube fetch error (primary)', e);
         if (!mounted) return;
         try {
-          const res2 = await fetch(`/.netlify/functions/youtube?q=${encodeURIComponent(query)}&max=24`);
+          const res2 = await fetch(`/.netlify/functions/youtube?q=${encodeURIComponent(query)}&max=18`);
           if (!res2.ok) throw new Error(await res2.text());
           const data2 = await res2.json();
           if (!mounted) return;

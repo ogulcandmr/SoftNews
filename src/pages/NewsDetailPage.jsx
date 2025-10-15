@@ -95,17 +95,19 @@ const NewsDetailPage = () => {
     return () => { alive = false; };
   }, [articleText, news?.title]);
 
-  // Fetch related videos from Videos page
+  // Fetch related videos by news title
   useEffect(() => {
     let on = true;
     async function load() {
-      if (!news?.category) return;
+      if (!news?.title) return;
       try {
         setRelatedLoading(true);
-        // Fetch general tech videos
-        const res = await fetch(`/api/youtube?q=teknoloji yazılım&max=6`);
+        // Use first 2-3 words from title + category
+        const keywords = news.title.split(' ').slice(0, 3).join(' ');
+        const q = encodeURIComponent(`${keywords} ${news.category || 'teknoloji'}`);
+        const res = await fetch(`/api/youtube?q=${q}&max=6`);
         if (!res.ok) {
-          console.log('YouTube API not available, skipping videos');
+          console.log('YouTube API not available');
           setRelatedVideos([]);
           setRelatedLoading(false);
           return;
