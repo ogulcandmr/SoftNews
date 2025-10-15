@@ -99,12 +99,18 @@ const NewsDetailPage = () => {
   useEffect(() => {
     let on = true;
     async function load() {
+      if (!news?.title) return;
       try {
         setRelatedLoading(true);
-        const q = encodeURIComponent(news?.title || news?.category || 'teknoloji');
-        let res = await fetch(`/api/youtube?q=${q}&max=9`);
-        if (!res.ok) res = await fetch(`/.netlify/functions/youtube?q=${q}&max=9`);
-        const data = await res.json().catch(() => ({ items: [] }));
+        const q = encodeURIComponent(news.title.split(' ').slice(0, 3).join(' ') + ' teknoloji');
+        const res = await fetch(`/api/youtube?q=${q}&max=6`);
+        if (!res.ok) {
+          console.error('YouTube API failed:', res.status);
+          setRelatedVideos([]);
+          setRelatedLoading(false);
+          return;
+        }
+        const data = await res.json();
         if (!on) return;
         const items = (data?.items || []).map(v => ({
           id: v.id,
