@@ -1,4 +1,4 @@
-const NEWS_CACHE_KEY = 'softnews_articles_v19_fresh'; // v19 - FRESH START with new key
+const NEWS_CACHE_KEY = 'softnews_articles_v20_clean'; // v20 - CLEAN: Strong filter, no fallback
 const NEWS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat = 1 gün
 
 // Check if cache is from today

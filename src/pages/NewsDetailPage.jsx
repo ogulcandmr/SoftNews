@@ -9,36 +9,14 @@ function formatViews(n) {
   if (!n && n !== 0) return '0';
   const num = Number(n);
   if (num >= 1_000_000) return (num / 1_000_000).toFixed(1).replace('.0', '') + 'M';
-  if (num >= 1_000) return (num / 1_000).toFixed(1).replace('.0', '') + 'B';
+  if (num >= 1_000) return (num / 1_000).toFixed(1).replace('.0', '') + 'K';
   return String(num);
 }
-
-const allNews = [
-  {
-    id: '1',
-    title: 'Yapay Zeka ile Kodlama Devrimi',
-    description: 'Yapay zeka destekli araçlar yazılım geliştirmede devrim yaratıyor. Geliştiriciler artık daha hızlı ve verimli kod yazabiliyor.',
-    image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=800&q=80',
-    category: 'Yapay Zeka',
-    date: '2024-07-10',
-    content: 'Yapay zeka ile kodlama artık çok daha hızlı ve verimli. Geliştiriciler, AI destekli araçlarla projelerini kısa sürede tamamlayabiliyor...'
-  },
-  {
-    id: '2',
-    title: 'Yeni Nesil Mobil İşlemciler',
-    description: 'Mobil cihazlarda performans ve enerji verimliliği yeni nesil işlemcilerle zirveye çıkıyor.',
-    image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80',
-    category: 'Donanım',
-    date: '2024-07-09',
-    content: 'Yeni nesil mobil işlemciler, pil ömrünü uzatırken performanstan ödün vermiyor...'
-  },
-  // ... diğer haberler ...
-];
 
 const NewsDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [allArticles, setAllArticles] = useState(allNews);
+  const [allArticles, setAllArticles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState('');

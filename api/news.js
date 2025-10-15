@@ -56,7 +56,15 @@ export default async function handler(req, res) {
         const desc = (article.description || '').toLowerCase();
         const text = title + ' ' + desc;
         
-        const excludeKeywords = ['crime', 'mahkeme', 'cinayet', 'öldür', 'court', 'arrest', 'prison', 'election', 'war', 'covid', 'vaccine', 'recipe', 'yemek'];
+        const excludeKeywords = [
+          'mahrem', 'cinsel', 'sexual', 'porn', 'nude', 'scandal', 'skandal',
+          'taciz', 'tecavüz', 'rape', 'abuse', 'harassment', 'ihbar',
+          'diş hekimi', 'dentist', 'doktor', 'doctor', 'hasta', 'patient',
+          'crime', 'mahkeme', 'cinayet', 'öldür', 'court', 'arrest', 'prison',
+          'polis', 'police', 'savcı', 'prosecutor', 'suç',
+          'election', 'seçim', 'war', 'savaş', 'covid', 'vaccine', 'aşı',
+          'recipe', 'yemek', 'tarif', 'spor', 'sport', 'futbol', 'football'
+        ];
         if (excludeKeywords.some(kw => text.includes(kw))) return false;
         
         return true;
