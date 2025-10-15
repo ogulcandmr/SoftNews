@@ -42,10 +42,33 @@ export default async function handler(req, res) {
         const desc = (article.description || '').toLowerCase();
         const text = title + ' ' + desc;
         
-        const excludeKeywords = ['crime', 'mahkeme', 'cinayet', 'öldür', 'court', 'arrest', 'prison', 'election', 'war', 'covid', 'vaccine', 'recipe', 'yemek'];
+        // Exclude non-tech content
+        const excludeKeywords = [
+          'crime', 'mahkeme', 'cinayet', 'öldür', 'court', 'arrest', 'prison', 
+          'election', 'seçim', 'war', 'savaş', 'covid', 'vaccine', 'aşı',
+          'recipe', 'yemek', 'tarif', 'spor', 'sport', 'futbol', 'football',
+          'mahrem', 'cinsel', 'sexual', 'scandal', 'skandal', 'ihbar',
+          'taciz', 'tecavüz', 'abuse', 'harassment', 'dolandır', 'fraud',
+          'hırsız', 'theft', 'çaldı', 'steal', 'ölüm', 'death', 'öldü', 'died',
+          'kaza', 'accident', 'yaralı', 'injured', 'hastane', 'hospital',
+          'polis', 'police', 'savcı', 'prosecutor', 'dava', 'lawsuit'
+        ];
         if (excludeKeywords.some(kw => text.includes(kw))) return false;
         
-        return true;
+        // Must contain tech keywords
+        const techKeywords = [
+          'tech', 'teknoloji', 'software', 'yazılım', 'ai', 'yapay zeka',
+          'hardware', 'donanım', 'app', 'uygulama', 'startup', 'innovation',
+          'yenilik', 'digital', 'dijital', 'internet', 'web', 'mobile', 'mobil',
+          'computer', 'bilgisayar', 'chip', 'çip', 'processor', 'işlemci',
+          'smartphone', 'akıllı telefon', 'robot', 'drone', 'electric', 'elektrikli',
+          'battery', 'batarya', 'screen', 'ekran', 'camera', 'kamera',
+          'apple', 'google', 'microsoft', 'meta', 'amazon', 'tesla', 'nvidia',
+          'samsung', 'intel', 'amd', 'qualcomm', 'spacex', 'openai'
+        ];
+        const hasTechKeyword = techKeywords.some(kw => text.includes(kw));
+        
+        return hasTechKeyword;
       });
       
       console.log('Articles after filter:', relevantArticles.length);
