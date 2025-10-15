@@ -93,11 +93,17 @@ const VideosPage = () => {
     setError('');
     fetch(`/api/youtube?q=${encodeURIComponent(query)}&max=18`)
       .then(async (res) => {
-        if (!res.ok) throw new Error(await res.text());
+        console.log('YouTube API response status:', res.status);
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('YouTube API error:', res.status, errorText);
+          throw new Error(errorText);
+        }
         return res.json();
       })
       .then((data) => {
         if (!mounted) return;
+        console.log('YouTube API data:', data);
         const items = (data?.items || []).map((v) => ({
           id: v.id,
           title: v.title,
