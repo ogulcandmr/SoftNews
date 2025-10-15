@@ -11,59 +11,6 @@ const forumCategories = [
   'Mobil',
 ];
 
-const dummyTopics = [
-  {
-    id: 1,
-    title: 'Yazılımda Kariyer Planı Nasıl Yapılır?',
-    category: 'Yazılım',
-    author: 'ogulcan',
-    date: '2024-07-10',
-    replies: 3,
-    lastReply: '2024-07-10',
-    hasAI: false,
-  },
-  {
-    id: 2,
-    title: 'En iyi oyun motoru hangisi?',
-    category: 'Oyun',
-    author: 'ayse',
-    date: '2024-07-09',
-    replies: 5,
-    lastReply: '2024-07-09',
-    hasAI: false,
-  },
-  {
-    id: 3,
-    title: 'Yapay zeka ile ilgili kaynak önerir misiniz?',
-    category: 'Yapay Zeka',
-    author: 'mehmet',
-    date: '2024-07-08',
-    replies: 2,
-    lastReply: '2024-07-08',
-    hasAI: true,
-  },
-  {
-    id: 4,
-    title: 'React vs Vue.js - Hangisini Seçmeliyim?',
-    category: 'Yazılım',
-    author: 'developer123',
-    date: '2024-07-07',
-    replies: 0,
-    lastReply: null,
-    hasAI: false,
-  },
-  {
-    id: 5,
-    title: 'Yapay Zeka Etik Kuralları Nelerdir?',
-    category: 'Yapay Zeka',
-    author: 'ai_enthusiast',
-    date: '2024-07-06',
-    replies: 0,
-    lastReply: null,
-    hasAI: false,
-  },
-];
-
 async function apiListTopics() {
   try {
     const res = await fetch('/api/forum/topics');
@@ -71,8 +18,8 @@ async function apiListTopics() {
     if (!res.ok || !data?.success) throw new Error(data?.message || 'List failed');
     return data.data;
   } catch (e) {
-    console.warn('Forum list fallback to dummy:', e.message);
-    return dummyTopics;
+    console.warn('Forum list failed:', e.message);
+    return []; // Return empty array instead of dummy data
   }
 }
 
