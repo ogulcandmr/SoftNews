@@ -8,15 +8,37 @@ const supabase = createClient(
 
 async function callAI(messages) {
   try {
-    const res = await fetch(`${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : ''}/api/ai`, {
+    // Use Groq API directly instead of internal /api/ai call
+    const GROQ_API_KEY = process.env.GROQ_API_KEY;
+    if (!GROQ_API_KEY) {
+      return { ok: false, error: 'Missing GROQ_API_KEY' };
+    }
+
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages, temperature: 0.35, max_tokens: 500 }),
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GROQ_API_KEY}`
+      },
+      body: JSON.stringify({ 
+        model: 'llama-3.1-8b-instant',
+        messages, 
+        temperature: 0.35, 
+        max_tokens: 500 
+      }),
     });
-    const data = await res.json().catch(() => ({}));
-    const content = data?.choices?.[0]?.message?.content || data?.content || '';
-    return { ok: res.ok, content };
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('Groq API error:', errorText);
+      return { ok: false, error: 'AI API failed' };
+    }
+    
+    const data = await res.json();
+    const content = data?.choices?.[0]?.message?.content || '';
+    return { ok: true, content };
   } catch (e) {
+    console.error('AI call error:', e);
     return { ok: false, error: e.message };
   }
 }
