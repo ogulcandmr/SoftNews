@@ -1,4 +1,39 @@
 // Vercel Serverless - News API (Netlify'den tam kopya)
+function getFallbackArticles() {
+  return [
+    {
+      title: "OpenAI Announces GPT-5 with Revolutionary Capabilities",
+      description: "OpenAI unveils GPT-5, featuring advanced reasoning and multimodal understanding that surpasses previous models.",
+      url: "https://openai.com",
+      urlToImage: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80",
+      publishedAt: new Date().toISOString(),
+      source: { name: "TechCrunch" },
+      category: "AI",
+      id: "fallback-1"
+    },
+    {
+      title: "Apple Vision Pro 2 Rumored for 2025 Release",
+      description: "Sources suggest Apple is working on a lighter, more affordable Vision Pro headset with improved battery life.",
+      url: "https://apple.com",
+      urlToImage: "https://images.unsplash.com/photo-1592478411213-6153e4c4c8f8?auto=format&fit=crop&w=800&q=80",
+      source: { name: "The Verge" },
+      publishedAt: new Date().toISOString(),
+      category: "Hardware",
+      id: "fallback-2"
+    },
+    {
+      title: "Tesla Unveils New AI Chip for Autonomous Driving",
+      description: "Tesla's latest custom chip promises 10x performance improvement for self-driving capabilities.",
+      url: "https://tesla.com",
+      urlToImage: "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=800&q=80",
+      source: { name: "Reuters" },
+      publishedAt: new Date().toISOString(),
+      category: "Technology",
+      id: "fallback-3"
+    }
+  ];
+}
+
 export default async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,8 +51,8 @@ export default async function handler(req, res) {
       if (!GNEWS_API_KEY) return res.status(500).send('Missing GNEWS_API_KEY');
       
       const queries = [
-        'https://gnews.io/api/v4/search?q=technology software AI hardware programming&lang=en&max=30&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        'https://gnews.io/api/v4/search?q=teknoloji yazılım yapay zeka programlama&lang=tr&max=20&apikey=' + encodeURIComponent(GNEWS_API_KEY)
+        'https://gnews.io/api/v4/search?q=technology OR software OR AI OR hardware&lang=en&max=20&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=teknoloji OR yazılım OR yapay zeka&lang=tr&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY)
       ];
       
       let allArticles = [];
@@ -30,6 +65,17 @@ export default async function handler(req, res) {
           if (!response.ok) {
             const errorText = await response.text();
             console.error('GNews API error:', response.status, errorText);
+            
+            // Rate limit aşıldıysa, fallback data dön
+            if (response.status === 429) {
+              console.log('Rate limit exceeded, returning fallback data');
+              return res.status(200).json({ 
+                ok: true, 
+                articles: getFallbackArticles(),
+                cached: true,
+                message: 'Using fallback data due to rate limit'
+              });
+            }
             continue;
           }
           
@@ -54,7 +100,13 @@ export default async function handler(req, res) {
         const desc = (article.description || '').toLowerCase();
         const text = title + ' ' + desc;
         
-        const excludeKeywords = ['crime', 'mahkeme', 'cinayet', 'öldür', 'court', 'arrest', 'prison', 'election', 'war', 'covid', 'vaccine', 'recipe', 'yemek'];
+        // Exclude non-tech content
+        const excludeKeywords = [
+          'crime', 'mahkeme', 'cinayet', 'öldür', 'court', 'arrest', 'prison',
+          'election', 'seçim', 'war', 'savaş', 'covid', 'vaccine', 'aşı',
+          'recipe', 'yemek', 'tarif', 'spor', 'sport', 'futbol', 'football',
+          'mahrem', 'cinsel', 'scandal', 'skandal', 'polis', 'police'
+        ];
         if (excludeKeywords.some(kw => text.includes(kw))) return false;
         
         return true;

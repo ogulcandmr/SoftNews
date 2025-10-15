@@ -1,4 +1,4 @@
-const NEWS_CACHE_KEY = 'softnews_articles_v11_daily'; // v11 - günlük cache (simple filter)
+const NEWS_CACHE_KEY = 'softnews_articles_v12_daily'; // v12 - 30 articles, 24h cache, quality filter
 const NEWS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat = 1 gün
 
 // Check if cache is from today
