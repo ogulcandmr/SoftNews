@@ -16,8 +16,9 @@ export default async function handler(req, res) {
       if (!GNEWS_API_KEY) return res.status(500).send('Missing GNEWS_API_KEY');
       
       const queries = [
-        'https://gnews.io/api/v4/search?q=technology OR software OR AI OR hardware&lang=en&max=20&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        'https://gnews.io/api/v4/search?q=teknoloji OR yazılım OR yapay zeka&lang=tr&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY)
+        'https://gnews.io/api/v4/search?q=technology&lang=en&max=30&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=software&lang=en&max=20&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=teknoloji&lang=tr&max=15&apikey=' + encodeURIComponent(GNEWS_API_KEY)
       ];
       
       let allArticles = [];
@@ -54,12 +55,10 @@ export default async function handler(req, res) {
         const desc = (article.description || '').toLowerCase();
         const text = title + ' ' + desc;
         
-        // Exclude non-tech content
+        // Only exclude really bad content
         const excludeKeywords = [
-          'crime', 'mahkeme', 'cinayet', 'öldür', 'court', 'arrest', 'prison',
-          'election', 'seçim', 'war', 'savaş', 'covid', 'vaccine', 'aşı',
-          'recipe', 'yemek', 'tarif', 'spor', 'sport', 'futbol', 'football',
-          'mahrem', 'cinsel', 'scandal', 'skandal', 'polis', 'police'
+          'mahrem', 'cinsel', 'sexual', 'scandal', 'skandal',
+          'cinayet', 'murder', 'öldür', 'polis', 'police'
         ];
         if (excludeKeywords.some(kw => text.includes(kw))) return false;
         
