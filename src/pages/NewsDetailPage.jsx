@@ -5,12 +5,39 @@ import NewsCard from '../components/NewsCard';
 import { fetchLatestNews } from '../services/newsService';
 import { generateArticleSummary, generateArticleSections } from '../services/aiClient';
 
+const RELATED_VIDEOS_CACHE_KEY = 'softnews_related_videos_v1';
+const RELATED_VIDEOS_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 saat cache
+
 function formatViews(n) {
   if (!n && n !== 0) return '0';
   const num = Number(n);
   if (num >= 1_000_000) return (num / 1_000_000).toFixed(1).replace('.0', '') + 'M';
   if (num >= 1_000) return (num / 1_000).toFixed(1).replace('.0', '') + 'K';
   return String(num);
+}
+
+function loadRelatedVideosCache(articleId) {
+  try {
+    const raw = localStorage.getItem(RELATED_VIDEOS_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed?.[articleId]) return null;
+    const cached = parsed[articleId];
+    if (!cached?.videos || !cached?.timestamp) return null;
+    if (Date.now() - cached.timestamp > RELATED_VIDEOS_CACHE_TTL_MS) return null;
+    return cached.videos;
+  } catch {
+    return null;
+  }
+}
+
+function saveRelatedVideosCache(articleId, videos) {
+  try {
+    const raw = localStorage.getItem(RELATED_VIDEOS_CACHE_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    parsed[articleId] = { videos, timestamp: Date.now() };
+    localStorage.setItem(RELATED_VIDEOS_CACHE_KEY, JSON.stringify(parsed));
+  } catch {}
 }
 
 const NewsDetailPage = () => {
@@ -95,11 +122,21 @@ const NewsDetailPage = () => {
     return () => { alive = false; };
   }, [articleText, news?.title]);
 
-  // Fetch related videos by news title
+  // Fetch related videos by news title with cache
   useEffect(() => {
     let on = true;
     async function load() {
-      if (!news?.title) return;
+      if (!news?.title || !news?.id) return;
+      
+      // Check cache first
+      const cached = loadRelatedVideosCache(news.id);
+      if (cached && cached.length > 0) {
+        console.log('Using cached related videos:', cached.length);
+        setRelatedVideos(cached);
+        setRelatedLoading(false);
+        return;
+      }
+      
       try {
         setRelatedLoading(true);
         // Use first 2-3 words from title + category
@@ -124,6 +161,7 @@ const NewsDetailPage = () => {
           views: Number(v.views || 0),
         }));
         setRelatedVideos(items);
+        if (items.length > 0) saveRelatedVideosCache(news.id, items);
       } catch (e) {
         if (!on) return;
         setRelatedVideos([]);
@@ -131,9 +169,9 @@ const NewsDetailPage = () => {
         if (on) setRelatedLoading(false);
       }
     }
-    if (news?.title) load();
+    if (news?.title && news?.id) load();
     return () => { on = false; };
-  }, [news?.title]);
+  }, [news?.title, news?.id]);
 
   if (!news) {
     return (

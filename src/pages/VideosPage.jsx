@@ -2,11 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { generateVideoRecommendations } from '../services/aiClient';
 import AnimatedBackground from '../components/AnimatedBackground';
 
-const VIDEO_CACHE_KEY = 'softnews_videos_cache_v2';
+const VIDEO_CACHE_KEY = 'softnews_videos_cache_v3'; // v3 - Yeni YouTube API key
 const VIDEO_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat cache - YouTube API quota koruması
 
 function loadVideoCache() {
   try {
+    // Eski cache'leri temizle
+    ['softnews_videos_cache_v1', 'softnews_videos_cache_v2'].forEach(key => {
+      localStorage.removeItem(key);
+    });
+    
     const raw = localStorage.getItem(VIDEO_CACHE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
