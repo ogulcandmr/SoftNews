@@ -1,4 +1,4 @@
-const NEWS_CACHE_KEY = 'softnews_articles_v6_daily'; // v6 - günlük cache
+const NEWS_CACHE_KEY = 'softnews_articles_v7_daily'; // v7 - günlük cache (80 articles)
 const NEWS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat = 1 gün
 
 // Check if cache is from today
