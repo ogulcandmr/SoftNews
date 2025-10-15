@@ -13,7 +13,7 @@ const forumCategories = [
 
 async function apiListTopics() {
   try {
-    const res = await fetch('/api/forum/topics');
+    const res = await fetch('/api/forum-topics');
     const data = await res.json();
     if (!res.ok || !data?.success) throw new Error(data?.message || 'List failed');
     return data.data;
@@ -24,7 +24,7 @@ async function apiListTopics() {
 }
 
 async function apiCreateTopic({ title, category, content = '', author = 'guest' }) {
-  const res = await fetch('/api/forum/topics', {
+  const res = await fetch('/api/forum-topics', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title, category, content, author })
