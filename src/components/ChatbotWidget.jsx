@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { chatWithNewsContext, getAIConfigPublic } from '../services/aiClient';
 import { getNewsContextText, buildNewsContextFromItems } from '../data/newsData';
 import { fetchLatestNews } from '../services/newsService';
+import { useTheme } from '../contexts/ThemeContext';
 
 const STORAGE_KEY = 'softnews_chat_history_v1';
 
@@ -23,6 +24,7 @@ function saveHistory(history) {
 }
 
 const ChatbotWidget = () => {
+  const { isDark } = useTheme();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -100,7 +102,9 @@ const ChatbotWidget = () => {
     <>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="fixed right-5 w-12 h-12 rounded-full bg-purple-700 text-white shadow-lg flex items-center justify-center hover:bg-purple-800 z-[9999]"
+        className={`fixed right-5 w-12 h-12 rounded-full text-white shadow-lg flex items-center justify-center z-[9999] ${
+          isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-purple-700 hover:bg-purple-800'
+        }`}
         style={{ bottom: 'calc(20px + env(safe-area-inset-bottom))' }}
         title="SoftNews Asistan"
         data-chatbot-trigger
@@ -110,10 +114,14 @@ const ChatbotWidget = () => {
 
       {open && (
         <div
-          className="fixed right-5 w-80 max-w-[90vw] bg-white rounded-2xl shadow-2xl border border-purple-100 flex flex-col overflow-hidden z-[9999]"
+          className={`fixed right-5 w-80 max-w-[90vw] rounded-2xl shadow-2xl flex flex-col overflow-hidden z-[9999] ${
+            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-purple-100'
+          }`}
           style={{ bottom: 'calc(100px + env(safe-area-inset-bottom))' }}
         >
-          <div className="px-4 py-3 bg-gradient-to-r from-purple-700 to-blue-600 text-white flex items-center justify-between">
+          <div className={`px-4 py-3 text-white flex items-center justify-between ${
+            isDark ? 'bg-gray-700' : 'bg-gradient-to-r from-purple-700 to-blue-600'
+          }`}>
             <div className="font-semibold">SoftNews Asistan</div>
             <div className="flex items-center gap-2 text-[10px] opacity-80">
               <span>{aiConfig.provider || 'ai'}</span>
@@ -129,15 +137,17 @@ const ChatbotWidget = () => {
               <button onClick={() => setOpen(false)} className="text-white/80 hover:text-white">✕</button>
             </div>
           </div>
-          <div className="p-3 h-80 overflow-y-auto space-y-2 bg-gradient-to-br from-purple-50 via-white to-blue-50">
-            <div className="text-xs text-gray-500 mb-1">Haberlerle ilgili sorular sorabilirsiniz.</div>
+          <div className={`p-3 h-80 overflow-y-auto space-y-2 ${
+            isDark ? 'bg-gray-900' : 'bg-gradient-to-br from-purple-50 via-white to-blue-50'
+          }`}>
+            <div className={`text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Haberlerle ilgili sorular sorabilirsiniz.</div>
             {history.map((m, idx) => (
               <div
                 key={idx}
                 className={`max-w-[90%] p-2 rounded-lg text-sm ${
                   m.role === 'user'
-                    ? 'bg-purple-700 text-white self-end ml-auto'
-                    : 'bg-white border border-purple-100 text-gray-800'
+                    ? isDark ? 'bg-blue-600 text-white self-end ml-auto' : 'bg-purple-700 text-white self-end ml-auto'
+                    : isDark ? 'bg-gray-800 border border-gray-700 text-gray-200' : 'bg-white border border-purple-100 text-gray-800'
                 }`}
               >
                 {m.content}
@@ -165,7 +175,9 @@ const ChatbotWidget = () => {
             <button
               onClick={send}
               disabled={loading}
-              className="px-3 py-2 rounded-lg bg-purple-700 text-white text-sm hover:bg-purple-800 disabled:opacity-60"
+              className={`px-3 py-2 rounded-lg text-white text-sm disabled:opacity-60 ${
+                isDark ? 'bg-blue-600 hover:bg-blue-500' : 'bg-purple-700 hover:bg-purple-800'
+              }`}
             >
               Gönder
             </button>

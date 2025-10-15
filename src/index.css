@@ -5,6 +5,394 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dark mode base styles */
+@layer base {
+  /* Smooth transitions for theme changes */
+  * {
+    @apply transition-colors duration-300;
+  }
+  
+  /* Dark mode body and root */
+  .dark {
+    @apply bg-gray-900 text-white;
+  }
+  
+  .dark body {
+    @apply bg-gray-900 text-white;
+  }
+  
+  /* ALL white backgrounds become dark */
+  .dark .bg-white,
+  .dark [style*="background: white"],
+  .dark [style*="background:#fff"],
+  .dark [style*="background: #fff"] {
+    background-color: rgb(31, 41, 55) !important;
+    color: white !important;
+  }
+  
+  /* Override ALL gradient backgrounds for dark mode */
+  .dark .bg-gradient-to-br,
+  .dark .bg-gradient-to-r,
+  .dark .bg-gradient-to-l,
+  .dark .bg-gradient-to-t,
+  .dark .bg-gradient-to-b {
+    background: linear-gradient(to bottom right, rgb(17, 24, 39), rgb(31, 41, 55)) !important;
+  }
+  
+  /* Text colors */
+  .dark .text-gray-900 {
+    @apply text-white;
+  }
+  
+  .dark .text-gray-800 {
+    @apply text-gray-100;
+  }
+  
+  .dark .text-gray-700 {
+    @apply text-gray-200;
+  }
+  
+  .dark .text-gray-600 {
+    @apply text-gray-300;
+  }
+  
+  .dark .text-gray-500 {
+    @apply text-gray-400;
+  }
+  
+  /* Blue text colors */
+  .dark .text-blue-800 {
+    @apply text-blue-300;
+  }
+  
+  .dark .text-blue-700 {
+    @apply text-blue-400;
+  }
+  
+  .dark .text-blue-600 {
+    @apply text-blue-400;
+  }
+  
+  /* Purple text colors */
+  .dark .text-purple-900 {
+    @apply text-purple-300;
+  }
+  
+  .dark .text-purple-800 {
+    @apply text-purple-300;
+  }
+  
+  .dark .text-purple-700 {
+    @apply text-purple-400;
+  }
+  
+  /* Borders */
+  .dark .border-gray-200 {
+    @apply border-gray-700;
+  }
+  
+  .dark .border-gray-300 {
+    @apply border-gray-600;
+  }
+  
+  /* Shadows - reduce in dark mode */
+  .dark .shadow-xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+  
+  .dark .shadow-lg {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+  }
+  
+  .dark .shadow-md {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Specific gradient backgrounds */
+  .dark .from-blue-50 {
+    @apply from-gray-900;
+  }
+  
+  .dark .via-white {
+    @apply via-gray-800;
+  }
+  
+  .dark .to-purple-50 {
+    @apply to-gray-900;
+  }
+  
+  .dark .from-purple-50 {
+    @apply from-gray-800;
+  }
+  
+  .dark .to-blue-50 {
+    @apply to-gray-900;
+  }
+  
+  .dark .from-red-50 {
+    @apply from-gray-800;
+  }
+  
+  .dark .to-pink-50 {
+    @apply to-gray-900;
+  }
+  
+  /* Keep vibrant gradients vibrant in dark mode */
+  .dark .from-purple-700,
+  .dark .from-blue-600,
+  .dark .from-red-600,
+  .dark .from-green-600 {
+    /* Keep original colors */
+  }
+  
+  /* Input fields */
+  .dark input,
+  .dark textarea,
+  .dark select {
+    @apply bg-gray-700 text-white border-gray-600;
+  }
+  
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    @apply text-gray-400;
+  }
+  
+  /* Buttons - keep original colors but adjust hover */
+  .dark .bg-blue-600:hover {
+    @apply bg-blue-500;
+  }
+  
+  .dark .bg-purple-600:hover {
+    @apply bg-purple-500;
+  }
+  
+  .dark .bg-red-600:hover {
+    @apply bg-red-500;
+  }
+  
+  /* Background overlays */
+  .dark .bg-gray-50 {
+    @apply bg-gray-700;
+  }
+  
+  .dark .bg-gray-100 {
+    @apply bg-gray-700;
+  }
+  
+  /* Specific component overrides */
+  .dark .from-purple-100 {
+    @apply from-gray-700;
+  }
+  
+  .dark .to-blue-100 {
+    @apply to-gray-700;
+  }
+  
+  .dark .from-blue-100 {
+    @apply from-gray-700;
+  }
+  
+  .dark .to-purple-100 {
+    @apply to-gray-700;
+  }
+  
+  /* AI Summary and colorful cards - tone down in dark mode */
+  .dark .from-purple-50 {
+    @apply from-gray-800;
+  }
+  
+  .dark .to-blue-50 {
+    @apply to-gray-800;
+  }
+  
+  .dark .from-red-50 {
+    @apply from-gray-800;
+  }
+  
+  .dark .to-pink-50 {
+    @apply to-gray-800;
+  }
+  
+  .dark .from-green-50 {
+    @apply from-gray-800;
+  }
+  
+  .dark .to-green-50 {
+    @apply to-gray-800;
+  }
+  
+  /* Border colors for colorful cards */
+  .dark .border-purple-200 {
+    @apply border-gray-600;
+  }
+  
+  .dark .border-blue-200 {
+    @apply border-gray-600;
+  }
+  
+  .dark .border-red-200 {
+    @apply border-gray-600;
+  }
+  
+  .dark .border-pink-200 {
+    @apply border-gray-600;
+  }
+  
+  /* Text colors on colorful backgrounds */
+  .dark .text-purple-900 {
+    @apply text-purple-200;
+  }
+  
+  .dark .text-red-600 {
+    @apply text-red-400;
+  }
+  
+  /* Keep vibrant hero gradients but slightly muted */
+  .dark .from-purple-700 {
+    @apply from-purple-800;
+  }
+  
+  .dark .via-indigo-600 {
+    @apply via-indigo-700;
+  }
+  
+  .dark .to-blue-600 {
+    @apply to-blue-700;
+  }
+  
+  /* NewsCard and detail page backgrounds */
+  .dark .bg-gradient-to-br.from-blue-50 {
+    background: linear-gradient(to bottom right, rgb(31, 41, 55), rgb(17, 24, 39));
+  }
+  
+  .dark .bg-gradient-to-r.from-purple-100 {
+    background: linear-gradient(to right, rgb(55, 65, 81), rgb(31, 41, 55));
+  }
+  
+  .dark .bg-gradient-to-r.from-blue-50 {
+    background: linear-gradient(to right, rgb(55, 65, 81), rgb(31, 41, 55));
+  }
+  
+  /* Opacity adjustments for overlays */
+  .dark [style*="opacity: 0.13"],
+  .dark [style*="opacity: 0.1"],
+  .dark [style*="opacity: 0.2"] {
+    opacity: 0.05 !important;
+  }
+  
+  /* Force all inline gradient styles to dark */
+  .dark [style*="linear-gradient"] {
+    background: linear-gradient(to bottom right, rgb(17, 24, 39), rgb(31, 41, 55)) !important;
+  }
+  
+  /* Hero sections - Cool dark gradients */
+  .dark .bg-gradient-to-r.from-purple-700 {
+    background: linear-gradient(90deg, rgb(88, 28, 135), rgb(67, 56, 202), rgb(29, 78, 216)) !important;
+  }
+  
+  /* Specific hero gradient override for dark mode */
+  .dark .bg-gradient-to-r.from-purple-700.via-indigo-600.to-blue-600 {
+    background: linear-gradient(90deg, 
+      rgb(109, 40, 217), 
+      rgb(79, 70, 229), 
+      rgb(59, 130, 246)
+    ) !important;
+  }
+  
+  /* Footer dark mode */
+  .dark footer,
+  .dark .footer {
+    background-color: rgb(17, 24, 39) !important;
+    color: white !important;
+  }
+  
+  /* All cards and panels */
+  .dark .card,
+  .dark .panel,
+  .dark .rounded-2xl,
+  .dark .rounded-xl,
+  .dark .rounded-lg {
+    background-color: rgb(31, 41, 55) !important;
+    border-color: rgb(55, 65, 81) !important;
+  }
+  
+  /* Text on dark backgrounds */
+  .dark .text-muted {
+    color: rgb(156, 163, 175) !important;
+  }
+  
+  .dark .text-primary {
+    color: rgb(96, 165, 250) !important;
+  }
+  
+  /* Bootstrap components */
+  .dark .btn-outline-primary {
+    border-color: rgb(96, 165, 250) !important;
+    color: rgb(96, 165, 250) !important;
+  }
+  
+  .dark .btn-outline-primary:hover {
+    background-color: rgb(96, 165, 250) !important;
+    color: white !important;
+  }
+  
+  .dark .btn-outline-secondary {
+    border-color: rgb(156, 163, 175) !important;
+    color: rgb(156, 163, 175) !important;
+  }
+  
+  .dark .btn-outline-secondary:hover {
+    background-color: rgb(156, 163, 175) !important;
+    color: rgb(17, 24, 39) !important;
+  }
+  
+  /* Nav links */
+  .dark .nav-link {
+    color: rgb(209, 213, 219) !important;
+  }
+  
+  .dark .nav-link:hover {
+    color: white !important;
+  }
+  
+  /* Offcanvas */
+  .dark .offcanvas-header,
+  .dark .offcanvas-body {
+    background-color: rgb(31, 41, 55) !important;
+    color: white !important;
+  }
+  
+  .dark .offcanvas-title {
+    color: white !important;
+  }
+  
+  .dark .btn-close {
+    filter: invert(1);
+  }
+  
+  /* Forum specific colors */
+  .dark .bg-blue-50 {
+    background-color: rgb(31, 41, 55) !important;
+  }
+  
+  .dark .text-blue-700 {
+    color: rgb(147, 197, 253) !important;
+  }
+  
+  .dark .text-purple-700 {
+    color: rgb(196, 181, 253) !important;
+  }
+  
+  .dark .text-purple-600 {
+    color: rgb(196, 181, 253) !important;
+  }
+  
+  /* Weekly summary specific */
+  .dark .bg-white\/90 {
+    background-color: rgba(31, 41, 55, 0.95) !important;
+  }
+}
+
 body {
   @apply bg-gray-50 font-sans;
 }

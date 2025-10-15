@@ -75,11 +75,11 @@ async function apiListTopics() {
   }
 }
 
-async function apiCreateTopic({ title, category, content = '' }) {
+async function apiCreateTopic({ title, category, content = '', author = 'guest' }) {
   const res = await fetch('/api/forum/topics', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, category, content })
+    body: JSON.stringify({ title, category, content, author })
   });
   const data = await res.json();
   if (!res.ok || !data?.success) throw new Error(data?.message || 'Create failed');
@@ -112,14 +112,25 @@ const ForumPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Get user info from localStorage
+    let authorName = 'guest';
     try {
-      const created = await apiCreateTopic({ title: form.title, category: form.category, content: '' });
+      const userStr = localStorage.getItem('softnews_user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        authorName = user?.name || user?.email || 'guest';
+      }
+    } catch {}
+    
+    try {
+      const created = await apiCreateTopic({ title: form.title, category: form.category, content: '', author: authorName });
       setTopics(prev => [
         {
           id: created.id,
           title: created.title,
           category: created.category,
-          author: created.author || 'guest',
+          author: created.author || authorName,
           date: (created.created_at || '').slice(0,10),
           replies: created.replies_count ?? 0,
           lastReply: created.last_reply_at ? created.last_reply_at.slice(0,10) : null,
@@ -137,7 +148,7 @@ const ForumPage = () => {
           id: Math.max(0, ...prev.map(t => Number(t.id) || 0)) + 1,
           title: form.title,
           category: form.category,
-          author: 'guest',
+          author: authorName,
           date: new Date().toISOString().slice(0, 10),
           replies: 0,
           lastReply: null,

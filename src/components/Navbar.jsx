@@ -7,10 +7,12 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 import Image from 'react-bootstrap/Image';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 function CustomNavbar() {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
 
   const handleProfileClick = () => {
     navigate('/profile');
@@ -28,9 +30,11 @@ function CustomNavbar() {
       style={{
         zIndex: 1050,
         position: 'relative',
-        background: 'linear-gradient(90deg, #e0e7ff 0%, #f8fafc 40%, #c7d0dc 100%)',
+        background: isDark 
+          ? 'linear-gradient(90deg, rgb(17, 24, 39) 0%, rgb(31, 41, 55) 40%, rgb(55, 65, 81) 100%)'
+          : 'linear-gradient(90deg, #e0e7ff 0%, #f8fafc 40%, #c7d0dc 100%)',
         backdropFilter: 'blur(8px)',
-        borderBottom: '1px solid #e0e7ef',
+        borderBottom: isDark ? '1px solid rgb(55, 65, 81)' : '1px solid #e0e7ef',
       }}
     >
       <div
@@ -40,7 +44,7 @@ function CustomNavbar() {
           zIndex: 0,
           background:
             "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat",
-          opacity: 0.13,
+          opacity: isDark ? 0.03 : 0.13,
           pointerEvents: 'none',
         }}
       />
@@ -53,7 +57,12 @@ function CustomNavbar() {
             id="offcanvasNavbar"
             aria-labelledby="offcanvasNavbarLabel"
             placement="end"
-          style={{ background: 'linear-gradient(90deg, #e0e7ff 0%, #f8fafc 40%, #c7d0dc 100%)' }}
+          style={{ 
+            background: isDark 
+              ? 'linear-gradient(90deg, rgb(17, 24, 39) 0%, rgb(31, 41, 55) 40%, rgb(55, 65, 81) 100%)'
+              : 'linear-gradient(90deg, #e0e7ff 0%, #f8fafc 40%, #c7d0dc 100%)',
+            color: isDark ? 'white' : 'inherit'
+          }}
           >
             <Offcanvas.Header closeButton>
             <Offcanvas.Title id="offcanvasNavbarLabel">Menü</Offcanvas.Title>
@@ -68,6 +77,17 @@ function CustomNavbar() {
               {isAuthenticated && <Nav.Link as={Link} to="/profile">Profilim</Nav.Link>}
               </Nav>
             <div className="d-flex align-items-center gap-3 mt-4 mt-lg-0 justify-content-end">
+              {/* Dark Mode Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2"
+                title={isDark ? 'Aydınlık Tema' : 'Karanlık Tema'}
+                style={{ padding: '6px 12px', borderRadius: '20px' }}
+              >
+                <span style={{ fontSize: '18px' }}>{isDark ? '☀️' : '🌙'}</span>
+                <span className="d-none d-md-inline">{isDark ? 'Aydınlık' : 'Karanlık'}</span>
+              </button>
+              
               {isAuthenticated ? (
                 <>
                 <div className="d-flex align-items-center gap-2">
