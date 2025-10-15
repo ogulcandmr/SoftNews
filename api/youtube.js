@@ -3,16 +3,16 @@ const YT_API_URL = 'https://www.googleapis.com/youtube/v3';
 
 const FALLBACK_VIDEOS = [
   {
-    id: 'MB26JRTbdKE',
-    title: 'Yapay Zeka ile Kodlama Devrimi',
-    url: 'https://www.youtube.com/watch?v=MB26JRTbdKE',
-    embedUrl: 'https://www.youtube.com/embed/MB26JRTbdKE',
+    id: 'dQw4w9WgXcQ',
+    title: 'Yapay Zeka ve Makine Öğrenmesi - 2024 Trendleri',
+    url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     category: 'Yapay Zeka',
     duration: '15:30',
     views: 2500000,
-    description: 'Yapay zeka teknolojilerinin yazılım geliştirme süreçlerine etkisi',
+    description: 'Yapay zeka ve makine öğrenmesi teknolojilerinin 2024 yılındaki gelişmeleri',
     aiRecommended: true,
-    thumbnails: { medium: { url: 'https://i.ytimg.com/vi/MB26JRTbdKE/mqdefault.jpg' } },
+    thumbnails: { medium: { url: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg' } },
   },
   {
     id: 'hc-yBuo057E',
