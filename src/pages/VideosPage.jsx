@@ -2,21 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { generateVideoRecommendations } from '../services/aiClient';
 import AnimatedBackground from '../components/AnimatedBackground';
 
-const VIDEO_CACHE_KEY = 'softnews_videos_cache_v3'; // v3 - Yeni YouTube API key
+const VIDEO_CACHE_KEY = 'softnews_videos_cache_v4'; // v4 - Force fresh fetch with new YT key
 const VIDEO_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat cache - YouTube API quota koruması
 
 function loadVideoCache() {
   try {
     // Eski cache'leri temizle
-    ['softnews_videos_cache_v1', 'softnews_videos_cache_v2'].forEach(key => {
+    ['softnews_videos_cache_v1', 'softnews_videos_cache_v2', 'softnews_videos_cache_v3'].forEach(key => {
       localStorage.removeItem(key);
     });
     
     const raw = localStorage.getItem(VIDEO_CACHE_KEY);
-    if (!raw) return null;
+    if (!raw) {
+      console.log('No video cache found, will fetch fresh');
+      return null;
+    }
     const parsed = JSON.parse(raw);
     if (!parsed?.videos || !parsed?.timestamp) return null;
-    if (Date.now() - parsed.timestamp > VIDEO_CACHE_TTL_MS) return null;
+    if (Date.now() - parsed.timestamp > VIDEO_CACHE_TTL_MS) {
+      console.log('Video cache expired, will fetch fresh');
+      return null;
+    }
+    console.log('Using cached videos:', parsed.videos.length);
     return parsed.videos;
   } catch {
     return null;
