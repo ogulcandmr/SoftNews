@@ -30,8 +30,8 @@ const VideosPage = () => {
   const [videos, setVideos] = useState([]);
   const [loadingVideos, setLoadingVideos] = useState(true);
   const [error, setError] = useState('');
-  const [query, setQuery] = useState('teknoloji haberleri');
-  const [searchInput, setSearchInput] = useState('teknoloji haberleri');
+  const [query, setQuery] = useState('yazılım geliştirme yapay zeka');
+  const [searchInput, setSearchInput] = useState('yazılım geliştirme yapay zeka');
   const [modalVideo, setModalVideo] = useState(null);
   const [insights, setInsights] = useState({}); // { [videoId]: string }
   const [insightLoading, setInsightLoading] = useState({}); // { [videoId]: boolean }
@@ -102,7 +102,7 @@ const VideosPage = () => {
   useEffect(() => {
     const t = setTimeout(() => {
       if ((searchInput || '').trim() !== (query || '').trim()) {
-        setQuery((searchInput || '').trim() || 'teknoloji haberleri');
+        setQuery((searchInput || '').trim() || 'yazılım geliştirme');
       }
     }, 300);
     return () => clearTimeout(t);
@@ -165,11 +165,11 @@ const VideosPage = () => {
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="YouTube'da ara: teknoloji, yapay zeka, donanım..."
+            placeholder="Ara: yapay zeka, yazılım, donanım, startup..."
             className="flex-1 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
           />
           <button
-            onClick={() => setQuery((searchInput || '').trim() || 'teknoloji haberleri')}
+            onClick={() => setQuery((searchInput || '').trim() || 'yazılım geliştirme')}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Ara
