@@ -1,4 +1,4 @@
-// Vercel Serverless - Forum Replies
+// Vercel Serverless - Forum Replies (query param: ?id=123)
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -15,6 +15,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const { id } = req.query;
+  if (!id) return res.status(400).json({ success: false, message: 'id required' });
 
   try {
     if (req.method === 'GET') {

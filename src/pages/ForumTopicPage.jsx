@@ -3,14 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import AnimatedBackground from '../components/AnimatedBackground';
 
 async function apiGetTopicWithReplies(id) {
-  const res = await fetch(`/api/forum-topic-${id}`);
+  const res = await fetch(`/api/forum-topic?id=${id}`);
   const data = await res.json();
   if (!res.ok || !data?.success) throw new Error(data?.message || 'Get topic failed');
   return data.data;
 }
 
 async function apiPostReply(id, content, author) {
-  const res = await fetch(`/api/forum-replies-${id}`, {
+  const res = await fetch(`/api/forum-replies?id=${id}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ content, author })
@@ -21,7 +21,7 @@ async function apiPostReply(id, content, author) {
 }
 
 async function apiAutoReply(id) {
-  const res = await fetch(`/api/forum-auto-reply-${id}`, { method: 'POST' });
+  const res = await fetch(`/api/forum-auto-reply?id=${id}`, { method: 'POST' });
   const data = await res.json();
   if (!res.ok || !data?.success) throw new Error(data?.message || 'Auto-reply failed');
   return data.data;

@@ -1,4 +1,4 @@
-// Vercel Serverless - Forum Topic Detail
+// Vercel Serverless - Forum Topic Detail (query param: ?id=123)
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -16,9 +16,9 @@ export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ success: false, message: 'Method Not Allowed' });
 
   const { id } = req.query;
+  if (!id) return res.status(400).json({ success: false, message: 'id required' });
 
   try {
-    // Get topic
     const { data: topic, error: topicError } = await supabase
       .from('topics')
       .select('*')
@@ -27,7 +27,6 @@ export default async function handler(req, res) {
     
     if (topicError) throw topicError;
 
-    // Get replies
     const { data: replies, error: repliesError } = await supabase
       .from('replies')
       .select('*')
