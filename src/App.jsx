@@ -4,6 +4,7 @@ import CustomNavbar from './components/Navbar';
 import YoutubeSection from './components/YoutubeSection';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import AuthPage from './pages/AuthPage';
 import HomePage from './pages/HomePage';
 import VideosPage from './pages/VideosPage';
 import NewsPage from './pages/NewsPage';
@@ -62,8 +63,9 @@ function App() {
         <Route path="/videos" element={<VideosPage />} />
         <Route path="/forum" element={<ForumPage />} />
         <Route path="/forum/:id" element={<ForumTopicPage />} />
-        <Route path="/LoginPage" element={<LoginPage />} />
-        <Route path="/RegisterPage" element={<RegisterPage />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/LoginPage" element={<AuthPage />} />
+        <Route path="/RegisterPage" element={<AuthPage />} />
         <Route path="/news/:id" element={<NewsDetailPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/profile" element={<ProfilePage />} />

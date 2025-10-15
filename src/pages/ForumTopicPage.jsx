@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import AnimatedBackground from '../components/AnimatedBackground';
 
 async function apiGetTopicWithReplies(id) {
   const res = await fetch(`/api/forum/topics/${id}`);
@@ -108,8 +109,8 @@ const ForumTopicPage = () => {
   if (error || !topic) return <div className="text-center py-20 text-xl">Konu bulunamadı.</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 py-10 relative animate-fade-in-down">
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center opacity-10 pointer-events-none" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 relative">
+      <AnimatedBackground variant="mesh" />
       <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-6">
         <button onClick={() => navigate(-1)} className="mb-4 text-purple-600 hover:underline">&larr; Geri</button>
         <div className="mb-2 text-xs text-purple-700 font-semibold uppercase">{topic.category} • {topic.author} • {(topic.created_at || '').slice(0,10)}</div>

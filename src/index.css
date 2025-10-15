@@ -280,23 +280,30 @@
     opacity: 0.05 !important;
   }
   
-  /* Force all inline gradient styles to dark */
-  .dark [style*="linear-gradient"] {
-    background: linear-gradient(to bottom right, rgb(17, 24, 39), rgb(31, 41, 55)) !important;
-  }
-  
   /* Hero sections - Cool dark gradients */
-  .dark .bg-gradient-to-r.from-purple-700 {
-    background: linear-gradient(90deg, rgb(88, 28, 135), rgb(67, 56, 202), rgb(29, 78, 216)) !important;
+  .dark .from-purple-700 {
+    --tw-gradient-from: rgb(88, 28, 135) !important;
   }
   
-  /* Specific hero gradient override for dark mode */
-  .dark .bg-gradient-to-r.from-purple-700.via-indigo-600.to-blue-600 {
-    background: linear-gradient(90deg, 
-      rgb(109, 40, 217), 
-      rgb(79, 70, 229), 
-      rgb(59, 130, 246)
-    ) !important;
+  .dark .via-indigo-600 {
+    --tw-gradient-via: rgb(67, 56, 202) !important;
+  }
+  
+  .dark .to-blue-600 {
+    --tw-gradient-to: rgb(29, 78, 216) !important;
+  }
+  
+  /* Dark mode specific hero gradient */
+  .dark .from-purple-900 {
+    --tw-gradient-from: rgb(88, 28, 135) !important;
+  }
+  
+  .dark .via-indigo-900 {
+    --tw-gradient-via: rgb(67, 56, 202) !important;
+  }
+  
+  .dark .to-blue-900 {
+    --tw-gradient-to: rgb(29, 78, 216) !important;
   }
   
   /* Footer dark mode */
@@ -395,6 +402,55 @@
 
 body {
   @apply bg-gray-50 font-sans;
+}
+
+/* Blob animations for background */
+@keyframes blob {
+  0%, 100% { 
+    transform: translate(0, 0) scale(1); 
+  }
+  25% { 
+    transform: translate(20px, -50px) scale(1.1); 
+  }
+  50% { 
+    transform: translate(-20px, 20px) scale(0.9); 
+  }
+  75% { 
+    transform: translate(50px, 50px) scale(1.05); 
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+/* Float animation for particles */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  33% {
+    transform: translateY(-20px) translateX(10px);
+  }
+  66% {
+    transform: translateY(-10px) translateX(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-3000 {
+  animation-delay: 3s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
 }
 
 /* Kart animasyonları ve responsive grid için yardımcı sınıflar */

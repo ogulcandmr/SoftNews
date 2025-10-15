@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import NewsCard from '../components/NewsCard';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import NewsCard from '../components/NewsCard';
 import { fetchLatestNews } from '../services/newsService';
+import AnimatedBackground from '../components/AnimatedBackground';
 
 const allNews = [
   {
@@ -96,7 +97,7 @@ const NewsPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 relative animate-fade-in-down">
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center opacity-10 pointer-events-none" />
+      <AnimatedBackground variant="mesh" />
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-blue-800 drop-shadow">Haberler</h1>

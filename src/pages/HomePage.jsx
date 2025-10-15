@@ -6,6 +6,7 @@ import NewsPage from './NewsPage';
 import { newsItems } from '../data/newsData';
 import { fetchLatestNews } from '../services/newsService';
 import WeeklySummary from '../components/WeeklySummary';
+import AnimatedBackground from '../components/AnimatedBackground';
 
 const HomePage = () => {
   const [items, setItems] = useState([]);
@@ -88,11 +89,11 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 relative animate-fade-in-down">
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center opacity-10 pointer-events-none" />
+      <AnimatedBackground variant="mesh" />
       <div className="max-w-7xl mx-auto px-4 py-6 md:py-10 relative z-10">
-        {/* HERO - Compact */}
-        <div className="relative overflow-hidden rounded-2xl shadow-xl bg-gradient-to-r from-purple-700 via-indigo-600 to-blue-600 mb-8">
-          <div className="absolute inset-0 opacity-20" style={{ background: "radial-gradient(circle at 20% 20%, rgba(255,255,255,.35), transparent 40%), radial-gradient(circle at 80% 0%, rgba(255,255,255,.25), transparent 35%)" }} />
+        {/* HERO - Compact with Dark Mode */}
+        <div className="relative overflow-hidden rounded-2xl shadow-xl bg-gradient-to-r from-purple-700 via-indigo-600 to-blue-600 dark:from-purple-900 dark:via-indigo-900 dark:to-blue-900 mb-8">
+          <div className="absolute inset-0 opacity-20 dark:opacity-10" style={{ background: "radial-gradient(circle at 20% 20%, rgba(255,255,255,.35), transparent 40%), radial-gradient(circle at 80% 0%, rgba(255,255,255,.25), transparent 35%)" }} />
           <div className="relative p-6 md:p-8 text-center">
             <h1 className="text-3xl md:text-4xl font-extrabold text-white drop-shadow mb-4">
               SoftNews
@@ -101,8 +102,8 @@ const HomePage = () => {
               Yazılım, donanım ve yapay zekâ dünyasından en güncel haberler, videolar ve topluluk tartışmaları.
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
-              <Link to="/news" className="px-5 py-2.5 rounded-full bg-white text-purple-700 font-semibold shadow hover:shadow-lg">Son Haberler</Link>
-              <Link to="/forum" className="px-5 py-2.5 rounded-full bg-white/10 text-white font-semibold border border-white/30 hover:bg-white/15">Topluluğa Katıl</Link>
+              <Link to="/news" className="px-5 py-2.5 rounded-full bg-white dark:bg-gray-800 text-purple-700 dark:text-purple-400 font-semibold shadow hover:shadow-lg transition-all">Son Haberler</Link>
+              <Link to="/forum" className="px-5 py-2.5 rounded-full bg-white/10 dark:bg-white/5 text-white font-semibold border border-white/30 dark:border-white/20 hover:bg-white/15 dark:hover:bg-white/10 transition-all">Topluluğa Katıl</Link>
               <button
                 onClick={() => {
                   const summaryElement = document.getElementById('weekly-summary-content');
@@ -110,7 +111,7 @@ const HomePage = () => {
                     summaryElement.style.display = summaryElement.style.display === 'none' ? 'block' : 'none';
                   }
                 }}
-                className="px-5 py-2.5 rounded-full bg-purple-600 text-white font-semibold hover:bg-purple-700 transition"
+                className="px-5 py-2.5 rounded-full bg-purple-600 dark:bg-purple-700 text-white font-semibold hover:bg-purple-700 dark:hover:bg-purple-600 transition-all"
               >
                 AI Özeti Göster
               </button>

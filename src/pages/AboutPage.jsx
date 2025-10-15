@@ -1,8 +1,9 @@
 import React from 'react';
+import AnimatedBackground from '../components/AnimatedBackground';
 
 const AboutPage = () => (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 relative animate-fade-in-down">
-    <div className="absolute inset-0 bg-[url('https://static.vecteezy.com/system/resources/previews/046/484/632/large_2x/y2k-abstract-background-design-aesthetic-curved-gradient-pastel-color-illustration-template-for-poster-banner-social-media-page-greeting-web-digital-free-vector.jpg')] bg-cover bg-center opacity-20 pointer-events-none" />
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 relative">
+    <AnimatedBackground variant="mesh" />
     <div className="max-w-5xl mx-auto px-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
         <h1 className="text-4xl font-bold text-blue-800 mb-6 text-center">SoftNews Hakkında</h1>

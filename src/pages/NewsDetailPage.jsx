@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import AnimatedBackground from '../components/AnimatedBackground';
 import NewsCard from '../components/NewsCard';
 import { fetchLatestNews } from '../services/newsService';
 import { generateArticleSummary, generateArticleSections } from '../services/aiClient';
@@ -36,8 +37,6 @@ const allNews = [
 
 const NewsDetailPage = () => {
   const { id } = useParams();
-  const location = useLocation();
-  const article = location.state?.article;
   const navigate = useNavigate();
   const [allArticles, setAllArticles] = useState(allNews);
   const [loading, setLoading] = useState(false);
@@ -51,8 +50,9 @@ const NewsDetailPage = () => {
   const [sectionsLoading, setSectionsLoading] = useState(false);
   const [sectionsError, setSectionsError] = useState('');
   
-  const news = article || allArticles.find(n => n.id === id);
-  const related = allArticles.filter(n => n.category === news?.category && n.id !== id).slice(0, 8);
+  // Convert id to string for comparison since URL params are strings
+  const news = allArticles.find(n => String(n.id) === String(id));
+  const related = allArticles.filter(n => n.category === news?.category && String(n.id) !== String(id)).slice(0, 8);
 
   useEffect(() => {
     let mounted = true;
@@ -166,8 +166,8 @@ const NewsDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 relative animate-fade-in-down">
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center opacity-10 pointer-events-none" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 relative">
+      <AnimatedBackground variant="mesh" />
       
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

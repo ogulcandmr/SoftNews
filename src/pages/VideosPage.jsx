@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { generateVideoRecommendations } from '../services/aiClient';
+import AnimatedBackground from '../components/AnimatedBackground';
 
 const VIDEO_CACHE_KEY = 'softnews_videos_cache_v1';
-const VIDEO_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 saat cache
+const VIDEO_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat cache - YouTube API quota koruması
 
 function loadVideoCache() {
   try {
@@ -187,9 +188,8 @@ const VideosPage = () => {
   };
 
   return (
-    <>
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 py-10 relative animate-fade-in-down">
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center opacity-10 pointer-events-none" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 relative animate-fade-in-down">
+      <AnimatedBackground variant="mesh" />
       <div className="max-w-6xl mx-auto px-4">
         <h1 className="text-3xl font-bold text-blue-800 mb-4 text-center drop-shadow">Videolar</h1>
         {error && (
@@ -351,8 +351,9 @@ const VideosPage = () => {
           </>
         )}
       </div>
-    </div>
-    {modalVideo && (
+      
+      {/* Video Modal */}
+      {modalVideo && (
       <div
         className="fixed inset-0 bg-black/60 flex items-center justify-center z-[10000]"
         onClick={() => setModalVideo(null)}
@@ -374,8 +375,9 @@ const VideosPage = () => {
           </div>
         </div>
       </div>
-    )}
-    </>
+      )}
+    </div>
   );
 };
+
 export default VideosPage;

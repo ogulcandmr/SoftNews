@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import AnimatedBackground from '../components/AnimatedBackground';
 
 const forumCategories = [
   'Genel',
@@ -183,8 +184,8 @@ const ForumPage = () => {
   }, [form.title, topics]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 py-10 relative animate-fade-in-down">
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center opacity-10 pointer-events-none" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 relative animate-fade-in-down">
+      <AnimatedBackground variant="mesh" />
       <div className="max-w-5xl mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-purple-800 mb-2 drop-shadow">Forum</h1>
