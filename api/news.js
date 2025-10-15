@@ -1,39 +1,4 @@
-// Vercel Serverless - News API (Netlify'den tam kopya)
-function getFallbackArticles() {
-  return [
-    {
-      title: "OpenAI Announces GPT-5 with Revolutionary Capabilities",
-      description: "OpenAI unveils GPT-5, featuring advanced reasoning and multimodal understanding that surpasses previous models.",
-      url: "https://openai.com",
-      urlToImage: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80",
-      publishedAt: new Date().toISOString(),
-      source: { name: "TechCrunch" },
-      category: "AI",
-      id: "fallback-1"
-    },
-    {
-      title: "Apple Vision Pro 2 Rumored for 2025 Release",
-      description: "Sources suggest Apple is working on a lighter, more affordable Vision Pro headset with improved battery life.",
-      url: "https://apple.com",
-      urlToImage: "https://images.unsplash.com/photo-1592478411213-6153e4c4c8f8?auto=format&fit=crop&w=800&q=80",
-      source: { name: "The Verge" },
-      publishedAt: new Date().toISOString(),
-      category: "Hardware",
-      id: "fallback-2"
-    },
-    {
-      title: "Tesla Unveils New AI Chip for Autonomous Driving",
-      description: "Tesla's latest custom chip promises 10x performance improvement for self-driving capabilities.",
-      url: "https://tesla.com",
-      urlToImage: "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=800&q=80",
-      source: { name: "Reuters" },
-      publishedAt: new Date().toISOString(),
-      category: "Technology",
-      id: "fallback-3"
-    }
-  ];
-}
-
+// Vercel Serverless - News API
 export default async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -65,17 +30,6 @@ export default async function handler(req, res) {
           if (!response.ok) {
             const errorText = await response.text();
             console.error('GNews API error:', response.status, errorText);
-            
-            // Rate limit aşıldıysa, fallback data dön
-            if (response.status === 429) {
-              console.log('Rate limit exceeded, returning fallback data');
-              return res.status(200).json({ 
-                ok: true, 
-                articles: getFallbackArticles(),
-                cached: true,
-                message: 'Using fallback data due to rate limit'
-              });
-            }
             continue;
           }
           
