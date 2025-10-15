@@ -23,15 +23,27 @@ export default async function handler(req, res) {
       let allArticles = [];
       for (const url of queries) {
         try {
+          console.log('Fetching from GNews:', url.substring(0, 80) + '...');
           const response = await fetch(url);
+          console.log('GNews response status:', response.status);
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('GNews API error:', response.status, errorText);
+            continue;
+          }
+          
           const data = await response.json();
           console.log('GNews API response:', data);
+          
           if (data?.articles) {
             console.log('Articles from query:', data.articles.length);
             allArticles = allArticles.concat(data.articles);
+          } else if (data?.errors) {
+            console.error('GNews API errors:', data.errors);
           }
         } catch (e) {
-          console.error('Query failed:', e);
+          console.error('Query failed:', e.message);
         }
       }
       
