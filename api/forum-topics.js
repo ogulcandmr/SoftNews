@@ -16,14 +16,30 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      const { data, error } = await supabase
+      const { data: topics, error } = await supabase
         .from('topics')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
       
       if (error) throw error;
-      return res.status(200).json({ success: true, data: data || [] });
+      
+      // Her topic için reply sayısını hesapla
+      const topicsWithCounts = await Promise.all(
+        (topics || []).map(async (topic) => {
+          const { count } = await supabase
+            .from('replies')
+            .select('*', { count: 'exact', head: true })
+            .eq('topic_id', topic.id);
+          
+          return {
+            ...topic,
+            replies_count: count || 0
+          };
+        })
+      );
+      
+      return res.status(200).json({ success: true, data: topicsWithCounts });
     }
 
     if (req.method === 'POST') {
@@ -37,7 +53,14 @@ export default async function handler(req, res) {
         .single();
       
       if (error) throw error;
-      return res.status(201).json({ success: true, data });
+      
+      // Yeni topic için replies_count ekle
+      const topicWithCount = {
+        ...data,
+        replies_count: 0
+      };
+      
+      return res.status(201).json({ success: true, data: topicWithCount });
     }
 
     return res.status(405).json({ success: false, message: 'Method Not Allowed' });

@@ -1,4 +1,4 @@
-const NEWS_CACHE_KEY = 'softnews_articles_v8_daily'; // v8 - günlük cache (strict tech filter)
+const NEWS_CACHE_KEY = 'softnews_articles_v9_daily'; // v9 - günlük cache (50 articles, 2+ tech keywords)
 const NEWS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat = 1 gün
 
 // Check if cache is from today
