@@ -42,55 +42,10 @@ export default async function handler(req, res) {
         const desc = (article.description || '').toLowerCase();
         const text = title + ' ' + desc;
         
-        // HARD EXCLUDE - Kesinlikle istemediğimiz konular
-        const hardExclude = [
-          'mahrem', 'cinsel', 'sexual', 'porn', 'nude', 'scandal', 'skandal',
-          'taciz', 'tecavüz', 'rape', 'abuse', 'harassment', 'ihbar',
-          'cinayet', 'murder', 'öldür', 'kill', 'ölüm', 'death', 'öldü', 'died',
-          'mahkeme', 'court', 'dava', 'lawsuit', 'arrest', 'tutukla', 'prison', 'hapishane',
-          'polis', 'police', 'savcı', 'prosecutor', 'suç', 'crime',
-          'dolandır', 'fraud', 'scam', 'hırsız', 'theft', 'çaldı', 'steal',
-          'kaza', 'accident', 'crash', 'yaralı', 'injured', 'hastane', 'hospital',
-          'seçim', 'election', 'vote', 'savaş', 'war', 'conflict', 'çatışma',
-          'terör', 'terror', 'bomba', 'bomb', 'silah', 'weapon', 'gun',
-          'spor', 'sport', 'futbol', 'football', 'basketbol', 'basketball',
-          'yemek', 'recipe', 'tarif', 'mutfak', 'kitchen', 'food',
-          'sağlık', 'health', 'hastalık', 'disease', 'covid', 'vaccine', 'aşı',
-          'diş hekimi', 'dentist', 'doktor', 'doctor', 'hasta', 'patient'
-        ];
-        if (hardExclude.some(kw => text.includes(kw))) return false;
+        const excludeKeywords = ['crime', 'mahkeme', 'cinayet', 'öldür', 'court', 'arrest', 'prison', 'election', 'war', 'covid', 'vaccine', 'recipe', 'yemek'];
+        if (excludeKeywords.some(kw => text.includes(kw))) return false;
         
-        // CORE TECH - Gerçek teknoloji haberleri (en az 2 keyword olmalı)
-        const coreTechKeywords = [
-          // Teknoloji genel
-          'technology', 'teknoloji', 'tech', 'innovation', 'yenilik',
-          // Yazılım & Kodlama
-          'software', 'yazılım', 'programming', 'programlama', 'code', 'kod',
-          'developer', 'geliştirici', 'app', 'uygulama', 'platform',
-          // AI & ML
-          'ai', 'artificial intelligence', 'yapay zeka', 'machine learning',
-          'chatgpt', 'openai', 'llm', 'model', 'neural', 'deep learning',
-          // Donanım
-          'hardware', 'donanım', 'chip', 'çip', 'processor', 'işlemci',
-          'gpu', 'cpu', 'semiconductor', 'yarıiletken',
-          // Mobil & Cihazlar
-          'smartphone', 'iphone', 'android', 'mobile', 'mobil', 'tablet',
-          'laptop', 'computer', 'bilgisayar', 'pc', 'mac',
-          // Şirketler (büyük tech)
-          'apple', 'google', 'microsoft', 'meta', 'amazon', 'tesla',
-          'nvidia', 'samsung', 'intel', 'amd', 'qualcomm', 'spacex',
-          // Yeni teknolojiler
-          'robot', 'drone', 'vr', 'ar', 'metaverse', 'blockchain',
-          'crypto', 'bitcoin', 'ethereum', 'nft', 'web3',
-          // Oyun
-          'gaming', 'oyun', 'game', 'playstation', 'xbox', 'nintendo',
-          'steam', 'esports', 'twitch'
-        ];
-        
-        const techMatches = coreTechKeywords.filter(kw => text.includes(kw)).length;
-        
-        // En az 1 tech keyword olmalı
-        return techMatches >= 1;
+        return true;
       });
       
       console.log('Articles after filter:', relevantArticles.length);
