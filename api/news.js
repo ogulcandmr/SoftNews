@@ -89,8 +89,8 @@ export default async function handler(req, res) {
         
         const techMatches = coreTechKeywords.filter(kw => text.includes(kw)).length;
         
-        // En az 2 tech keyword olmalı (daha sıkı filtre)
-        return techMatches >= 2;
+        // En az 1 tech keyword olmalı
+        return techMatches >= 1;
       });
       
       console.log('Articles after filter:', relevantArticles.length);
