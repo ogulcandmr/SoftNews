@@ -16,8 +16,8 @@ export default async function handler(req, res) {
       if (!GNEWS_API_KEY) return res.status(500).send('Missing GNEWS_API_KEY');
       
       const queries = [
-        'https://gnews.io/api/v4/search?q=technology OR software OR AI OR hardware&lang=en&max=25&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        'https://gnews.io/api/v4/search?q=teknoloji OR yazılım OR yapay zeka&lang=tr&max=25&apikey=' + encodeURIComponent(GNEWS_API_KEY)
+        'https://gnews.io/api/v4/search?q=technology OR software OR AI OR hardware&lang=en&max=20&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=teknoloji OR yazılım OR yapay zeka&lang=tr&max=15&apikey=' + encodeURIComponent(GNEWS_API_KEY)
       ];
       
       let allArticles = [];
