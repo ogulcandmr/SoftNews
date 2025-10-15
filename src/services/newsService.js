@@ -1,4 +1,4 @@
-const NEWS_CACHE_KEY = 'softnews_articles_v14_daily'; // v14 - 65 articles (3 queries), minimal filter
+const NEWS_CACHE_KEY = 'softnews_articles_v15_daily'; // v15 - NETLIFY EXACT COPY: 35 articles
 const NEWS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat = 1 gün
 
 // Check if cache is from today
