@@ -1,4 +1,4 @@
-const NEWS_CACHE_KEY = 'softnews_articles_v18_daily'; // v18 - FINAL: 30 articles total, 12 on homepage
+const NEWS_CACHE_KEY = 'softnews_articles_v19_fresh'; // v19 - FRESH START with new key
 const NEWS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat = 1 gün
 
 // Check if cache is from today
