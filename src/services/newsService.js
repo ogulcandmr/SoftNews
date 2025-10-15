@@ -12,6 +12,16 @@ function isCacheFromToday(timestamp) {
 
 function loadNewsCache() {
   try {
+    // FORCE CLEAR OLD CACHE
+    const oldKeys = ['softnews_articles_v1', 'softnews_articles_v2', 'softnews_articles_v3', 
+                     'softnews_articles_v4', 'softnews_articles_v5', 'softnews_articles_v6',
+                     'softnews_articles_v7', 'softnews_articles_v8', 'softnews_articles_v9',
+                     'softnews_articles_v10', 'softnews_articles_v11', 'softnews_articles_v12',
+                     'softnews_articles_v13', 'softnews_articles_v14', 'softnews_articles_v15',
+                     'softnews_articles_v16', 'softnews_articles_v17', 'softnews_articles_v18',
+                     'softnews_articles_v19', 'softnews_articles_v19_fresh'];
+    oldKeys.forEach(key => localStorage.removeItem(key));
+    
     const raw = localStorage.getItem(NEWS_CACHE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
