@@ -19,6 +19,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import GitHubCallbackPage from './pages/GitHubCallbackPage';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // Dummy sayfa bileşenleri
 const Home = () => (
@@ -52,9 +53,10 @@ const Forum = () => (
 
 function App() {
   return (
-    <AuthProvider>
-      <CustomNavbar />
-      <Routes>
+    <ThemeProvider>
+      <AuthProvider>
+        <CustomNavbar />
+        <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/videos" element={<VideosPage />} />
@@ -70,9 +72,10 @@ function App() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/auth/github/callback" element={<GitHubCallbackPage />} />
       </Routes>
-      <Footer />
-      <ChatbotWidget />
-    </AuthProvider>
+        <Footer />
+        <ChatbotWidget />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

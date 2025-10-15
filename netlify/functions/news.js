@@ -11,16 +11,12 @@ exports.handler = async function (event) {
       if (!GNEWS_API_KEY) {
         return { statusCode: 500, body: 'Missing GNEWS_API_KEY' };
       }
-      // Optimized queries - ONLY tech sources and topics
+      // Reduced queries to save API quota - 2 queries instead of 5
       const queries = [
-        // AI and Software
-        'https://gnews.io/api/v4/search?q=artificial intelligence OR machine learning OR ChatGPT OR OpenAI&lang=en&max=15&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        // Software Development
-        'https://gnews.io/api/v4/search?q=software development OR programming OR GitHub OR developer&lang=en&max=12&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        // Gaming and hardware
-        'https://gnews.io/api/v4/search?q=gaming OR GPU OR NVIDIA OR AMD OR Intel processor&lang=en&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        // Startup and tech companies
-        'https://gnews.io/api/v4/search?q=tech startup OR venture capital OR tech company OR IPO&lang=en&max=8&apikey=' + encodeURIComponent(GNEWS_API_KEY)
+        // Main tech news - broader query
+        'https://gnews.io/api/v4/search?q=technology OR software OR AI OR hardware&lang=en&max=20&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        // Turkish tech news
+        'https://gnews.io/api/v4/search?q=teknoloji OR yazılım OR yapay zeka&lang=tr&max=15&apikey=' + encodeURIComponent(GNEWS_API_KEY)
       ];
       
       let allArticles = [];
@@ -56,10 +52,44 @@ exports.handler = async function (event) {
       
       console.log('Articles after filter:', relevantArticles.length);
       
-      // Remove duplicates and prioritize Turkish + quality sources
-      const uniqueArticles = relevantArticles.filter((article, index, self) => 
-        index === self.findIndex(a => a.url === article.url)
-      ).sort((a, b) => {
+      // AGGRESSIVE deduplication - Remove similar titles too
+      const uniqueArticles = [];
+      const seenUrls = new Set();
+      const seenTitles = new Set();
+      
+      for (const article of relevantArticles) {
+        // Skip if URL already seen
+        if (seenUrls.has(article.url)) continue;
+        
+        // Normalize title for comparison
+        const normalizedTitle = (article.title || '').toLowerCase().trim()
+          .replace(/[^\w\s]/g, '') // Remove punctuation
+          .replace(/\s+/g, ' '); // Normalize spaces
+        
+        // Skip if very similar title already seen
+        let isDuplicate = false;
+        for (const seenTitle of seenTitles) {
+          // Check if titles are 80%+ similar (simple word overlap)
+          const words1 = normalizedTitle.split(' ').filter(w => w.length > 3);
+          const words2 = seenTitle.split(' ').filter(w => w.length > 3);
+          const commonWords = words1.filter(w => words2.includes(w)).length;
+          const similarity = commonWords / Math.max(words1.length, words2.length, 1);
+          
+          if (similarity > 0.7) {
+            isDuplicate = true;
+            break;
+          }
+        }
+        
+        if (!isDuplicate) {
+          uniqueArticles.push(article);
+          seenUrls.add(article.url);
+          seenTitles.add(normalizedTitle);
+        }
+      }
+      
+      // Sort by quality
+      uniqueArticles.sort((a, b) => {
         // Prioritize Turkish articles
         const aTurkish = (a.title || '').match(/[çğıöşüÇĞİÖŞÜ]/) ? 2 : 0;
         const bTurkish = (b.title || '').match(/[çğıöşüÇĞİÖŞÜ]/) ? 2 : 0;

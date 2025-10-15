@@ -1,6 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { generateVideoRecommendations } from '../services/aiClient';
 
+const VIDEO_CACHE_KEY = 'softnews_videos_cache_v1';
+const VIDEO_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 saat cache
+
+function loadVideoCache() {
+  try {
+    const raw = localStorage.getItem(VIDEO_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed?.videos || !parsed?.timestamp) return null;
+    if (Date.now() - parsed.timestamp > VIDEO_CACHE_TTL_MS) return null;
+    return parsed.videos;
+  } catch {
+    return null;
+  }
+}
+
+function saveVideoCache(videos) {
+  try {
+    localStorage.setItem(VIDEO_CACHE_KEY, JSON.stringify({ videos, timestamp: Date.now() }));
+  } catch {
+    // ignore
+  }
+}
+
 function formatViews(n) {
   if (!n && n !== 0) return '';
   const num = Number(n);
@@ -41,6 +65,17 @@ const VideosPage = () => {
 
   useEffect(() => {
     let mounted = true;
+    
+    // Check cache first
+    const cached = loadVideoCache();
+    if (cached && cached.length > 0) {
+      console.log('Using cached videos:', cached.length);
+      setVideos(cached);
+      setLoadingVideos(false);
+      return;
+    }
+    
+    console.log('Fetching fresh videos from API...');
     setLoadingVideos(true);
     setError('');
     fetch(`/api/youtube?q=${encodeURIComponent(query)}&max=24`)
@@ -62,6 +97,7 @@ const VideosPage = () => {
           aiRecommended: !!v.aiRecommended,
         }));
         setVideos(items);
+        if (items.length > 0) saveVideoCache(items);
         setVisibleCount((c) => Math.min(Math.max(c, 9), items.length));
       })
       .catch(async (e) => {
@@ -84,6 +120,7 @@ const VideosPage = () => {
             aiRecommended: !!v.aiRecommended,
           }));
           setVideos(items);
+          if (items.length > 0) saveVideoCache(items);
           setVisibleCount((c) => Math.min(Math.max(c, 9), items.length));
           setError('');
         } catch (e2) {
@@ -267,8 +304,8 @@ const VideosPage = () => {
                     </span>
                     <span className="text-xs text-gray-500">{video.views} görüntüleme</span>
                   </div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-2">{video.title}</h2>
-                  <p className="text-sm text-gray-600 mb-3">{video.description}</p>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{video.title}</h2>
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-3">{video.description || 'Açıklama mevcut değil.'}</p>
                   <div className="flex items-center justify-between mb-2">
                     <button
                       onClick={() => generatePerVideoInsights(video)}

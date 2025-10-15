@@ -1,5 +1,14 @@
-const NEWS_CACHE_KEY = 'softnews_articles_v5_final'; // v5 - final cache
-const NEWS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat cache - günde 1 kez yenilenir
+const NEWS_CACHE_KEY = 'softnews_articles_v6_daily'; // v6 - günlük cache
+const NEWS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat = 1 gün
+
+// Check if cache is from today
+function isCacheFromToday(timestamp) {
+  const cacheDate = new Date(timestamp);
+  const today = new Date();
+  return cacheDate.getDate() === today.getDate() &&
+         cacheDate.getMonth() === today.getMonth() &&
+         cacheDate.getFullYear() === today.getFullYear();
+}
 
 function loadNewsCache() {
   try {
@@ -7,7 +16,14 @@ function loadNewsCache() {
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed?.articles || !parsed?.timestamp) return null;
-    if (Date.now() - parsed.timestamp > NEWS_CACHE_TTL_MS) return null;
+    
+    // Check if cache is from today
+    if (!isCacheFromToday(parsed.timestamp)) {
+      console.log('Cache is from previous day, clearing...');
+      localStorage.removeItem(NEWS_CACHE_KEY);
+      return null;
+    }
+    
     return parsed.articles;
   } catch {
     return null;
