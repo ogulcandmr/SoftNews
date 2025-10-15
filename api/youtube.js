@@ -129,6 +129,8 @@ async function fetchYouTube(query, maxResults = 9) {
   
   const searchRes = await fetch(`${YT_API_URL}/search?${searchParams.toString()}`);
   if (!searchRes.ok) {
+    const errorBody = await searchRes.text();
+    console.error('YouTube API search error:', searchRes.status, errorBody);
     return { ok: true, source: `fallback_api_error_${searchRes.status}`, items: FALLBACK_VIDEOS };
   }
   
