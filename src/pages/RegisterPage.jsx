@@ -65,6 +65,8 @@ function RegisterPage() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    console.log('handleRegister called!');
+    console.log('formData:', formData);
     setIsSubmitting(true);
     clearError();
 
@@ -148,41 +150,44 @@ function RegisterPage() {
             <h3 className="mb-4 text-center">Kayıt Ol</h3>
             
             
-            <MDBInput 
-              wrapperClass='mb-4' 
-              label='Ad Soyad' 
-              type='text' 
-              size="lg" 
-              name="name"
-              value={formData.name} 
-              onChange={handleInputChange} 
-              required
-              disabled={isSubmitting}
-            />
+            <div className="mb-4">
+              <label className="form-label">Ad Soyad</label>
+              <input
+                type="text"
+                className="form-control form-control-lg"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+                disabled={isSubmitting}
+              />
+            </div>
             
-            <MDBInput 
-              wrapperClass='mb-4' 
-              label='Email address' 
-              type='email' 
-              size="lg" 
-              name="email"
-              value={formData.email} 
-              onChange={handleInputChange} 
-              required
-              disabled={isSubmitting}
-            />
+            <div className="mb-4">
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                className="form-control form-control-lg"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                disabled={isSubmitting}
+              />
+            </div>
             
-            <MDBInput 
-              wrapperClass='mb-4' 
-              label='Password' 
-              type='password' 
-              size="lg" 
-              name="password"
-              value={formData.password} 
-              onChange={handleInputChange} 
-              required
-              disabled={isSubmitting}
-            />
+            <div className="mb-4">
+              <label className="form-label">Şifre</label>
+              <input
+                type="password"
+                className="form-control form-control-lg"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+                disabled={isSubmitting}
+              />
+            </div>
             
             {formData.password && (
               <div className="mb-3">
@@ -197,24 +202,24 @@ function RegisterPage() {
               </div>
             )}
             
-            <MDBInput 
-              wrapperClass='mb-4' 
-              label='Şifre Tekrar' 
-              type='password' 
-              size="lg" 
-              name="confirmPassword"
-              value={formData.confirmPassword} 
-              onChange={handleInputChange} 
-              required
-              disabled={isSubmitting}
-            />
+            <div className="mb-4">
+              <label className="form-label">Şifre Tekrar</label>
+              <input
+                type="password"
+                className="form-control form-control-lg"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                required
+                disabled={isSubmitting}
+              />
+            </div>
             
             {error && <div className="text-danger mb-3">{error}</div>}
             
-            <MDBBtn 
-              className="mb-0 px-5 w-100" 
-              size='lg' 
+            <button
               type="submit"
+              className="btn btn-primary btn-lg w-100 mb-0 px-5"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -225,7 +230,7 @@ function RegisterPage() {
               ) : (
                 'Kayıt Ol'
               )}
-            </MDBBtn>
+            </button>
             
             <p className="small fw-bold mt-4 pt-1 mb-2 text-center">
               Zaten hesabın var mı? <a href="/LoginPage" className="link-primary">Giriş Yap</a>
