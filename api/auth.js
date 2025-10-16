@@ -54,13 +54,14 @@ const db = {
   }
 };
 
-function generateUserId() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c == 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
+// Supabase will auto-generate UUID, we don't need this function
+// function generateUserId() {
+//   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+//     const r = Math.random() * 16 | 0;
+//     const v = c == 'x' ? r : (r & 0x3 | 0x8);
+//     return v.toString(16);
+//   });
+// }
 
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -106,13 +107,13 @@ async function handleRegister(body) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Supabase will auto-generate id, created_at, updated_at
     const newUser = {
-      id: generateUserId(),
       email: email.toLowerCase(),
       password: hashedPassword,
       name: name.trim(),
       avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=200`,
-      created_at: new Date().toISOString(),
+      provider: 'local',
       preferences: {
         theme: 'light',
         notifications: true,
@@ -268,17 +269,21 @@ export default async function handler(req, res) {
     console.log('Auth function called:', req.query, req.body);
     const { action } = req.query || {};
     
-    // Parse body if it's a string
-    let body = req.body || {};
+    // Get body - Vercel automatically parses JSON
+    let body = req.body;
+    
+    // If body is still a string, try to parse it
     if (typeof body === 'string') {
       try {
         body = JSON.parse(body);
+        console.log('Parsed body from string:', body);
       } catch (e) {
-        console.error('Failed to parse body:', body);
+        console.error('Failed to parse body string:', body, e);
+        body = {};
       }
     }
     
-    console.log('Action:', action, 'Body:', body);
+    console.log('Action:', action, 'Body:', body, 'Body type:', typeof body);
 
     let result;
     switch (action) {

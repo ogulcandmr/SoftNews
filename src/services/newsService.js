@@ -19,7 +19,7 @@ function loadNewsCache() {
                      'softnews_articles_v10', 'softnews_articles_v11', 'softnews_articles_v12',
                      'softnews_articles_v13', 'softnews_articles_v14', 'softnews_articles_v15',
                      'softnews_articles_v16', 'softnews_articles_v17', 'softnews_articles_v18',
-                     'softnews_articles_v19', 'softnews_articles_v19_fresh'];
+                     'softnews_articles_v19', 'softnews_articles_v19_fresh', 'softnews_articles_v20_clean'];
     oldKeys.forEach(key => localStorage.removeItem(key));
     
     const raw = localStorage.getItem(NEWS_CACHE_KEY);
