@@ -267,7 +267,17 @@ export default async function handler(req, res) {
   try {
     console.log('Auth function called:', req.query, req.body);
     const { action } = req.query || {};
-    const body = req.body || {};
+    
+    // Parse body if it's a string
+    let body = req.body || {};
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        console.error('Failed to parse body:', body);
+      }
+    }
+    
     console.log('Action:', action, 'Body:', body);
 
     let result;
