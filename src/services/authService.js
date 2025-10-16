@@ -39,10 +39,13 @@ class AuthService {
   // Register user
   async register(userData) {
     try {
+      console.log('authService.register called with:', userData);
       const response = await this.apiCall('register', {
         method: 'POST',
         body: JSON.stringify(userData)
       });
+
+      console.log('authService.register response:', response);
 
       if (response.success) {
         this.setAuthData(response.user, response.token);
@@ -51,6 +54,7 @@ class AuthService {
 
       return response;
     } catch (error) {
+      console.error('authService.register error:', error);
       throw new Error(error.message || 'Kayıt işlemi başarısız');
     }
   }
