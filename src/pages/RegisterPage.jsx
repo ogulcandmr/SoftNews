@@ -81,9 +81,9 @@ function RegisterPage() {
       return;
     }
 
-    if (!validatePassword(formData.password)) {
+    if (formData.password.length < 6) {
       setToast({ 
-        message: 'Şifre en az 6 karakter olmalı ve büyük harf, küçük harf, rakam ve özel karakter içermelidir.', 
+        message: 'Şifre en az 6 karakter olmalıdır.', 
         type: 'error' 
       });
       setIsSubmitting(false);
@@ -97,11 +97,19 @@ function RegisterPage() {
     }
 
     try {
+      console.log('Registering with data:', {
+        name: formData.name,
+        email: formData.email,
+        password: '***'
+      });
+      
       const response = await register({
         name: formData.name,
         email: formData.email,
         password: formData.password
       });
+      
+      console.log('Register response:', response);
 
       if (response.success) {
         setToast({ message: 'Kayıt başarılı! Giriş yapabilirsiniz.', type: 'success' });
