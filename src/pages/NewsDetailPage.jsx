@@ -277,7 +277,11 @@ const NewsDetailPage = () => {
                         </svg>
                         Gelişmenin Detayları
                       </h2>
-                      <p className="text-gray-800 leading-relaxed text-lg">{sections.details}</p>
+                      <p className="text-gray-800 leading-relaxed text-lg whitespace-pre-wrap">
+                        {typeof sections.details === 'string' && sections.details.startsWith('{') 
+                          ? JSON.stringify(JSON.parse(sections.details), null, 2)
+                          : sections.details}
+                      </p>
                     </div>
                   )}
                   {sections.technical && (
@@ -288,7 +292,11 @@ const NewsDetailPage = () => {
                         </svg>
                         Teknik Özellikler
                       </h3>
-                      <p className="text-gray-800 leading-relaxed">{sections.technical}</p>
+                      <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+                        {typeof sections.technical === 'string' && sections.technical.startsWith('{') 
+                          ? JSON.stringify(JSON.parse(sections.technical), null, 2)
+                          : sections.technical}
+                      </p>
                     </div>
                   )}
                   {sections.impacts && (
@@ -299,7 +307,11 @@ const NewsDetailPage = () => {
                         </svg>
                         Sektörel Etkiler
                       </h3>
-                      <p className="text-gray-800 leading-relaxed">{sections.impacts}</p>
+                      <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+                        {typeof sections.impacts === 'string' && sections.impacts.startsWith('{') 
+                          ? JSON.stringify(JSON.parse(sections.impacts), null, 2)
+                          : sections.impacts}
+                      </p>
                     </div>
                   )}
                   {sections.outlook && (
@@ -311,7 +323,11 @@ const NewsDetailPage = () => {
                         </svg>
                         Gelecek Perspektifi
                       </h3>
-                      <p className="text-gray-800 leading-relaxed">{sections.outlook}</p>
+                      <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+                        {typeof sections.outlook === 'string' && sections.outlook.startsWith('{') 
+                          ? JSON.stringify(JSON.parse(sections.outlook), null, 2)
+                          : sections.outlook}
+                      </p>
                     </div>
                   )}
                   {Array.isArray(sections.keyPoints) && sections.keyPoints.length > 0 && (
