@@ -37,7 +37,11 @@ const AuthPage = () => {
     
     setLoading(true);
     try {
-      await register(registerForm.name, registerForm.email, registerForm.password);
+      await register({
+        name: registerForm.name,
+        email: registerForm.email,
+        password: registerForm.password
+      });
       navigate('/');
     } catch (err) {
       setError(err.message || 'Kayıt başarısız');
