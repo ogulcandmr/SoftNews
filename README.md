@@ -1,155 +1,89 @@
-# 🚀 SoftNews - Teknoloji Haberleri Platformu
+SoftNews - AI Destekli Teknoloji Haberleri Platformu
 
-Modern, AI destekli teknoloji haberleri ve topluluk platformu.
+• Live Demo: softnews-six.vercel.app
 
-🔗 **Live Demo:** [softnews-six.vercel.app](https://softnews-six.vercel.app)
+Son dönemde üzerinde çalıştığım full-stack web uygulamasını sizlerle paylaşmak istiyorum: SoftNews - modern, AI destekli bir teknoloji haberleri ve topluluk platformu.
 
----
+ Proje Hakkında:
+SoftNews, yazılım ve teknoloji dünyasından güncel haberleri, YouTube videolarını ve kullanıcı forumunu tek bir platformda birleştiriyor. Yapay zeka destekli içerik analizi, otomatik haber özetleme ve akıllı forum yanıtlama özellikleriyle kullanıcılara zengin bir deneyim sunuyor.
 
-## 📱 Proje Hakkında
+Teknik Özellikler:
 
-**SoftNews**, yazılım ve teknoloji dünyasından güncel haberleri, YouTube videolarını ve kullanıcı forumunu bir araya getiren full-stack web uygulamasıdır. Yapay zeka destekli içerik analizi, otomatik haber özetleme ve akıllı forum yanıtlama özellikleriyle modern bir haber platformu deneyimi sunar.
+AI Entegrasyonu:
+• Groq AI ile otomatik haber özetleme
+• 4 bölümlü içerik analizi (Detaylar, Teknik Özellikler, Sektörel Etkiler, Gelecek Perspektifi)
+• Akıllı anahtar kelime üretimi
+• Forum AI asistanı ile otomatik yanıtlar
 
-### ✨ Ana Özellikler
+📰 Haber Sistemi:
+• GNews API ile gerçek zamanlı haber çekme
+• Kategori bazlı filtreleme
+• Duplicate haber filtreleme
+• 24 saat smart caching
+• Türkçe/İngilizce içerik desteği
 
-- 🤖 **AI Destekli İçerik Analizi** - Groq AI ile otomatik haber özetleme
-- 📰 **Gerçek Zamanlı Haberler** - GNews API entegrasyonu
-- 📺 **YouTube Video Entegrasyonu** - İlgili teknoloji videoları
-- 💬 **Topluluk Forumu** - AI destekli otomatik yanıtlar
-- 🔐 **Güvenli Kimlik Doğrulama** - JWT + OAuth 2.0 (Google, GitHub)
-- 🎨 **Modern UI/UX** - Responsive, dark mode, smooth animations
-- ⚡ **Yüksek Performans** - Smart caching, lazy loading
+🔐 Güvenlik & Authentication:
+• JWT token-based authentication
+• OAuth 2.0 (Google, GitHub)
+• bcrypt password hashing
+• Supabase Row Level Security
+• Secure API endpoints
 
----
+📺 Video Entegrasyonu:
+• YouTube Data API v3
+• Kategori bazlı video filtreleme
+• İlgili video önerileri
+• Responsive video player
 
-## 🛠️ Teknoloji Stack'i
+💬 Topluluk Forumu:
+• Konu oluşturma ve yönetimi
+• Yorum sistemi
+• AI destekli otomatik yanıtlar
+• Kullanıcı etkileşim istatistikleri
 
-### Frontend
-- React 18.3, Vite 7.1
-- Tailwind CSS 3.4, Bootstrap 5.3, MDB React UI Kit
-- Framer Motion, React Router DOM
+🛠️ Kullanılan Teknolojiler:
 
-### Backend
-- Vercel Serverless Functions
-- Supabase (PostgreSQL)
-- JWT, bcryptjs
+Frontend:
+• React 18.3 - Modern UI geliştirme
+• Vite 7.1 - Hızlı build tool
+• Tailwind CSS 3.4 - Utility-first styling
+• Framer Motion - Smooth animations
+• React Router DOM - Client-side routing
 
-### AI & APIs
-- Groq AI API
-- GNews API
-- YouTube Data API v3
-- Google/GitHub OAuth
+Backend:
+• Vercel Serverless Functions - Scalable API
+• Supabase - PostgreSQL database
+• JWT & bcryptjs - Secure authentication
+• CORS - API security
 
-**Detaylı teknoloji listesi için:** [TECH_STACK.md](./TECH_STACK.md)
+AI & APIs:
+• Groq AI API - Content analysis
+• GNews API - Real-time news
+• YouTube Data API v3 - Video integration
+• Google/GitHub OAuth - Social login
 
----
+🎨 UI/UX:
+• Fully responsive design
+• Dark/Light mode
+• Smooth animations
+• Loading states
+• Error handling
+• Accessibility (a11y)
 
-## 🚀 Kurulum
+📊 Performans Optimizasyonları:
+• Multi-level caching (localStorage + API)
+• Lazy loading
+• Code splitting
+• Debouncing & throttling
+• Image optimization
 
-### 1. Bağımlılıkları Yükle
-```bash
-npm install
-```
+🏗️ Mimari:
+• Serverless architecture
+• Component-based design
+• Context API for state management
+• Custom hooks
+• Service layer pattern
+• Error boundary implementation
 
-### 2. Environment Variables
-`.env` dosyası oluştur:
-```env
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_key
-JWT_SECRET=your_jwt_secret
-GNEWS_API_KEY=your_gnews_key
-GROQ_API_KEY=your_groq_key
-YOUTUBE_API_KEY=your_youtube_key
-```
 
-### 3. Geliştirme Sunucusu
-```bash
-npm run dev
-```
-
-Tarayıcıda aç: [http://localhost:5173](http://localhost:5173)
-
-### 4. Production Build
-```bash
-npm run build
-npm run preview
-```
-
----
-
-## 📊 Özellikler Detayı
-
-### 🔐 Kullanıcı Yönetimi
-- Email/şifre ile kayıt ve giriş
-- Google & GitHub OAuth
-- JWT token authentication
-- Şifre sıfırlama
-- Profil yönetimi
-
-### 📰 Haber Sistemi
-- GNews API ile gerçek zamanlı haberler
-- Kategori filtreleme
-- 24 saat cache
-- Duplicate filtreleme
-- Türkçe/İngilizce destek
-
-### 🤖 AI Özellikleri
-- Haftalık haber özeti
-- 4 bölümlü içerik analizi
-- Akıllı anahtar kelimeler
-- Forum AI asistanı
-
-### 📺 Video Entegrasyonu
-- YouTube API v3
-- Kategori filtreleme
-- İlgili video önerileri
-- 24 saat cache
-
-### 💬 Forum
-- Konu oluşturma
-- Yorum sistemi
-- AI otomatik yanıtlar
-- Kullanıcı istatistikleri
-
-## AI Özellikleri (MVP)
-- Ana sayfada "Bu Haftalık Özet" (AI ile özet, 24 saat cache)
-- AI sağlayıcı ayarları .env ile yapılandırılır
-- Geliştirmede basit proxy ile `/api/ai` yönlendirmesi
-
-### Netlify Functions ile Prod Proxy
-1) Netlify projesi oluşturun ve bu repo’yu bağlayın.
-2) Netlify dashboard > Site settings > Environment variables:
-   - `OPENAI_API_KEY`: (gizli anahtar)
-   - `AI_API_URL` (opsiyonel): `https://api.openai.com/v1/chat/completions`
-3) `netlify.toml` ve `netlify/functions/ai.js` eklendi. Deploy sonrası `/api/ai` → `/.netlify/functions/ai` üzerinden çalışır.
-4) Yerelde test: `npm run dev` ve ayrıca `netlify dev` (Netlify CLI) ile fonksiyonları çalıştırabilirsiniz.
-
-### Haber API’si (NewsAPI.org)
-1) `NEWS_API_KEY` anahtarını Netlify environment variables’a ekleyin.
-2) Deploy sonrası `/api/news` fonksiyonu aktif olur; `HomePage` açılışta haberleri buradan çeker, sorun olursa dummy veriye düşer.
-
-### Sağlayıcı Seçimi (Ücretsiz Alternatif)
-- `NEWS_PROVIDER=newsapi` (varsayılan) veya `gnews` kullanabilirsiniz.
-- `gnews` için `GNEWS_API_KEY` ekleyin. Ücretsiz planlar için kota limitlerini kontrol edin.
-
-### Yerel Geliştirme
-- Önerilen: `netlify dev` ile fonksiyonları çalıştırın (anahtarlar tarayıcıya gitmez).
-- Hızlı test: `.env` ile `VITE_AI_ENDPOINT=https://api.openai.com/v1/chat/completions` (sadece yerel). Örnek değerler için `ENV_EXAMPLE` dosyasına bakın.
-
-### Ortam Değişkenleri
-`.env` (veya `.env.local`) dosyasına aşağıdakileri ekleyin:
-
-```env
-VITE_AI_ENDPOINT=/api/ai
-VITE_AI_API_KEY=YOUR_KEY_HERE
-VITE_AI_MODEL=gpt-4o-mini
-VITE_AI_PROVIDER=openai-compatible
-# Geliştirmede harici API'ye proxy için (opsiyonel):
-# VITE_AI_PROXY_TARGET=https://api.openai.com/v1/chat/completions
-```
-
-Not: Üretimde anahtarınızı doğrudan istemciye vermeyin. `/api/ai` için bir backend proxy (örn. Cloudflare Workers/Netlify Functions) önerilir.
-
-## Notlar
-- Tailwind, Bootstrap ve MDBReact birlikte kullanılmaktadır.
-- Geliştirme için Vite kullanılmıştır.
+Bu proje, modern web teknolojilerini, AI entegrasyonunu ve güvenli backend mimarisini bir araya getirerek full-stack geliştirme becerilerimi gösteriyor.
