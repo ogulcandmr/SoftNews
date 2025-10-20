@@ -1,24 +1,115 @@
-# SoftNews
+# 🚀 SoftNews - Teknoloji Haberleri Platformu
 
-Yazılım ve teknoloji haberleri, videoları ve forumu içeren modern bir haber sitesi projesi.
+Modern, AI destekli teknoloji haberleri ve topluluk platformu.
 
-## Kurulum
+🔗 **Live Demo:** [softnews-six.vercel.app](https://softnews-six.vercel.app)
 
-1. Bağımlılıkları yükle:
-   ```bash
-   npm install
-   ```
-2. Geliştirme sunucusunu başlat:
-   ```bash
-   npm run dev
-   ```
-3. Tarayıcıda aç:
-   - [http://localhost:5173](http://localhost:5173)
+---
 
-## Özellikler
-- Kayıt ve giriş sistemi (localStorage tabanlı)
-- Kategoriler, haberler, videolar ve forum sayfaları
-- Modern ve responsive arayüz (Tailwind, Bootstrap, MDBReact)
+## 📱 Proje Hakkında
+
+**SoftNews**, yazılım ve teknoloji dünyasından güncel haberleri, YouTube videolarını ve kullanıcı forumunu bir araya getiren full-stack web uygulamasıdır. Yapay zeka destekli içerik analizi, otomatik haber özetleme ve akıllı forum yanıtlama özellikleriyle modern bir haber platformu deneyimi sunar.
+
+### ✨ Ana Özellikler
+
+- 🤖 **AI Destekli İçerik Analizi** - Groq AI ile otomatik haber özetleme
+- 📰 **Gerçek Zamanlı Haberler** - GNews API entegrasyonu
+- 📺 **YouTube Video Entegrasyonu** - İlgili teknoloji videoları
+- 💬 **Topluluk Forumu** - AI destekli otomatik yanıtlar
+- 🔐 **Güvenli Kimlik Doğrulama** - JWT + OAuth 2.0 (Google, GitHub)
+- 🎨 **Modern UI/UX** - Responsive, dark mode, smooth animations
+- ⚡ **Yüksek Performans** - Smart caching, lazy loading
+
+---
+
+## 🛠️ Teknoloji Stack'i
+
+### Frontend
+- React 18.3, Vite 7.1
+- Tailwind CSS 3.4, Bootstrap 5.3, MDB React UI Kit
+- Framer Motion, React Router DOM
+
+### Backend
+- Vercel Serverless Functions
+- Supabase (PostgreSQL)
+- JWT, bcryptjs
+
+### AI & APIs
+- Groq AI API
+- GNews API
+- YouTube Data API v3
+- Google/GitHub OAuth
+
+**Detaylı teknoloji listesi için:** [TECH_STACK.md](./TECH_STACK.md)
+
+---
+
+## 🚀 Kurulum
+
+### 1. Bağımlılıkları Yükle
+```bash
+npm install
+```
+
+### 2. Environment Variables
+`.env` dosyası oluştur:
+```env
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_key
+JWT_SECRET=your_jwt_secret
+GNEWS_API_KEY=your_gnews_key
+GROQ_API_KEY=your_groq_key
+YOUTUBE_API_KEY=your_youtube_key
+```
+
+### 3. Geliştirme Sunucusu
+```bash
+npm run dev
+```
+
+Tarayıcıda aç: [http://localhost:5173](http://localhost:5173)
+
+### 4. Production Build
+```bash
+npm run build
+npm run preview
+```
+
+---
+
+## 📊 Özellikler Detayı
+
+### 🔐 Kullanıcı Yönetimi
+- Email/şifre ile kayıt ve giriş
+- Google & GitHub OAuth
+- JWT token authentication
+- Şifre sıfırlama
+- Profil yönetimi
+
+### 📰 Haber Sistemi
+- GNews API ile gerçek zamanlı haberler
+- Kategori filtreleme
+- 24 saat cache
+- Duplicate filtreleme
+- Türkçe/İngilizce destek
+
+### 🤖 AI Özellikleri
+- Haftalık haber özeti
+- 4 bölümlü içerik analizi
+- Akıllı anahtar kelimeler
+- Forum AI asistanı
+
+### 📺 Video Entegrasyonu
+- YouTube API v3
+- Kategori filtreleme
+- İlgili video önerileri
+- 24 saat cache
+
+### 💬 Forum
+- Konu oluşturma
+- Yorum sistemi
+- AI otomatik yanıtlar
+- Kullanıcı istatistikleri
 
 ## AI Özellikleri (MVP)
 - Ana sayfada "Bu Haftalık Özet" (AI ile özet, 24 saat cache)
