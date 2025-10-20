@@ -1,5 +1,7 @@
-const NEWS_CACHE_KEY = 'softnews_articles_v24'; // v24 - More articles, less filtering
+const NEWS_CACHE_KEY = 'softnews_articles_v25'; // v25 - Merge old + new articles
+const OLD_NEWS_KEY = 'softnews_old_articles'; // Eski haberler için ayrı key
 const NEWS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat = günde 1 API çağrısı
+const MIN_ARTICLES = 30; // Minimum haber sayısı
 
 // Check if cache is from today
 function isCacheFromToday(timestamp) {
@@ -20,7 +22,7 @@ function loadNewsCache() {
                      'softnews_articles_v13', 'softnews_articles_v14', 'softnews_articles_v15',
                      'softnews_articles_v16', 'softnews_articles_v17', 'softnews_articles_v18',
                      'softnews_articles_v19', 'softnews_articles_v19_fresh', 'softnews_articles_v20_clean',
-                     'softnews_articles_v21', 'softnews_articles_v22', 'softnews_articles_v23'];
+                     'softnews_articles_v21', 'softnews_articles_v22', 'softnews_articles_v23', 'softnews_articles_v24'];
     oldKeys.forEach(key => localStorage.removeItem(key));
     
     const raw = localStorage.getItem(NEWS_CACHE_KEY);
@@ -43,12 +45,37 @@ function loadNewsCache() {
 
 function saveNewsCache(articles) {
   try {
+    // Yeni haberleri kaydet
     localStorage.setItem(
       NEWS_CACHE_KEY,
       JSON.stringify({ articles, timestamp: Date.now() })
     );
+    
+    // Eski haberleri de sakla (birleştirme için)
+    const oldArticles = loadOldNewsCache() || [];
+    const combined = [...articles, ...oldArticles]
+      .filter((article, index, self) => 
+        index === self.findIndex(a => a.url === article.url)
+      )
+      .slice(0, 50); // En fazla 50 haber sakla
+    
+    localStorage.setItem(
+      OLD_NEWS_KEY,
+      JSON.stringify({ articles: combined, timestamp: Date.now() })
+    );
   } catch {
     // ignore quota errors
+  }
+}
+
+function loadOldNewsCache() {
+  try {
+    const raw = localStorage.getItem(OLD_NEWS_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed?.articles || null;
+  } catch {
+    return null;
   }
 }
 
@@ -131,15 +158,33 @@ export async function fetchLatestNews() {
     
       console.log('Processed articles:', articles.length);
       
+      // Eğer yeni haberler yeterli değilse, eski haberlerle birleştir
+      let finalArticles = articles;
+      if (articles.length < MIN_ARTICLES) {
+        console.log(`Only ${articles.length} new articles, merging with old news...`);
+        const oldArticles = loadOldNewsCache() || [];
+        console.log('Old articles available:', oldArticles.length);
+        
+        // Yeni + eski haberleri birleştir (duplicate'leri çıkar)
+        const combined = [...articles, ...oldArticles]
+          .filter((article, index, self) => 
+            index === self.findIndex(a => a.url === article.url)
+          )
+          .slice(0, 40); // En fazla 40 haber göster
+        
+        finalArticles = combined;
+        console.log('Combined articles (new + old):', finalArticles.length);
+      }
+      
       // CACHE KAYDET - Sadece haber varsa kaydet
-      if (articles.length > 0) {
-        saveNewsCache(articles);
-        console.log('Articles cached for 24 hours:', articles.length);
+      if (finalArticles.length > 0) {
+        saveNewsCache(finalArticles);
+        console.log('Articles cached for 24 hours:', finalArticles.length);
       } else {
         console.warn('No articles to cache!');
       }
       
-      return { ok: true, articles };
+      return { ok: true, articles: finalArticles };
   } catch (e) {
     console.error('News fetch error:', e);
     return { ok: false, error: e?.message || 'news error' };
