@@ -1,4 +1,4 @@
-const NEWS_CACHE_KEY = 'softnews_articles_v23'; // v23 - Daily cache (24h)
+const NEWS_CACHE_KEY = 'softnews_articles_v24'; // v24 - More articles, less filtering
 const NEWS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat = günde 1 API çağrısı
 
 // Check if cache is from today
@@ -20,7 +20,7 @@ function loadNewsCache() {
                      'softnews_articles_v13', 'softnews_articles_v14', 'softnews_articles_v15',
                      'softnews_articles_v16', 'softnews_articles_v17', 'softnews_articles_v18',
                      'softnews_articles_v19', 'softnews_articles_v19_fresh', 'softnews_articles_v20_clean',
-                     'softnews_articles_v21', 'softnews_articles_v22'];
+                     'softnews_articles_v21', 'softnews_articles_v22', 'softnews_articles_v23'];
     oldKeys.forEach(key => localStorage.removeItem(key));
     
     const raw = localStorage.getItem(NEWS_CACHE_KEY);

@@ -15,11 +15,11 @@ export default async function handler(req, res) {
       const GNEWS_API_KEY = process.env.GNEWS_API_KEY;
       if (!GNEWS_API_KEY) return res.status(500).send('Missing GNEWS_API_KEY');
       
-      // Günde 1 kere çağrılacak - 40 haber çek (kota: 100/gün)
+      // Günde 1 kere çağrılacak - 60 haber çek, filtrelenince ~35 kalır (kota: 100/gün)
       const queries = [
-        'https://gnews.io/api/v4/search?q=technology OR software OR AI&lang=en&max=20&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        'https://gnews.io/api/v4/search?q=programming OR coding OR developer&lang=en&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY),
-        'https://gnews.io/api/v4/search?q=teknoloji OR yazılım OR yapay zeka&lang=tr&max=10&apikey=' + encodeURIComponent(GNEWS_API_KEY)
+        'https://gnews.io/api/v4/search?q=technology OR software OR AI&lang=en&max=30&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=programming OR coding OR developer&lang=en&max=15&apikey=' + encodeURIComponent(GNEWS_API_KEY),
+        'https://gnews.io/api/v4/search?q=teknoloji OR yazılım OR yapay zeka&lang=tr&max=15&apikey=' + encodeURIComponent(GNEWS_API_KEY)
       ];
       
       let allArticles = [];
@@ -56,14 +56,12 @@ export default async function handler(req, res) {
         const desc = (article.description || '').toLowerCase();
         const text = title + ' ' + desc;
         
+        // Sadece kesinlikle alakasız içerikleri filtrele
         const excludeKeywords = [
-          'mahrem', 'cinsel', 'sexual', 'porn', 'nude', 'scandal', 'skandal',
-          'taciz', 'tecavüz', 'rape', 'abuse', 'harassment', 'ihbar',
-          'diş hekimi', 'dentist', 'doktor', 'doctor', 'hasta', 'patient',
-          'crime', 'mahkeme', 'cinayet', 'öldür', 'court', 'arrest', 'prison',
-          'polis', 'police', 'savcı', 'prosecutor', 'suç',
-          'election', 'seçim', 'war', 'savaş', 'covid', 'vaccine', 'aşı',
-          'recipe', 'yemek', 'tarif', 'spor', 'sport', 'futbol', 'football'
+          'mahrem', 'cinsel', 'sexual', 'porn', 'nude',
+          'taciz', 'tecavüz', 'rape', 'abuse',
+          'cinayet', 'öldür', 'murder', 'kill',
+          'recipe', 'yemek', 'tarif', 'cooking'
         ];
         if (excludeKeywords.some(kw => text.includes(kw))) return false;
         
@@ -90,7 +88,7 @@ export default async function handler(req, res) {
           const commonWords = words1.filter(w => words2.includes(w)).length;
           const similarity = commonWords / Math.max(words1.length, words2.length, 1);
           
-          if (similarity > 0.7) {
+          if (similarity > 0.8) { // 0.7'den 0.8'e çıkardık (daha az duplicate)
             isDuplicate = true;
             break;
           }
