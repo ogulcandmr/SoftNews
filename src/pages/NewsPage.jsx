@@ -93,7 +93,7 @@ const NewsPage = () => {
                 const bQuality = qualitySources.some(source => b.source?.name?.toLowerCase().includes(source)) ? 1 : 0;
                 return bQuality - aQuality;
               })
-              .slice(0, selected === 'Tümü' ? 50 : 20) // 20 per category, 50 total
+              .slice(0, selected === 'Tümü' ? 30 : 15) // 15 per category, 30 total
               .map((item, i) => (
                 <Link
                   key={i}
